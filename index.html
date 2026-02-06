@@ -1401,12 +1401,20 @@
       modal.classList.add("show");
     }
 
-    function closeMasteryModal() {
-      document.getElementById("masteryModal").classList.remove("show");
-      document.getElementById("gameArea").classList.remove("active");
-      document.querySelector(".level-selector").style.display = "block";
-      renderLevelButtons();
-    }
+function closeMasteryModal() {
+  document.getElementById("masteryModal").classList.remove("show");
+  document.getElementById("gameArea").classList.remove("active");
+
+  // Reset UI cleanly
+  document.querySelector(".level-selector").style.display = "block";
+
+  // Force full re-render of buttons
+  renderLevelButtons();
+
+  // Reset state variables
+  currentLevelId = 0;
+  currentLevelType = null;
+}
 
     // Hook up import/export buttons
     document.getElementById("exportBtn").onclick = exportProgressToFile;
