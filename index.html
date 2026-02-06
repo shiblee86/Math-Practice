@@ -14,7 +14,7 @@
     }
     .container { max-width: 900px; margin: 0 auto; }
 
-    .header { text-align: center; color: #2d3436; margin-bottom: 30px; }
+    .header { text-align: center; color: #2d3436; margin-bottom: 15px; }
     .header h1 {
       font-size: 3em;
       margin-bottom: 10px;
@@ -22,6 +22,21 @@
       color: #6c5ce7;
     }
     .header p { font-size: 1.4em; color: #2d3436; }
+
+    /* Progress controls - ALWAYS VISIBLE */
+    .progress-controls {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .progress-controls .btn {
+      margin: 5px 10px;
+      font-size: 1em;
+      padding: 12px 25px;
+    }
 
     .level-selector {
       background: #fff;
@@ -446,6 +461,7 @@
       .equation { font-size: 2em; }
       .number-btn { width: 60px; height: 60px; font-size: 2em; }
       .game-area { padding: 20px; }
+      .progress-controls .btn { padding: 10px 20px; font-size: 0.9em; }
     }
   </style>
 </head>
@@ -456,17 +472,17 @@
       <p>Master each level to unlock the next.</p>
     </div>
 
+    <!-- Progress controls - ALWAYS VISIBLE -->
+    <div class="progress-controls">
+      <button class="btn btn-hint" id="exportBtn">Download Progress</button>
+      <button class="btn btn-count" id="importBtn">Load Progress</button>
+      <input type="file" id="progressFile" accept=".json" style="display:none;" />
+    </div>
+
     <!-- Level selector -->
     <div class="level-selector">
       <h2>Choose Your Level</h2>
       <div class="level-buttons" id="levelButtons"></div>
-
-      <!-- Progress import/export -->
-      <div style="text-align:center; margin-top:15px;">
-        <button class="btn btn-hint" id="exportBtn">Download Progress</button>
-        <button class="btn btn-count" id="importBtn">Load Progress</button>
-        <input type="file" id="progressFile" accept=".json" style="display:none;" />
-      </div>
     </div>
 
     <!-- Game area -->
@@ -504,6 +520,9 @@
       <div class="feedback" id="feedback"></div>
 
       <div class="controls">
+        <button class="btn" onclick="backToLevels()" id="backBtn" style="background:#6c5ce7; color:#fff;">
+          ← Back to Levels
+        </button>
         <button class="btn btn-count" onclick="showCounting()" id="countBtn" style="display:none;">
           Show Me How to Count
         </button>
@@ -1060,7 +1079,7 @@
           hintText += `For ${currentProblem.num1} + ${currentProblem.num2}<br>` +
                       `Start with the bigger number <strong>${big}</strong>.<br>` +
                       `Now count up ${small} times using your fingers.<br>` +
-                      `<em>Click “Show Me How to Count” to see it.</em>`;
+                      `<em>Click "Show Me How to Count" to see it.</em>`;
           break;
         }
         case "subtraction": {
@@ -1376,6 +1395,9 @@
       scoreDisplay.className = "mastery-score " + (passed ? "pass" : "fail");
       scoreDisplay.textContent = `${percentage}%`;
 
+      // Remove any existing click handlers
+      btn.onclick = null;
+
       if (passed) {
         title.textContent = "Level Mastered!";
         message.innerHTML =
@@ -1388,6 +1410,9 @@
         }
         saveProgress();
         btn.textContent = "Next Level";
+        btn.onclick = function() {
+          closeMasteryModal();
+        };
       } else {
         title.textContent = "Keep Practicing!";
         const needed = Math.ceil(MASTERY_THRESHOLD * PROBLEMS_PER_LEVEL);
@@ -1397,24 +1422,90 @@
           `Don't worry! Try again and use the hints and explanations.`;
         saveProgress();
         btn.textContent = "Try This Level Again";
+        btn.onclick = function() {
+          // Restart the same level
+          closeMasteryModal();
+          setTimeout(() => {
+            const level = levels.find(l => l.id === currentLevelId);
+            if (level) startLevel(level.id, level.type);
+          }, 100);
+        };
       }
       modal.classList.add("show");
     }
 
-function closeMasteryModal() {
-  document.getElementById("masteryModal").classList.remove("show");
-  document.getElementById("gameArea").classList.remove("active");
+    function closeMasteryModal() {
+      document.getElementById("masteryModal").classList.remove("show");
+      document.getElementById("gameArea").classList.remove("active");
+      
+      // Reset game area to initial state
+      document.getElementById("hintBox").classList.remove("show");
+      document.getElementById("mistakeBox").classList.remove("show");
+      document.getElementById("countingHelper").classList.remove("show");
+      const feedback = document.getElementById("feedback");
+      feedback.classList.remove("show", "correct", "incorrect");
+      feedback.textContent = "";
+      
+      // Hide all game controls
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("countBtn").style.display = "none";
+      const hintBtn = document.getElementById("hintBtn");
+      hintBtn.classList.remove("disabled");
+      hintBtn.disabled = false;
+      
+      // Clear visual area and answer input
+      document.getElementById("visualArea").innerHTML = "";
+      document.getElementById("answerInput").innerHTML = "";
+      document.getElementById("wordProblemText").style.display = "none";
+      
+      // Show level selector
+      document.querySelector(".level-selector").style.display = "block";
+      
+      // Re-render level buttons to reflect any changes
+      renderLevelButtons();
+      
+      // Reset game state variables
+      currentLevelId = 0;
+      currentLevelType = null;
+      problemNumber = 1;
+      correctCount = 0;
+      totalAttempts = 0;
+      currentProblem = null;
+      
+      // Reset scoreboard display
+      updateScoreboard();
+    }
 
-  // Reset UI cleanly
-  document.querySelector(".level-selector").style.display = "block";
-
-  // Force full re-render of buttons
-  renderLevelButtons();
-
-  // Reset state variables
-  currentLevelId = 0;
-  currentLevelType = null;
-}
+    function backToLevels() {
+      if (confirm("Leave this level? Your progress for this session will be lost.")) {
+        document.getElementById("gameArea").classList.remove("active");
+        document.querySelector(".level-selector").style.display = "block";
+        
+        // Reset game state
+        currentLevelId = 0;
+        currentLevelType = null;
+        problemNumber = 1;
+        correctCount = 0;
+        totalAttempts = 0;
+        currentProblem = null;
+        
+        // Clean up UI
+        document.getElementById("hintBox").classList.remove("show");
+        document.getElementById("mistakeBox").classList.remove("show");
+        document.getElementById("countingHelper").classList.remove("show");
+        const feedback = document.getElementById("feedback");
+        feedback.classList.remove("show", "correct", "incorrect");
+        feedback.textContent = "";
+        
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("countBtn").style.display = "none";
+        document.getElementById("visualArea").innerHTML = "";
+        document.getElementById("answerInput").innerHTML = "";
+        document.getElementById("wordProblemText").style.display = "none";
+        
+        updateScoreboard();
+      }
+    }
 
     // Hook up import/export buttons
     document.getElementById("exportBtn").onclick = exportProgressToFile;
