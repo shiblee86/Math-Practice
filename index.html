@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Mastery Adventure</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Comic Sans MS", Arial, sans-serif;
+      background: linear-gradient(135deg, #ffeaa7 0, #fd79a8 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .header { text-align: center; color: #2d3436; margin-bottom: 30px; }
+    .header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      color: #6c5ce7;
+    }
+    .header p { font-size: 1.4em; color: #2d3436; }
+
+    .level-selector {
+      background: #fff;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    .level-selector h2 {
+      text-align: center;
+      color: #6c5ce7;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+    .level-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .level-btn {
+      position: relative;
+      background: linear-gradient(135deg, #6c5ce7 0, #a29bfe 100%);
+      color: #fff;
+      border: none;
+      padding: 20px;
+      border-radius: 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .level-btn:hover:not(.locked) {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .level-btn.completed {
+      background: linear-gradient(135deg, #00b894 0, #55efc4 100%);
+    }
+    .level-btn.locked {
+      background: #dfe6e9;
+      color: #636e72;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .level-badge, .lock-icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .level-badge {
+      background: #fff;
+      color: #00b894;
+      font-size: 1.2em;
+    }
+    .lock-icon { font-size: 1.5em; }
+
+    .game-area {
+      background: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: none;
+    }
+    .game-area.active { display: block; }
+
+    .score-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .score-item {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .score-label {
+      font-size: 0.9em;
+      color: #636e72;
+      margin-bottom: 5px;
+    }
+    .score-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #6c5ce7;
+    }
+
+    .progress-bar {
+      background: #dfe6e9;
+      height: 35px;
+      border-radius: 18px;
+      overflow: hidden;
+      margin: 20px 0;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #00b894 0, #55efc4 100%);
+      height: 100%;
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.1em;
+      width: 0%;
+    }
+
+    .problem-area {
+      text-align: center;
+      margin: 40px 0;
+    }
+    .problem-text {
+      font-size: 2em;
+      color: #2d3436;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .word-problem-text {
+      background: #fff9e6;
+      padding: 25px;
+      border-radius: 12px;
+      font-size: 1.5em;
+      line-height: 2;
+      color: #2d3436;
+      border-left: 5px solid #fdcb6e;
+      margin: 20px 0;
+      text-align: left;
+    }
+    .equation {
+      font-size: 3em;
+      font-weight: bold;
+      color: #6c5ce7;
+      margin: 30px 0;
+      font-family: "Courier New", monospace;
+    }
+
+    .visual-area {
+      margin: 30px 0;
+      min-height: 150px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fd79a8 0, #fdcb6e 100%);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      animation: pop 0.3s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .tens-group {
+      border: 4px solid #6c5ce7;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(108, 92, 231, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .ones-group {
+      border: 4px dashed #fd79a8;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(253, 121, 168, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .group-label {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #2d3436;
+      margin-bottom: 10px;
+    }
+    .group-container {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .ten-block {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
+    }
+
+    .answer-input {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    .number-btn {
+      width: 80px;
+      height: 80px;
+      font-size: 2.5em;
+      font-weight: bold;
+      border: 3px solid #6c5ce7;
+      background: #fff;
+      color: #6c5ce7;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .number-btn:hover {
+      background: #6c5ce7;
+      color: #fff;
+      transform: scale(1.1);
+    }
+    .number-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .feedback {
+      text-align: center;
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 1.5em;
+      font-weight: bold;
+      display: none;
+    }
+    .feedback.show { display: block; animation: slideIn 0.5s ease-out; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .feedback.correct { background: #55efc4; color: #00b894; }
+    .feedback.incorrect { background: #fab1a0; color: #d63031; }
+
+    .mistake-box {
+      background: #fff3cd;
+      border: 3px solid #ffc107;
+      padding: 25px;
+      margin: 20px 0;
+      border-radius: 12px;
+      display: none;
+      text-align: left;
+    }
+    .mistake-box.show {
+      display: block;
+      animation: slideIn 0.5s ease-out;
+    }
+    .mistake-box h3 {
+      color: #856404;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    .mistake-box p {
+      color: #856404;
+      font-size: 1.3em;
+      line-height: 1.8;
+      margin: 10px 0;
+    }
+    .mistake-step {
+      background: #fff;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #ffc107;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn:hover:not(.disabled) { transform: translateY(-2px); }
+    .btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn-next { background: #00b894; color: #fff; }
+    .btn-hint { background: #74b9ff; color: #fff; }
+    .btn-count { background: #4caf50; color: #fff; }
+
+    .hint-box {
+      background: #e3f2fd;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: none;
+      font-size: 1.3em;
+      color: #1565c0;
+      border-left: 5px solid #2196f3;
+    }
+    .hint-box.show {
+      display: block;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    .counting-helper {
+      background: #e8f5e9;
+      border: 3px solid #4caf50;
+      padding: 25px;
+      margin: 20px 0;
+      border-radius: 12px;
+      display: none;
+    }
+    .counting-helper.show {
+      display: block;
+      animation: slideIn 0.5s ease-out;
+    }
+    .counting-helper h3 {
+      color: #2e7d32;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    .counting-steps {
+      font-size: 1.3em;
+      line-height: 2;
+      color: #1b5e20;
+    }
+    .counting-steps strong {
+      color: #2e7d32;
+      font-size: 1.2em;
+    }
+    .finger-display {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .finger {
+      font-size: 4em;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .finger.counting {
+      animation: fingerPop 0.5s ease-out;
+    }
+    @keyframes fingerPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); color: #4caf50; }
+      100% { transform: scale(1); }
+    }
+    .count-number {
+      font-size: 3em;
+      font-weight: bold;
+      color: #4caf50;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .mastery-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .mastery-modal.show { display: flex; }
+    .mastery-content {
+      background: #fff;
+      padding: 50px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 600px;
+      animation: slideIn 0.5s ease-out;
+    }
+    .mastery-content h2 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    .mastery-content.pass h2 { color: #00b894; }
+    .mastery-content.fail h2 { color: #d63031; }
+    .mastery-score {
+      font-size: 4em;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    .mastery-score.pass { color: #00b894; }
+    .mastery-score.fail { color: #d63031; }
+    .mastery-content p {
+      font-size: 1.4em;
+      line-height: 1.8;
+      margin: 15px 0;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 2em; }
+      .equation { font-size: 2em; }
+      .number-btn { width: 60px; height: 60px; font-size: 2em; }
+      .game-area { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Math Mastery Adventure!</h1>
+      <p>Master each level to unlock the next.</p>
+    </div>
+
+    <!-- Level selector -->
+    <div class="level-selector">
+      <h2>Choose Your Level</h2>
+      <div class="level-buttons" id="levelButtons"></div>
+
+      <!-- Progress import/export -->
+      <div style="text-align:center; margin-top:15px;">
+        <button class="btn btn-hint" id="exportBtn">Download Progress</button>
+        <button class="btn btn-count" id="importBtn">Load Progress</button>
+        <input type="file" id="progressFile" accept=".json" style="display:none;" />
+      </div>
+    </div>
+
+    <!-- Game area -->
+    <div class="game-area" id="gameArea">
+      <div class="score-board">
+        <div class="score-item">
+          <div class="score-label">Problem</div>
+          <div class="score-value" id="problemNumber">1/12</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">Correct</div>
+          <div class="score-value" id="correctScore">0</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">Accuracy</div>
+          <div class="score-value" id="accuracyScore">0</div>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill">0%</div>
+      </div>
+
+      <div class="problem-area">
+        <div class="problem-text" id="problemText"></div>
+        <div class="word-problem-text" id="wordProblemText" style="display:none;"></div>
+        <div class="equation" id="equation"></div>
+        <div class="counting-helper" id="countingHelper"></div>
+        <div class="hint-box" id="hintBox"></div>
+        <div class="mistake-box" id="mistakeBox"></div>
+        <div class="visual-area" id="visualArea"></div>
+      </div>
+
+      <div class="answer-input" id="answerInput"></div>
+      <div class="feedback" id="feedback"></div>
+
+      <div class="controls">
+        <button class="btn btn-count" onclick="showCounting()" id="countBtn" style="display:none;">
+          Show Me How to Count
+        </button>
+        <button class="btn btn-hint" onclick="showHint()" id="hintBtn">
+          Hint
+        </button>
+        <button class="btn btn-next" onclick="nextProblem()" style="display:none;" id="nextBtn">
+          Next Problem
+        </button>
+      </div>
+    </div>
+
+    <!-- Mastery modal -->
+    <div class="mastery-modal" id="masteryModal">
+      <div class="mastery-content" id="masteryContent">
+        <h2 id="masteryTitle"></h2>
+        <div class="mastery-score" id="masteryScoreDisplay"></div>
+        <p id="masteryMessage"></p>
+        <button class="btn btn-next" onclick="closeMasteryModal()" id="masteryBtn">
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PROBLEMS_PER_LEVEL = 12;
+    const MASTERY_THRESHOLD = 0.98;
+    const STORAGE_KEY = "mathMasteryProgress_v1";
+
+    const levels = [
+      { id: 1,  name: "Counting",           type: "counting" },
+      { id: 2,  name: "Quick Addition",     type: "simple" },
+      { id: 3,  name: "Quick Subtraction",  type: "subtraction" },
+      { id: 4,  name: "Word Problems 1",    type: "wordproblems1" },
+      { id: 5,  name: "Grouping Tens/Ones", type: "placevalue" },
+      { id: 6,  name: "Place Value Words",  type: "wordproblemsplace" },
+      { id: 7,  name: "Make the Number",    type: "pairs" },
+      { id: 8,  name: "Missing Number",     type: "missing" },
+      { id: 9,  name: "Take Away Twice",    type: "doublesubtract" },
+      { id: 10, name: "Word Problems 2",    type: "wordproblems2" },
+      { id: 11, name: "Carrying to 100",    type: "carryover" },
+      { id: 12, name: "Borrowing to 100",   type: "borrowing" },
+      { id: 13, name: "Three Numbers",      type: "threenumbers" },
+      { id: 14, name: "Word Problems 3",    type: "wordproblems3" },
+      { id: 15, name: "Bigger Practice",    type: "harder" },
+      { id: 16, name: "Final Challenge",    type: "combo" }
+    ];
+
+    const wordTemplates = {
+      easy: [
+        { text: "Sarah has num1 apples. Her friend gives her num2 more. How many apples does Sarah have now?",
+          type: "add" },
+        { text: "There are num1 birds on a tree. num2 more birds arrive. How many birds are there now?",
+          type: "add" },
+        { text: "Tom has num1 cookies. He eats num2 cookies. How many cookies are left?",
+          type: "sub" }
+      ],
+      place: [
+        { text: "Emma has num1 pencils. How many groups of 10 pencils can she make?",
+          type: "tens" },
+        { text: "A box has num1 crayons. If we group them in tens, how many ones are left over?",
+          type: "ones" },
+        { text: "There are num1 marbles. How many complete groups of 10 marbles can you make?",
+          type: "tens" }
+      ],
+      medium: [
+        { text: "Mom bought num1 eggs and Dad bought num2 eggs. They used num3 eggs for breakfast. How many eggs are left?",
+          type: "addsubtract" }
+      ],
+      hard: [
+        { text: "The store has num1 red, num2 blue, and num3 yellow balloons. How many balloons in total?",
+          type: "threeadd" },
+        { text: "The bakery made num1 cupcakes. They sold num2 in the morning and num3 in the afternoon. How many cupcakes are left?",
+          type: "threesub" }
+      ]
+    };
+
+    let levelProgress = {};
+    levels.forEach(level => {
+      levelProgress[level.id] = {
+        completed: false,
+        unlocked: level.id === 1,
+        score: 0
+      };
+    });
+
+    let currentLevelId = 0;
+    let currentLevelType = null;
+    let problemNumber = 1;
+    let correctCount = 0;
+    let totalAttempts = 0;
+    let currentProblem = null;
+
+    function saveProgress() {
+      const data = {
+        version: 1,
+        levels: levelProgress
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.warn("Could not save progress:", e);
+      }
+    }
+
+    function loadProgressFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (!data || data.version !== 1 || !data.levels) return;
+        Object.keys(levelProgress).forEach(id => {
+          if (data.levels[id]) {
+            levelProgress[id].completed = !!data.levels[id].completed;
+            levelProgress[id].unlocked  = !!data.levels[id].unlocked;
+            levelProgress[id].score     = data.levels[id].score || 0;
+          }
+        });
+      } catch (e) {
+        console.warn("Could not load progress:", e);
+      }
+    }
+
+    function exportProgressToFile() {
+      const data = { version: 1, levels: levelProgress };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "math-mastery-progress.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importProgressFromFile(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data || data.version !== 1 || !data.levels) {
+            alert("This file does not look like a valid progress file.");
+            return;
+          }
+          Object.keys(levelProgress).forEach(id => {
+            if (data.levels[id]) {
+              levelProgress[id].completed = !!data.levels[id].completed;
+              levelProgress[id].unlocked  = !!data.levels[id].unlocked;
+              levelProgress[id].score     = data.levels[id].score || 0;
+            }
+          });
+          saveProgress();
+          renderLevelButtons();
+          alert("Progress loaded successfully!");
+        } catch (err) {
+          console.error(err);
+          alert("Could not read this file. Please check and try again.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderLevelButtons() {
+      const container = document.getElementById("levelButtons");
+      container.innerHTML = "";
+      levels.forEach(level => {
+        const btn = document.createElement("button");
+        const progress = levelProgress[level.id];
+        btn.className = "level-btn";
+        if (!progress.unlocked) btn.classList.add("locked");
+        if (progress.completed) btn.classList.add("completed");
+        btn.innerHTML = `Level ${level.id}<br>${level.name}`;
+        if (progress.completed) {
+          const badge = document.createElement("div");
+          badge.className = "level-badge";
+          badge.textContent = "★";
+          btn.appendChild(badge);
+        }
+        if (!progress.unlocked) {
+          const lock = document.createElement("div");
+          lock.className = "lock-icon";
+          lock.textContent = "🔒";
+          btn.appendChild(lock);
+        }
+        if (progress.unlocked) {
+          btn.onclick = () => startLevel(level.id, level.type);
+        }
+        container.appendChild(btn);
+      });
+    }
+
+    function startLevel(levelId, levelType) {
+      currentLevelId = levelId;
+      currentLevelType = levelType;
+      problemNumber = 1;
+      correctCount = 0;
+      totalAttempts = 0;
+      document.querySelector(".level-selector").style.display = "none";
+      document.getElementById("gameArea").classList.add("active");
+      nextProblem();
+    }
+
+    function generateProblem() {
+      const p = {};
+      switch (currentLevelType) {
+        case "counting": {
+          p.answer = Math.floor(Math.random() * 9) + 3;
+          p.question = "How many circles do you see?";
+          p.equation = "";
+          p.type = "counting";
+          break;
+        }
+        case "simple": {
+          p.num1 = Math.floor(Math.random() * 9) + 1;
+          p.num2 = Math.floor(Math.random() * 9) + 1;
+          p.answer = p.num1 + p.num2;
+          p.question = "Add the numbers.";
+          p.equation = `${p.num1} + ${p.num2} = ?`;
+          p.type = "addition";
+          break;
+        }
+        case "subtraction": {
+          p.num1 = Math.floor(Math.random() * 11) + 9;
+          p.num2 = Math.floor(Math.random() * 8) + 1;
+          if (p.num2 > p.num1) { const t = p.num1; p.num1 = p.num2; p.num2 = t; }
+          p.answer = p.num1 - p.num2;
+          p.question = "Subtract the numbers.";
+          p.equation = `${p.num1} - ${p.num2} = ?`;
+          p.type = "subtraction";
+          break;
+        }
+        case "wordproblems1": {
+          const t = wordTemplates.easy[Math.floor(Math.random() * wordTemplates.easy.length)];
+          p.num1 = Math.floor(Math.random() * 6) + 5;
+          p.num2 = Math.floor(Math.random() * 5) + 1;
+          p.wordProblem = t.text.replace("num1", p.num1).replace("num2", p.num2);
+          p.answer = t.type === "add" ? p.num1 + p.num2 : p.num1 - p.num2;
+          p.equation = t.type === "add"
+            ? `${p.num1} + ${p.num2} = ?`
+            : `${p.num1} - ${p.num2} = ?`;
+          p.type = "wordproblem";
+          break;
+        }
+        case "placevalue": {
+          p.num1 = Math.floor(Math.random() * 60) + 20;
+          const askTens = Math.random() < 0.5;
+          p.askedFor = askTens ? "tens" : "ones";
+          p.tens = Math.floor(p.num1 / 10);
+          p.ones = p.num1 % 10;
+          if (askTens) {
+            p.answer = p.tens;
+            p.question = `How many groups of 10 are in ${p.num1}?`;
+          } else {
+            p.answer = p.ones;
+            p.question = `How many ones are left over in ${p.num1}?`;
+          }
+          p.equation = `${p.num1} = ${p.tens} tens and ${p.ones} ones`;
+          p.type = "placevalue";
+          break;
+        }
+        case "wordproblemsplace": {
+          const t = wordTemplates.place[Math.floor(Math.random() * wordTemplates.place.length)];
+          p.num1 = Math.floor(Math.random() * 50) + 20;
+          p.tens = Math.floor(p.num1 / 10);
+          p.ones = p.num1 % 10;
+          p.wordProblem = t.text.replace("num1", p.num1);
+          if (t.type === "tens") p.answer = p.tens;
+          else if (t.type === "ones") p.answer = p.ones;
+          else p.answer = p.tens;
+          p.equation = `${p.num1} = ${p.tens} tens and ${p.ones} ones`;
+          p.type = "wordproblemplace";
+          break;
+        }
+        case "pairs": {
+          p.total = Math.floor(Math.random() * 9) + 10;
+          p.num1 = Math.floor(Math.random() * (p.total - 2)) + 1;
+          p.answer = p.total - p.num1;
+          if (p.answer <= 0) return generateProblem();
+          p.question = `What number goes with ${p.num1} to make ${p.total}?`;
+          p.equation = `${p.num1} + ? = ${p.total}`;
+          p.type = "pairs";
+          break;
+        }
+        case "missing": {
+          p.total = Math.floor(Math.random() * 9) + 12;
+          p.num1 = Math.floor(Math.random() * 8) + 2;
+          p.num2 = Math.floor(Math.random() * 5) + 2;
+          p.answer = p.total - p.num1 - p.num2;
+          if (p.answer <= 0) return generateProblem();
+          p.question = "Find the missing number.";
+          p.equation = `${p.total} = ${p.num1} + ${p.num2} + ?`;
+          p.type = "missing";
+          break;
+        }
+        case "doublesubtract": {
+          p.num1 = Math.floor(Math.random() * 11) + 15;
+          p.num2 = Math.floor(Math.random() * 5) + 1;
+          p.num3 = Math.floor(Math.random() * 5) + 1;
+          p.answer = p.num1 - p.num2 - p.num3;
+          if (p.answer <= 0) return generateProblem();
+          p.question = "Subtract both numbers.";
+          p.equation = `${p.num1} - ${p.num2} - ${p.num3} = ?`;
+          p.type = "doublesubtract";
+          break;
+        }
+        case "wordproblems2": {
+          const t = wordTemplates.medium[0];
+          p.num1 = Math.floor(Math.random() * 6) + 10;
+          p.num2 = Math.floor(Math.random() * 6) + 8;
+          p.num3 = Math.floor(Math.random() * 5) + 3;
+          p.answer = p.num1 + p.num2 - p.num3;
+          p.wordProblem = t.text
+            .replace("num1", p.num1)
+            .replace("num2", p.num2)
+            .replace("num3", p.num3);
+          p.equation = `${p.num1} + ${p.num2} - ${p.num3} = ?`;
+          p.type = "wordproblem";
+          break;
+        }
+        case "carryover": {
+          let n1 = Math.floor(Math.random() * 50) + 15;
+          let n2 = Math.floor(Math.random() * 40) + 15;
+          let ones1 = n1 % 10;
+          let ones2 = n2 % 10;
+          if (ones1 + ones2 < 10) n2 = (n2 - ones2) + ((10 - ones1) + 1) % 10;
+          const sum = n1 + n2;
+          if (sum > 100) return generateProblem();
+          p.num1 = n1;
+          p.num2 = n2;
+          p.answer = sum;
+          p.question = "Add. You will need to carry.";
+          p.equation = `${p.num1} + ${p.num2} = ?`;
+          p.type = "carryover";
+          break;
+        }
+        case "borrowing": {
+          let n1 = Math.floor(Math.random() * 40) + 40;
+          let n2 = Math.floor(Math.random() * 30) + 15;
+          let o1 = n1 % 10;
+          let o2 = n2 % 10;
+          if (o1 >= o2) {
+            n2 = (Math.floor(n2 / 10) * 10) + ((o1 + Math.floor(Math.random() * 5) + 1) % 10);
+          }
+          if (n2 >= n1) return generateProblem();
+          p.num1 = n1;
+          p.num2 = n2;
+          p.answer = p.num1 - p.num2;
+          p.question = "Subtract. You will need to borrow.";
+          p.equation = `${p.num1} - ${p.num2} = ?`;
+          p.type = "borrowing";
+          break;
+        }
+        case "threenumbers": {
+          const isAdd = Math.random() < 0.5;
+          if (isAdd) {
+            p.num1 = 19;
+            p.num2 = 21;
+            p.num3 = 30;
+            if (Math.random() < 0.5) {
+              p.num1 = Math.floor(Math.random() * 20) + 10;
+              p.num2 = Math.floor(Math.random() * 20) + 10;
+              p.num3 = Math.floor(Math.random() * 20) + 10;
+            }
+            p.answer = p.num1 + p.num2 + p.num3;
+            p.question = "Add all three numbers.";
+            p.equation = `${p.num1} + ${p.num2} + ${p.num3} = ?`;
+            p.type = "threeadd";
+          } else {
+            p.num1 = 50;
+            p.num2 = 25;
+            p.num3 = 15;
+            if (Math.random() < 0.5) {
+              p.num1 = Math.floor(Math.random() * 40) + 40;
+              p.num2 = Math.floor(Math.random() * 15) + 10;
+              p.num3 = Math.floor(Math.random() * 15) + 10;
+            }
+            p.answer = p.num1 - p.num2 - p.num3;
+            if (p.answer <= 0) return generateProblem();
+            p.question = "Subtract both numbers.";
+            p.equation = `${p.num1} - ${p.num2} - ${p.num3} = ?`;
+            p.type = "threesubtract";
+          }
+          break;
+        }
+        case "wordproblems3": {
+          const t = wordTemplates.hard[Math.floor(Math.random() * wordTemplates.hard.length)];
+          p.num1 = Math.floor(Math.random() * 11) + 15;
+          p.num2 = Math.floor(Math.random() * 11) + 10;
+          p.num3 = Math.floor(Math.random() * 11) + 10;
+          p.wordProblem = t.text
+            .replace("num1", p.num1)
+            .replace("num2", p.num2)
+            .replace("num3", p.num3);
+          if (t.type === "threeadd") {
+            p.answer = p.num1 + p.num2 + p.num3;
+            p.equation = `${p.num1} + ${p.num2} + ${p.num3} = ?`;
+          } else {
+            p.answer = p.num1 - p.num2 - p.num3;
+            if (p.answer <= 0) return generateProblem();
+            p.equation = `${p.num1} - ${p.num2} - ${p.num3} = ?`;
+          }
+          p.type = "wordproblem";
+          break;
+        }
+        case "harder": {
+          p.num1 = Math.floor(Math.random() * 40) + 10;
+          p.num2 = Math.floor(Math.random() * 40) + 10;
+          p.answer = p.num1 + p.num2;
+          p.question = "Add these numbers.";
+          p.equation = `${p.num1} + ${p.num2} = ?`;
+          p.type = "addition";
+          break;
+        }
+        case "combo": {
+          const types = ["simple", "subtraction", "pairs", "missing",
+                         "carryover", "borrowing", "threenumbers"];
+          currentLevelType = types[Math.floor(Math.random() * types.length)];
+          return generateProblem();
+        }
+      }
+      p.options = generateOptions(p.answer, 6);
+      return p;
+    }
+
+    function generateOptions(answer, count) {
+      const options = new Set([answer]);
+      while (options.size < count) {
+        const diff = Math.floor(Math.random() * 7) - 3;
+        let option = answer + diff;
+        if (option <= 0 || option > 100) continue;
+        options.add(option);
+      }
+      return Array.from(options).sort((a, b) => a - b);
+    }
+
+    function nextProblem() {
+      currentProblem = generateProblem();
+      document.getElementById("problemText").textContent = currentProblem.question;
+      document.getElementById("equation").textContent = currentProblem.equation;
+
+      const wp = document.getElementById("wordProblemText");
+      if (currentProblem.wordProblem) {
+        wp.textContent = currentProblem.wordProblem;
+        wp.style.display = "block";
+      } else {
+        wp.style.display = "none";
+      }
+
+      document.getElementById("hintBox").classList.remove("show");
+      document.getElementById("mistakeBox").classList.remove("show");
+      document.getElementById("countingHelper").classList.remove("show");
+      const feedback = document.getElementById("feedback");
+      feedback.classList.remove("show", "correct", "incorrect");
+      feedback.textContent = "";
+
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("visualArea").innerHTML = "";
+
+      if (currentLevelType === "placevalue" || currentLevelType === "wordproblemsplace") {
+        showPlaceValueVisual();
+      } else if (currentLevelType === "counting") {
+        const v = document.getElementById("visualArea");
+        v.innerHTML = "";
+        for (let i = 0; i < currentProblem.answer; i++) {
+          const c = document.createElement("div");
+          c.className = "circle";
+          v.appendChild(c);
+        }
+      }
+
+      const countBtn = document.getElementById("countBtn");
+      if ((currentLevelType === "simple" || currentLevelType === "subtraction") &&
+          problemNumber <= 2) {
+        countBtn.style.display = "inline-block";
+      } else {
+        countBtn.style.display = "none";
+      }
+
+      const answerDiv = document.getElementById("answerInput");
+      answerDiv.innerHTML = "";
+      currentProblem.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "number-btn";
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(option);
+        answerDiv.appendChild(btn);
+      });
+
+      const hintBtn = document.getElementById("hintBtn");
+      if (problemNumber <= 2) {
+        hintBtn.classList.remove("disabled");
+        hintBtn.disabled = false;
+      } else {
+        hintBtn.classList.add("disabled");
+        hintBtn.disabled = true;
+      }
+
+      updateScoreboard();
+    }
+
+    function showPlaceValueVisual() {
+      const visualArea = document.getElementById("visualArea");
+      visualArea.innerHTML = "";
+      const container = document.createElement("div");
+      container.className = "group-container";
+
+      if (currentProblem.tens > 0) {
+        const tensDiv = document.createElement("div");
+        tensDiv.className = "tens-group";
+        tensDiv.innerHTML = `<div class="group-label">${currentProblem.tens} Tens</div>`;
+        const tenBlock = document.createElement("div");
+        tenBlock.className = "ten-block";
+        for (let i = 0; i < 10; i++) {
+          const circle = document.createElement("div");
+          circle.className = "circle";
+          circle.style.width = "25px";
+          circle.style.height = "25px";
+          tenBlock.appendChild(circle);
+        }
+        for (let t = 0; t < currentProblem.tens; t++) {
+          tensDiv.appendChild(tenBlock.cloneNode(true));
+        }
+        container.appendChild(tensDiv);
+      }
+
+      if (currentProblem.ones > 0) {
+        const onesDiv = document.createElement("div");
+        onesDiv.className = "ones-group";
+        onesDiv.innerHTML = `<div class="group-label">${currentProblem.ones} Ones</div>`;
+        const onesContainer = document.createElement("div");
+        onesContainer.style.display = "flex";
+        onesContainer.style.gap = "5px";
+        onesContainer.style.flexWrap = "wrap";
+        for (let i = 0; i < currentProblem.ones; i++) {
+          const circle = document.createElement("div");
+          circle.className = "circle";
+          onesContainer.appendChild(circle);
+        }
+        onesDiv.appendChild(onesContainer);
+        container.appendChild(onesDiv);
+      }
+      visualArea.appendChild(container);
+    }
+
+    function showHint() {
+      const hintBox = document.getElementById("hintBox");
+      let hintText = "<strong>Hint</strong><br>";
+      switch (currentLevelType) {
+        case "simple": {
+          const big = Math.max(currentProblem.num1, currentProblem.num2);
+          const small = Math.min(currentProblem.num1, currentProblem.num2);
+          hintText += `For ${currentProblem.num1} + ${currentProblem.num2}<br>` +
+                      `Start with the bigger number <strong>${big}</strong>.<br>` +
+                      `Now count up ${small} times using your fingers.<br>` +
+                      `<em>Click “Show Me How to Count” to see it.</em>`;
+          break;
+        }
+        case "subtraction": {
+          hintText += `For ${currentProblem.num1} - ${currentProblem.num2}<br>` +
+                      `Start at the smaller number <strong>${currentProblem.num2}</strong>.<br>` +
+                      `Count up to ${currentProblem.num1} using your fingers.<br>` +
+                      `The number of fingers you use is the answer!`;
+          break;
+        }
+        case "placevalue":
+        case "wordproblemsplace": {
+          hintText += `Look at the groups.<br>` +
+                      `${currentProblem.num1} = ${currentProblem.tens} tens and ${currentProblem.ones} ones.<br>` +
+                      `${currentProblem.askedFor === "tens" ? "Count the groups of 10." : "Count the single ones."}`;
+          break;
+        }
+        case "pairs": {
+          hintText += `${currentProblem.num1} + ? = ${currentProblem.total}<br>` +
+                      `Think: ${currentProblem.total} - ${currentProblem.num1} = ?`;
+          break;
+        }
+        case "missing": {
+          const sum = currentProblem.num1 + currentProblem.num2;
+          hintText += `Step 1: ${currentProblem.num1} + ${currentProblem.num2} = ${sum}.<br>` +
+                      `Step 2: ${currentProblem.total} - ${sum} = ?`;
+          break;
+        }
+        case "doublesubtract": {
+          const step1 = currentProblem.num1 - currentProblem.num2;
+          hintText += `Step 1: ${currentProblem.num1} - ${currentProblem.num2} = ${step1}.<br>` +
+                      `Step 2: ${step1} - ${currentProblem.num3} = ?`;
+          break;
+        }
+        default:
+          hintText += "Take your time and think carefully.";
+      }
+      hintBox.innerHTML = hintText;
+      hintBox.classList.add("show");
+    }
+
+    function showCounting() {
+      const helper = document.getElementById("countingHelper");
+      let content = "";
+      if (currentLevelType === "simple") {
+        const big = Math.max(currentProblem.num1, currentProblem.num2);
+        const small = Math.min(currentProblem.num1, currentProblem.num2);
+        content = `
+          <h3>How to Count for Addition</h3>
+          <div class="counting-steps">
+            <p><strong>Problem:</strong> ${currentProblem.num1} + ${currentProblem.num2}</p>
+            <p><strong>Step 1</strong> Find the bigger number: <strong>${big}</strong>.</p>
+            <p><strong>Step 2</strong> Start counting from the next number after ${big}.</p>
+            <p><strong>Step 3</strong> Count up ${small} times using your fingers.</p>
+          </div>
+          <div class="count-number" id="countDisplay">${big}</div>
+          <div class="finger-display" id="fingerDisplay"></div>
+          <button class="btn btn-count" onclick="animateCounting('add')" style="margin:20px auto; display:block;">
+            Start Counting
+          </button>
+          <div class="counting-steps" style="margin-top:20px;">
+            <p><strong>The answer is ${big} + ${small} = ${currentProblem.answer}.</strong></p>
+          </div>
+        `;
+      } else if (currentLevelType === "subtraction") {
+        content = `
+          <h3>How to Count for Subtraction</h3>
+          <div class="counting-steps">
+            <p><strong>Problem:</strong> ${currentProblem.num1} - ${currentProblem.num2}</p>
+            <p><strong>Step 1</strong> Start at the smaller number: <strong>${currentProblem.num2}</strong>.</p>
+            <p><strong>Step 2</strong> Count up to ${currentProblem.num1} using your fingers.</p>
+            <p><strong>Step 3</strong> The number of fingers you use is the answer.</p>
+          </div>
+          <div class="count-number" id="countDisplay">${currentProblem.num2}</div>
+          <div class="finger-display" id="fingerDisplay"></div>
+          <button class="btn btn-count" onclick="animateCounting('subtract')" style="margin:20px auto; display:block;">
+            Start Counting
+          </button>
+          <div class="counting-steps" style="margin-top:20px;">
+            <p><strong>The answer is ${currentProblem.answer} fingers.</strong></p>
+          </div>
+        `;
+      }
+      helper.innerHTML = content;
+      helper.classList.add("show");
+    }
+
+    function animateCounting(type) {
+      const fingerDisplay = document.getElementById("fingerDisplay");
+      const countDisplay = document.getElementById("countDisplay");
+      fingerDisplay.innerHTML = "";
+      if (type === "add") {
+        const big = Math.max(currentProblem.num1, currentProblem.num2);
+        const small = Math.min(currentProblem.num1, currentProblem.num2);
+        let currentCount = big;
+        let fingerCount = 0;
+        const interval = setInterval(() => {
+          if (fingerCount < small) {
+            fingerCount++;
+            currentCount++;
+            const finger = document.createElement("div");
+            finger.className = "finger counting";
+            finger.textContent = "☝";
+            fingerDisplay.appendChild(finger);
+            countDisplay.textContent = currentCount;
+            countDisplay.style.color = "#4caf50";
+            setTimeout(() => finger.classList.remove("counting"), 500);
+          } else {
+            clearInterval(interval);
+            countDisplay.innerHTML = `<span style="color:#4caf50">${currentCount}</span>`;
+          }
+        }, 700);
+      } else {
+        let currentCount = currentProblem.num2;
+        let fingerCount = 0;
+        const interval = setInterval(() => {
+          if (currentCount < currentProblem.num1) {
+            fingerCount++;
+            currentCount++;
+            const finger = document.createElement("div");
+            finger.className = "finger counting";
+            finger.textContent = "☝";
+            fingerDisplay.appendChild(finger);
+            countDisplay.textContent = currentCount;
+            countDisplay.style.color = "#4caf50";
+            setTimeout(() => finger.classList.remove("counting"), 500);
+          } else {
+            clearInterval(interval);
+            countDisplay.innerHTML = `<span style="color:#4caf50">${currentCount}</span>`;
+            setTimeout(() => {
+              const result = document.createElement("div");
+              result.className = "counting-steps";
+              result.style.marginTop = "20px";
+              result.style.fontSize = "1.5em";
+              result.innerHTML = `<strong>You used ${fingerCount} fingers, so ${currentProblem.num1} - ${currentProblem.num2} = ${fingerCount}!</strong>`;
+              document.getElementById("countingHelper").appendChild(result);
+            }, 500);
+          }
+        }, 700);
+      }
+    }
+
+    function checkAnswer(answer) {
+      totalAttempts++;
+      const isCorrect = answer === currentProblem.answer;
+      if (isCorrect) correctCount++;
+      showFeedback(isCorrect, isCorrect ? "Correct! Great job!" : `Not quite. The answer is ${currentProblem.answer}.`);
+      showMistakeExplanation(isCorrect ? null : answer);
+      disableAnswerButtons();
+      document.getElementById("nextBtn").style.display = "inline-block";
+      if (problemNumber >= PROBLEMS_PER_LEVEL) {
+        setTimeout(showMasteryResults, isCorrect ? 1000 : 2000);
+      } else {
+        problemNumber++;
+      }
+      updateScoreboard();
+    }
+
+    function showMistakeExplanation(wrongAnswer) {
+      const box = document.getElementById("mistakeBox");
+      if (wrongAnswer === null) {
+        box.classList.remove("show");
+        box.innerHTML = "";
+        return;
+      }
+      let explanation = "";
+      switch (currentProblem.type) {
+        case "placevalue":
+        case "wordproblemplace":
+          explanation += `
+            <h3>Let's figure this out together!</h3>
+            <div class="mistake-step">
+              <strong>The number is ${currentProblem.num1}.</strong><br>
+              ${currentProblem.num1} = ${currentProblem.tens} tens and ${currentProblem.ones} ones.
+            </div>
+            <div class="mistake-step">
+              You said ${wrongAnswer}. The correct answer is ${currentProblem.answer}.<br><br>
+              ${currentProblem.askedFor === "tens"
+                ? "Count the groups of 10. There are " + currentProblem.tens + " groups."
+                : "Count the single circles. There are " + currentProblem.ones + " ones."}
+            </div>
+          `;
+          break;
+        case "pairs":
+          explanation += `
+            <h3>Let's solve this together!</h3>
+            <div class="mistake-step">
+              We need ${currentProblem.num1} + ? = ${currentProblem.total}.
+            </div>
+            <div class="mistake-step">
+              Think: ${currentProblem.total} - ${currentProblem.num1} = ${currentProblem.answer}.
+            </div>
+            <div class="mistake-step">
+              So ${currentProblem.num1} + ${currentProblem.answer} = ${currentProblem.total}.
+            </div>
+          `;
+          break;
+        case "missing": {
+          const sum = currentProblem.num1 + currentProblem.num2;
+          explanation += `
+            <h3>Let's work through this!</h3>
+            <div class="mistake-step">
+              Step 1: Add the first two numbers: ${currentProblem.num1} + ${currentProblem.num2} = ${sum}.
+            </div>
+            <div class="mistake-step">
+              Step 2: Find what's missing: ${currentProblem.total} - ${sum} = ${currentProblem.answer}.
+            </div>
+            <div class="mistake-step">
+              Check: ${currentProblem.num1} + ${currentProblem.num2} + ${currentProblem.answer} = ${currentProblem.total}.
+            </div>
+          `;
+          break;
+        }
+        case "carryover": {
+          const tens1 = Math.floor(currentProblem.num1 / 10);
+          const ones1 = currentProblem.num1 % 10;
+          const tens2 = Math.floor(currentProblem.num2 / 10);
+          const ones2 = currentProblem.num2 % 10;
+          const onesSum = ones1 + ones2;
+          const carry = Math.floor(onesSum / 10);
+          const onesResult = onesSum % 10;
+          const tensSum = tens1 + tens2 + carry;
+          explanation += `
+            <h3>Let's add step by step!</h3>
+            <div class="mistake-step">
+              <strong>Ones place:</strong> ${ones1} + ${ones2} = ${onesSum}.<br>
+              Write ${onesResult}, carry ${carry}.
+            </div>
+            <div class="mistake-step">
+              <strong>Tens place:</strong> ${tens1} + ${tens2} + ${carry} = ${tensSum}.
+            </div>
+            <div class="mistake-step">
+              <strong>Answer:</strong> ${tensSum}${onesResult} = ${currentProblem.answer}.
+            </div>
+          `;
+          break;
+        }
+        case "borrowing": {
+          const t1 = Math.floor(currentProblem.num1 / 10);
+          let o1 = currentProblem.num1 % 10;
+          const t2 = Math.floor(currentProblem.num2 / 10);
+          const o2 = currentProblem.num2 % 10;
+          const needBorrow = o1 < o2;
+          explanation += `<h3>Let's subtract step by step!</h3>`;
+          if (needBorrow) {
+            explanation += `
+              <div class="mistake-step">
+                <strong>Ones place:</strong> ${o1} - ${o2} is not possible, so borrow 1 ten.<br>
+                The top tens becomes ${t1 - 1}, and ones become ${o1 + 10}.
+              </div>
+            `;
+            o1 = o1 + 10;
+          }
+          const onesRes = o1 - o2;
+          const tensRes = (needBorrow ? t1 - 1 : t1) - t2;
+          explanation += `
+            <div class="mistake-step">
+              Now subtract ones: ${o1} - ${o2} = ${onesRes}.
+            </div>
+            <div class="mistake-step">
+              Subtract tens: ${(needBorrow ? t1 - 1 : t1)} - ${t2} = ${tensRes}.
+            </div>
+            <div class="mistake-step">
+              <strong>Answer:</strong> ${tensRes}${onesRes} = ${currentProblem.answer}.
+            </div>
+          `;
+          break;
+        }
+        default:
+          explanation += `
+            <h3>Let's try again!</h3>
+            <p>The correct answer is <strong>${currentProblem.answer}</strong>.</p>
+            <p>${currentProblem.equation.replace("?", currentProblem.answer)}</p>
+          `;
+      }
+      box.innerHTML = explanation;
+      box.classList.add("show");
+    }
+
+    function showFeedback(correct, message) {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = message;
+      feedback.className = "feedback show " + (correct ? "correct" : "incorrect");
+    }
+
+    function disableAnswerButtons() {
+      document.querySelectorAll(".number-btn").forEach(btn => btn.disabled = true);
+    }
+
+    function updateScoreboard() {
+      document.getElementById("problemNumber").textContent =
+        `${Math.min(problemNumber, PROBLEMS_PER_LEVEL)}/${PROBLEMS_PER_LEVEL}`;
+      document.getElementById("correctScore").textContent = correctCount;
+      const accuracy = totalAttempts === 0 ? 0 : Math.round((correctCount / totalAttempts) * 100);
+      document.getElementById("accuracyScore").textContent = accuracy;
+      const progress = (Math.min(problemNumber, PROBLEMS_PER_LEVEL) / PROBLEMS_PER_LEVEL) * 100;
+      const fill = document.getElementById("progressFill");
+      fill.style.width = `${progress}%`;
+      fill.textContent = `${Math.round(progress)}%`;
+    }
+
+    function showMasteryResults() {
+      const accuracy = totalAttempts === 0 ? 0 : correctCount / totalAttempts;
+      const passed = accuracy >= MASTERY_THRESHOLD;
+      const modal = document.getElementById("masteryModal");
+      const content = document.getElementById("masteryContent");
+      const title = document.getElementById("masteryTitle");
+      const scoreDisplay = document.getElementById("masteryScoreDisplay");
+      const message = document.getElementById("masteryMessage");
+      const btn = document.getElementById("masteryBtn");
+
+      content.className = "mastery-content " + (passed ? "pass" : "fail");
+      const percentage = Math.round(accuracy * 100);
+      scoreDisplay.className = "mastery-score " + (passed ? "pass" : "fail");
+      scoreDisplay.textContent = `${percentage}%`;
+
+      if (passed) {
+        title.textContent = "Level Mastered!";
+        message.innerHTML =
+          `Amazing work! You got ${correctCount} out of ${totalAttempts} correct.<br>` +
+          `You've mastered this level and unlocked the next one.`;
+        levelProgress[currentLevelId].completed = true;
+        levelProgress[currentLevelId].score = percentage;
+        if (currentLevelId < levels.length) {
+          levelProgress[currentLevelId + 1].unlocked = true;
+        }
+        saveProgress();
+        btn.textContent = "Next Level";
+      } else {
+        title.textContent = "Keep Practicing!";
+        const needed = Math.ceil(MASTERY_THRESHOLD * PROBLEMS_PER_LEVEL);
+        message.innerHTML =
+          `You got ${correctCount} correct, but you need ${needed} out of ${PROBLEMS_PER_LEVEL} ` +
+          `to master this level (98%).<br><br>` +
+          `Don't worry! Try again and use the hints and explanations.`;
+        saveProgress();
+        btn.textContent = "Try This Level Again";
+      }
+      modal.classList.add("show");
+    }
+
+    function closeMasteryModal() {
+      document.getElementById("masteryModal").classList.remove("show");
+      document.getElementById("gameArea").classList.remove("active");
+      document.querySelector(".level-selector").style.display = "block";
+      renderLevelButtons();
+    }
+
+    // Hook up import/export buttons
+    document.getElementById("exportBtn").onclick = exportProgressToFile;
+    document.getElementById("importBtn").onclick = () => {
+      document.getElementById("progressFile").click();
+    };
+    document.getElementById("progressFile").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) importProgressFromFile(file);
+    });
+
+    // Initial load and render
+    loadProgressFromLocalStorage();
+    renderLevelButtons();
+  </script>
+</body>
+</html>
