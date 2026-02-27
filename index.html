@@ -521,15 +521,19 @@ let state = {
 };
 
 // ============================================================
-// SAVE / LOAD
+// SAVE / LOAD - FIXED
 // ============================================================
 function saveProgress() {
-  const data = JSON.stringify({ completed: state.completed, ts: Date.now() });
+  const data = JSON.stringify({ 
+    completed: state.completed, 
+    ts: Date.now(),
+    version: '1.0' 
+  });
   const blob = new Blob([data], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'math-adventure-save.json'; a.click();
   document.getElementById('progress-label').textContent = '✅ Saved!';
-  setTimeout(() => updateProgressLabel(), 2000);
+  setTimeout(updateProgressLabel, 2000);
 }
 
 function loadProgress() {
@@ -542,13 +546,34 @@ function loadProgress() {
     reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
-        state.completed = data.completed || {};
-        updateProgressLabel();
-        renderHome();
-        showScreen('home-screen');
-        document.getElementById('progress-label').textContent = '✅ Loaded!';
-        setTimeout(updateProgressLabel, 2000);
-      } catch { alert('Could not load save file.'); }
+        // Check if it's a valid save file
+        if (data && data.completed) {
+          // Reset the state with loaded data
+          state.completed = data.completed || {};
+          
+          // Make sure we don't have any undefined values
+          LEVELS.forEach(lv => {
+            if (state.completed[lv.id] === undefined) {
+              state.completed[lv.id] = 0;
+            }
+          });
+          
+          // Reset current level to null
+          state.currentLevel = null;
+          
+          // Update UI
+          updateProgressLabel();
+          renderHome();
+          showScreen('home-screen');
+          document.getElementById('progress-label').textContent = '✅ Loaded!';
+          setTimeout(updateProgressLabel, 2000);
+        } else {
+          alert('Invalid save file format.');
+        }
+      } catch (error) {
+        alert('Could not load save file. Make sure it\'s a valid save file.');
+        console.error('Load error:', error);
+      }
     };
     reader.readAsText(file);
   };
@@ -556,9 +581,9 @@ function loadProgress() {
 }
 
 function updateProgressLabel() {
-  const done = Object.keys(state.completed).length;
+  const done = Object.keys(state.completed).filter(id => (state.completed[id] || 0) >= 98).length;
   document.getElementById('progress-label').textContent =
-    done > 0 ? `${done}/${LEVELS.length} levels done` : 'No save found';
+    done > 0 ? `${done}/${LEVELS.length} levels mastered` : 'No saves yet';
 }
 
 // ============================================================
@@ -570,27 +595,46 @@ function showScreen(id) {
 }
 
 // ============================================================
-// HOME SCREEN
+// HOME SCREEN - FIXED: Properly check unlocked levels based on loaded progress
 // ============================================================
 function renderHome() {
   const grid = document.getElementById('levels-grid');
   grid.innerHTML = '';
+  
+  // Make sure all levels have a score (default 0)
+  LEVELS.forEach(lv => {
+    if (state.completed[lv.id] === undefined) {
+      state.completed[lv.id] = 0;
+    }
+  });
+  
   LEVELS.forEach((lv, i) => {
-    const done = state.completed[lv.id] !== undefined;
-    const prev = i === 0 || state.completed[LEVELS[i-1].id] !== undefined;
-    const locked = !prev;
     const score = state.completed[lv.id] || 0;
-    const stars = done ? (score >= 98 ? '⭐⭐⭐' : score >= 80 ? '⭐⭐' : '⭐') : '';
+    const done = score >= 98; // Level is mastered if score >= 98
+    
+    // Check if this level should be unlocked
+    // Level 1 is always unlocked
+    // Other levels are unlocked if the previous level is mastered (score >= 98)
+    let unlocked = false;
+    if (i === 0) {
+      unlocked = true; // First level always unlocked
+    } else {
+      const prevScore = state.completed[LEVELS[i-1].id] || 0;
+      unlocked = prevScore >= 98;
+    }
+    
+    const stars = score >= 98 ? '⭐⭐⭐' : score >= 80 ? '⭐⭐' : score >= 50 ? '⭐' : '';
+    
     const btn = document.createElement('div');
-    btn.className = 'level-btn' + (locked ? ' locked' : '') + (done ? ' completed' : '');
+    btn.className = 'level-btn' + (unlocked ? '' : ' locked') + (done ? ' completed' : '');
     btn.style.borderColor = done ? lv.color : 'transparent';
     btn.innerHTML = `
       <div class="level-icon">${lv.icon}</div>
       <div class="level-name">${lv.name}</div>
       <div class="level-stars">${stars}</div>
-      ${locked ? '<div class="lock-badge">🔒</div>' : ''}
+      ${!unlocked ? '<div class="lock-badge">🔒</div>' : ''}
     `;
-    if (!locked) btn.onclick = () => startLevel(lv);
+    if (unlocked) btn.onclick = () => startLevel(lv);
     grid.appendChild(btn);
   });
 }
@@ -1695,13 +1739,15 @@ function showResults() {
   document.getElementById('result-retry-btn').onclick = () => startLevel(state.currentLevel);
   document.getElementById('result-home-btn').onclick = () => { renderHome(); showScreen('home-screen'); };
 
-  // Next level button
+  // Next level button - check if next level exists
   const nextBtn = document.getElementById('result-next-btn');
   if (passed) {
     const idx = LEVELS.findIndex(l => l.id === state.currentLevel.id);
     if (idx < LEVELS.length - 1) {
       nextBtn.style.display = 'inline-block';
       nextBtn.onclick = () => startLevel(LEVELS[idx+1]);
+    } else {
+      nextBtn.style.display = 'none';
     }
   } else {
     nextBtn.style.display = 'none';
@@ -1714,6 +1760,12 @@ function showResults() {
 // ============================================================
 // INIT
 // ============================================================
+// Initialize all level scores to 0 if not set
+LEVELS.forEach(lv => {
+  if (state.completed[lv.id] === undefined) {
+    state.completed[lv.id] = 0;
+  }
+});
 renderHome();
 updateProgressLabel();
 </script>
