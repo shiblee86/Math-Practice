@@ -1,558 +1,830 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌙 Math Adventure · dark theme · 13 + 5</title>
-  <style>
-    /* same friendly fonts but now DARK theme */
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
-    :root {
-      --bg-dark: #0b0e1f;        /* deep space background */
-      --card-dark: #1e243b;       /* dark card background */
-      --text-light: #f0eef7;      /* soft white for text */
-      --text-soft: #cbd5e8;       
-      --sky: #6EC6F5;             /* keep bright colors for accents */
-      --sun: #FFD93D;
-      --grass: #6BCB77;
-      --coral: #FF6B6B;
-      --purple: #C77DFF;
-      --dark-accent: #2a3150;     /* for borders / subtle contrast */
-      --shadow-dark: 0 8px 24px rgba(0,0,0,0.6);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg-dark);
-      min-height: 100vh;
-      color: var(--text-light);
-    }
-    h1, h2, h3, .big-num {
-      font-family: 'Fredoka One', cursive;
-      letter-spacing: 1px;
-      color: var(--text-light);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 Math Adventure - Dark Mode (fixed)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
-    /* ---- TOP BAR (still dark but with brighter accents) ---- */
-    #topbar {
-      background: #0f1425;
-      color: var(--text-light);
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.8);
-      border-bottom: 1px solid #3a405b;
-    }
-    #topbar h1 { font-size: 1.4rem; color: var(--sun); }
-    .btn-save, .btn-load {
-      padding: 7px 18px;
-      border-radius: 20px;
-      border: none;
-      font-weight: 800;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-    .btn-save { background: var(--sun); color: #0b0e1f; }
-    .btn-load { background: var(--grass); color: #0b0e1f; }
-    #progress-label { color: #a9b7d4; font-size: 0.8rem; }
+  :root {
+    --bg-dark: #0a0718;
+    --card-dark: #1a1530;
+    --text-light: #f0ebff;
+    --text-soft: #cdc2f0;
+    --sky: #6EC6F5;
+    --sun: #FFD93D;
+    --grass: #6BCB77;
+    --coral: #FF6B6B;
+    --purple: #C77DFF;
+    --border-glow: #433b6b;
+  }
 
-    /* ---- SCREENS ---- */
-    .screen { display: none; padding: 24px 16px; max-width: 700px; margin: 0 auto; }
-    .screen.active { display: block; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg-dark);
+    min-height: 100vh;
+    color: var(--text-light);
+    padding: 16px;
+  }
 
-    /* ---- HOME SCREEN (dark cards) ---- */
-    #home-screen { text-align: center; }
-    .home-title { font-size: 3rem; color: var(--sun); margin-bottom: 8px; text-shadow: 0 0 8px #ffd96680; }
-    .home-sub { font-size: 1.1rem; color: var(--text-soft); margin-bottom: 32px; }
-    .levels-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 14px;
-      margin-top: 20px;
-    }
-    .level-btn {
-      background: var(--card-dark);
-      border: 3px solid transparent;
-      border-radius: 20px;
-      padding: 18px 10px;
-      cursor: pointer;
-      box-shadow: var(--shadow-dark);
-      transition: transform 0.15s, border-color 0.15s;
-      color: var(--text-light);
-    }
-    .level-btn:hover { transform: translateY(-4px); border-color: var(--sky); }
-    .level-btn.completed { border-color: var(--grass); }
-    .level-icon { font-size: 2.2rem; }
-    .level-name { font-weight: 800; font-size: 0.85rem; margin-top: 6px; color: var(--text-light); }
-    .level-stars { color: var(--sun); font-size: 0.9rem; margin-top: 4px; }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
 
-    /* ---- QUIZ SCREEN (dark cards) ---- */
-    .quiz-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 18px; flex-wrap: wrap; gap: 8px;
-    }
-    .quiz-level-name { font-size: 1.3rem; color: var(--sun); }
-    .quiz-score-badge {
-      background: #2a3150; color: white; padding: 5px 14px; border-radius: 20px;
-      font-weight: 800; border: 1px solid #4a5280;
-    }
+  /* Top bar */
+  .topbar {
+    background: #1f1a33;
+    border-radius: 20px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #41386b;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    position: sticky;
+    top: 8px;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+  }
+  
+  .topbar-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    color: var(--sun);
+    text-shadow: 0 0 8px #b8860b;
+  }
+  
+  .topbar-btns {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .tb-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  
+  .tb-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  .tb-save {
+    background: var(--sun);
+    color: #1a0f2a;
+  }
+  
+  .tb-load {
+    background: var(--grass);
+    color: #0f0a1a;
+  }
+  
+  .tb-lbl {
+    font-size: 0.75rem;
+    color: #b1a5d9;
+  }
 
-    .question-card {
-      background: var(--card-dark);
-      border-radius: 24px;
-      padding: 28px 24px;
-      box-shadow: var(--shadow-dark);
-      margin-bottom: 20px;
-      position: relative;
-      overflow: hidden;
-      border: 1px solid #3a405b;
-    }
-    .question-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 6px;
-      background: linear-gradient(90deg, var(--sky), var(--purple), var(--coral));
-    }
+  /* Screens */
+  .screen {
+    display: none;
+  }
+  
+  .screen.active {
+    display: block;
+  }
 
-    .question-text {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--text-light);
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
-    .equation-display {
-      font-family: 'Fredoka One', cursive;
-      font-size: 2.8rem;
-      text-align: center;
-      color: var(--sun);
-      margin: 16px 0;
-      letter-spacing: 3px;
-    }
-    .eq-blank {
-      display: inline-block;
-      min-width: 60px;
-      border-bottom: 4px solid var(--coral);
-      text-align: center;
-      color: var(--coral);
-    }
+  /* Home screen */
+  .home-hero {
+    text-align: center;
+    padding: 20px 0 10px;
+  }
+  
+  .home-hero h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    background: linear-gradient(135deg, var(--sun), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px #9f7aea;
+  }
+  
+  .home-hero p {
+    color: var(--text-soft);
+    font-size: 1rem;
+    margin-top: 8px;
+  }
 
-    /* hint boxes — now on dark background but still bright */
-    .mini-lesson {
-      background: #2a3150;
-      border-left: 10px solid var(--purple);
-      border-radius: 24px;
-      padding: 18px 16px;
-      margin: 18px 0 12px 0;
-      font-size: 1.2rem;
-      font-weight: 700;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      color: var(--text-light);
-      border: 1px solid #4a5280;
-    }
-    .step-hint {
-      background: #1e2a47;
-      border-radius: 40px;
-      padding: 14px 20px;
-      margin: 10px 0;
-      font-size: 1.3rem;
-      font-weight: 800;
-      text-align: center;
-      border: 3px solid var(--sky);
-      color: #fff9e6;
-    }
-    .finger-helper {
-      background: #3a3150;
-      border-radius: 30px;
-      padding: 15px;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: 600;
-      border: 3px dashed var(--sun);
-      color: #ffefc0;
-    }
-    .carry-helper, .borrow-helper {
-      background: #2e1b4a;
-      border: 3px solid var(--purple);
-      border-radius: 28px;
-      padding: 16px;
-      font-size: 1.5rem;
-      text-align: center;
-      font-weight: 800;
-      color: #f0e6ff;
-    }
+  /* Level grid - FIXED: now visible */
+  .levels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
 
-    /* visual grouping — tens/ones blocks adapt */
-    .tens-visual { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
-    .ten-group { display: flex; gap: 3px; background: #26324e; border: 2px solid var(--sky); border-radius: 10px; padding: 6px; }
-    .unit-block { width: 22px; height: 22px; background: var(--sky); border-radius: 4px; opacity: 0.9; }
-    .ones-group { display: flex; gap: 3px; background: #3d3b2b; border: 2px solid var(--sun); border-radius: 10px; padding: 6px; }
-    .unit-block.one { background: var(--sun); }
+  .level-btn {
+    background: var(--card-dark);
+    border: 2px solid #3d3460;
+    border-radius: 24px;
+    padding: 20px 10px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  
+  .level-btn:hover {
+    transform: translateY(-5px);
+    border-color: var(--purple);
+  }
+  
+  .level-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .level-name {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+  
+  .level-stars {
+    color: var(--sun);
+    font-size: 0.9rem;
+  }
 
-    .word-problem-card {
-      background: linear-gradient(135deg, #2d2645, #3f3529);
-      border-radius: 24px;
-      padding: 24px;
-      border: 3px solid var(--purple);
-      color: var(--text-light);
-    }
-    .wp-badge {
-      display: inline-block; background: var(--purple); color: #0b0e1f;
-      border-radius: 20px; padding: 4px 14px; font-size: 0.85rem;
-      font-weight: 800; margin-bottom: 10px;
-    }
+  /* Progress chart */
+  .progress-chart {
+    background: #1e1932;
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 30px;
+    border: 1px solid #4f4377;
+  }
+  
+  .progress-bar-cont {
+    background: #2f274a;
+    border-radius: 12px;
+    height: 24px;
+    margin: 12px 0 8px;
+  }
+  
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--purple), var(--sky));
+    width: 0%;
+    transition: width 0.4s;
+  }
 
-    .answer-input {
-      width: 100%;
-      padding: 16px;
-      font-size: 2rem;
-      font-family: 'Fredoka One', cursive;
-      border: 3px solid #3f4868;
-      border-radius: 16px;
-      text-align: center;
-      outline: none;
-      background: #151c32;
-      color: var(--sun);
-      transition: border-color 0.2s;
-    }
-    .answer-input:focus { border-color: var(--sky); }
-    .answer-input.correct { border-color: var(--grass); background: #1d3a2a; color: #b7f0b7; }
-    .answer-input.wrong { border-color: var(--coral); background: #3f2025; color: #ffb0b0; }
+  /* Quiz screen */
+  .quiz-head {
+    background: #1e1932;
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #5a4c82;
+  }
+  
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #b7a9e6;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+  
+  .quiz-score-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .qs-item {
+    text-align: center;
+    flex: 1;
+  }
+  
+  .qs-label {
+    font-size: 0.7rem;
+    color: #aea0d9;
+  }
+  
+  .qs-val {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: white;
+  }
+  
+  .prog-bar {
+    background: #2f274a;
+    border-radius: 8px;
+    height: 10px;
+  }
+  
+  .prog-fill {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--purple), var(--sky));
+    transition: width 0.4s;
+  }
 
-    .feedback-box {
-      border-radius: 14px;
-      padding: 14px 18px;
-      margin-top: 14px;
-      font-size: 1rem;
-      font-weight: 700;
-      display: none;
-    }
-    .feedback-box.show { display: block; }
-    .correct-fb { background: #1d4a2a; color: #c3f0c3; border: 2px solid var(--grass); }
-    .wrong-fb { background: #5a2e36; color: #ffcfcf; border: 2px solid var(--coral); }
+  /* Question card */
+  .q-card {
+    background: var(--card-dark);
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid #5b4d87;
+    border-top: 6px solid var(--purple);
+  }
+  
+  .q-type-badge {
+    display: inline-block;
+    background: #362d55;
+    color: #e4d2ff;
+    border-radius: 30px;
+    padding: 4px 14px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  
+  .question-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 16px;
+  }
+  
+  .equation-display {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    text-align: center;
+    color: var(--sun);
+    margin: 16px 0;
+  }
+  
+  .eq-blank {
+    border-bottom: 4px solid var(--coral);
+    color: var(--coral);
+    min-width: 50px;
+    display: inline-block;
+  }
 
-    /* buttons */
-    .btn-primary {
-      flex: 1; padding: 14px; font-size: 1.1rem; font-family: 'Fredoka One', cursive;
-      background: #353f6a; color: white; border: none; border-radius: 16px;
-      cursor: pointer; transition: transform 0.1s, background 0.1s;
-      border: 1px solid #6c7ac0;
-    }
-    .btn-primary:hover { background: #4d5a90; transform: scale(1.02); }
-    .btn-hint {
-      padding: 14px 20px; font-size: 1rem; font-family: 'Fredoka One', cursive;
-      background: var(--sun); color: #0b0e1f; border: none; border-radius: 16px;
-      cursor: pointer;
-    }
-    .btn-back {
-      padding: 14px 20px; font-size: 1rem; font-family: 'Fredoka One', cursive;
-      background: #2e3447; color: var(--text-light); border: 1px solid #545c84; border-radius: 16px;
-      cursor: pointer;
-    }
+  /* Hints */
+  .mini-lesson {
+    background: #2d2447;
+    border-left: 8px solid var(--purple);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px 0;
+    font-weight: 700;
+    color: #e5d5ff;
+  }
+  
+  .step-hint {
+    background: #1e2f47;
+    border: 2px solid var(--sky);
+    border-radius: 40px;
+    padding: 14px;
+    text-align: center;
+    font-weight: 800;
+    color: #b3e0ff;
+  }
+  
+  .finger-helper {
+    background: #3a2e3a;
+    border: 3px dashed var(--sun);
+    border-radius: 30px;
+    padding: 16px;
+    text-align: center;
+    font-weight: 700;
+    color: #ffe6b3;
+  }
 
-    /* result screen */
-    #result-screen .result-emoji { font-size: 5rem; margin: 20px 0; }
-    #result-screen .result-title { font-size: 2.5rem; color: var(--sun); }
-    #result-screen .result-score { color: var(--text-soft); }
-    #result-screen .result-stars { font-size: 3rem; color: var(--sun); }
-    .mistake-item {
-      background: #2a1f2a; border: 2px solid #b3545c; border-radius: 12px;
-      padding: 12px; margin-bottom: 10px; color: #f0c0c0;
-    }
+  .answer-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 2rem;
+    font-family: 'Fredoka One', cursive;
+    background: #1f1937;
+    border: 3px solid #4e4280;
+    border-radius: 16px;
+    color: var(--sun);
+    text-align: center;
+    margin: 12px 0;
+  }
+  
+  .answer-input:focus {
+    border-color: var(--purple);
+    outline: none;
+  }
 
-    .prog-bar-wrap { background: #2a3150; border-radius: 10px; height: 10px; margin: 8px 0; }
-    .prog-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--sky), var(--purple)); transition: width 0.4s; }
+  .feedback {
+    border-radius: 12px;
+    padding: 14px;
+    margin: 10px 0;
+    font-weight: 700;
+    display: none;
+  }
+  
+  .feedback.show { display: block; }
+  .feedback.ok { background: #1d4a2a; color: #c3f0c3; border: 2px solid var(--grass); }
+  .feedback.bad { background: #5a2e36; color: #ffcfcf; border: 2px solid var(--coral); }
 
-    @media (max-width: 480px) {
-      .home-title { font-size: 2rem; }
-    }
-  </style>
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  
+  .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 30px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  
+  .btn:hover { transform: translateY(-2px); }
+  .btn-check { background: var(--purple); color: white; flex: 1; }
+  .btn-next { background: var(--grass); color: #0f0a1a; flex: 1; display: none; }
+  .btn-hint { background: var(--sun); color: #1a0f2a; }
+  .btn-back { background: #3a3260; color: white; }
+
+  /* Result screen */
+  .result-card {
+    background: #1e1932;
+    border-radius: 28px;
+    padding: 28px;
+    text-align: center;
+    border: 2px solid #6b5b99;
+  }
+  
+  .result-emoji { font-size: 4rem; }
+  .result-title { font-size: 2rem; color: var(--sun); }
+  .result-pct { font-size: 3rem; font-weight: 900; color: white; }
+  .result-stars { font-size: 2rem; color: var(--sun); margin: 10px 0; }
+
+  .mistake-item {
+    background: #2f253a;
+    border: 2px solid #c45d5d;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+    text-align: left;
+  }
+</style>
 </head>
 <body>
-<div id="topbar">
-  <h1>🌙 Math Adventure (dark)</h1>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="topbar-title">🌟 Math Adventure (dark)</div>
   <div class="topbar-btns">
-    <button class="btn-save" onclick="saveProgress()">💾 Save</button>
-    <button class="btn-load" onclick="loadProgress()">📂 Load</button>
+    <button class="tb-btn tb-save" onclick="saveProgress()">💾 Save</button>
+    <button class="tb-btn tb-load" onclick="loadProgress()">📂 Load</button>
+    <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadFile(event)">
   </div>
-  <span id="progress-label"></span>
+  <div class="tb-lbl" id="progressLabel">0/11 mastered</div>
 </div>
 
-<!-- HOME -->
-<div id="home-screen" class="screen active">
-  <div class="home-title">🌟 Math Adventure!</div>
-  <div class="home-sub">Pick a level · 13 problems + 5 word puzzles</div>
-  <div class="levels-grid" id="levels-grid"></div>
+<!-- HOME SCREEN -->
+<div id="homeScreen" class="screen active">
+  <div class="home-hero">
+    <h1>Math Adventure!</h1>
+    <p>Pick a level · 13 problems + 5 word puzzles</p>
+  </div>
+  
+  <!-- LEVELS GRID - FIXED: now visible -->
+  <div class="levels-grid" id="levelsGrid"></div>
+  
+  <div class="progress-chart" id="progressChart">
+    <h3 style="color:#d4c2ff; margin-bottom:10px;">📊 Your Progress</h3>
+    <div id="progressStats">0 of 11 levels mastered (0%)</div>
+    <div class="progress-bar-cont"><div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div></div>
+  </div>
 </div>
 
-<!-- QUIZ -->
-<div id="quiz-screen" class="screen">
-  <div class="quiz-header">
-    <div><span class="quiz-level-name" id="quiz-level-name"></span></div>
-    <div class="quiz-score-badge" id="quiz-score-badge">0 ✔️ / 0 ❌</div>
+<!-- QUIZ SCREEN -->
+<div id="quizScreen" class="screen">
+  <div class="quiz-head">
+    <div class="quiz-meta">
+      <span id="quizLevelLabel">Level 1</span>
+      <span id="quizQCounter">Q1 / 18</span>
+    </div>
+    <div class="quiz-score-row">
+      <div class="qs-item"><div class="qs-label">✅</div><div class="qs-val" id="scoreCorrect">0</div></div>
+      <div class="qs-item"><div class="qs-label">❌</div><div class="qs-val" id="scoreWrong">0</div></div>
+      <div class="qs-item"><div class="qs-label">%</div><div class="qs-val" id="scorePercent">—</div></div>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="quizProgressBar" style="width:0%"></div></div>
   </div>
-  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="quiz-prog-bar" style="width:0%"></div></div>
-  <div id="question-area"></div>
-  <div class="action-row" id="action-row"></div>
+  
+  <div class="q-card" id="questionCard"></div>
+  <div class="feedback" id="feedback"></div>
+  
+  <div class="btn-row">
+    <button class="btn btn-back" onclick="goHome()">🏠 Home</button>
+    <button class="btn btn-hint" id="hintButton" onclick="showHint()">💡 Hint</button>
+    <button class="btn btn-check" id="checkButton" onclick="checkAnswer()">✅ Check</button>
+    <button class="btn btn-next" id="nextButton" onclick="nextQuestion()">▶ Next</button>
+  </div>
 </div>
 
-<!-- RESULT -->
-<div id="result-screen" class="screen">
-  <div class="result-emoji" id="result-emoji"></div>
-  <div class="result-title" id="result-title"></div>
-  <div class="result-score" id="result-score"></div>
-  <div class="result-stars" id="result-stars"></div>
-  <div id="mistakes-section"></div>
-  <div style="display:flex; gap:12px; justify-content:center; margin-top:20px;">
-    <button class="btn-primary" id="result-retry-btn">🔁 Try again</button>
-    <button class="btn-primary" id="result-home-btn" style="background:var(--grass); color:#0b0e1f;">🏠 Home</button>
-    <button class="btn-primary" id="result-next-btn" style="background:var(--purple); display:none;">➡️ Next</button>
+<!-- RESULT SCREEN -->
+<div id="resultScreen" class="screen">
+  <div class="result-card">
+    <div class="result-emoji" id="resultEmoji">🏆</div>
+    <div class="result-title" id="resultTitle">Great job!</div>
+    <div class="result-pct" id="resultPercent">0%</div>
+    <div class="result-stars" id="resultStars">⭐⭐⭐</div>
+    <div id="resultMessage"></div>
+    <div id="mistakesList"></div>
+    <div class="btn-row" style="justify-content:center; margin-top:20px;">
+      <button class="btn btn-back" id="retryButton">🔁 Try Again</button>
+      <button class="btn btn-check" onclick="goHome()">🏠 Home</button>
+      <button class="btn btn-next" id="nextLevelButton" style="display:none">➡️ Next Level</button>
+    </div>
   </div>
+</div>
+
 </div>
 
 <script>
-// ==================  LEVELS  (13 problems + 5 word) ==================
+// ==================== MATH ADVENTURE DATA ====================
 const LEVELS = [
-  { id:'counting', name:'Counting Up/Down', icon:'🔢', color:'#6EC6F5',
-    makeProblems: makeCountingProblems, wordProblems: countingWordProblems },
-  { id:'grouping', name:'Tens & Ones', icon:'📦', color:'#FFD93D',
-    makeProblems: makeGroupingProblems, wordProblems: groupingWordProblems },
-  { id:'missing_add', name:'Missing Number', icon:'❓', color:'#C77DFF',
-    makeProblems: makeMissingAddProblems, wordProblems: missingAddWordProblems },
-  { id:'simple_sub', name:'Quick Subtraction', icon:'✂️', color:'#FF6B6B',
-    makeProblems: makeSimpleSubProblems, wordProblems: simpleSubWordProblems },
-  { id:'find_pair', name:'Find the Pair', icon:'👫', color:'#6BCB77',
-    makeProblems: makeFindPairProblems, wordProblems: findPairWordProblems },
-  { id:'take_two', name:'Take Away Two', icon:'✌️', color:'#FF9F43',
-    makeProblems: makeTakeTwoProblems, wordProblems: takeTwoWordProblems },
-  { id:'carry_add', name:'Addition with Carry', icon:'➕', color:'#48dbfb',
-    makeProblems: makeCarryAddProblems, wordProblems: carryAddWordProblems },
-  { id:'borrow_sub', name:'Subtraction with Borrow', icon:'➖', color:'#ff6b81',
-    makeProblems: makeBorrowSubProblems, wordProblems: borrowSubWordProblems },
-  { id:'add_three', name:'Add Three Numbers', icon:'🔺', color:'#A29BFE',
-    makeProblems: makeAddThreeProblems, wordProblems: addThreeWordProblems },
-  { id:'sub_two_big', name:'Subtract Two (Big)', icon:'🔻', color:'#fd79a8',
-    makeProblems: makeSubTwoBigProblems, wordProblems: subTwoBigWordProblems },
-  { id:'combo', name:'Grand Finale! 🏆', icon:'🏆', color:'#F9CA24',
-    makeProblems: makeComboProblems, wordProblems: comboWordProblems },
+  { id: 'counting', name: 'Counting', icon: '🔢', color: '#6EC6F5', level: 1 },
+  { id: 'grouping', name: 'Tens & Ones', icon: '📦', color: '#FFD93D', level: 1 },
+  { id: 'missing_add', name: 'Missing Number', icon: '❓', color: '#C77DFF', level: 1 },
+  { id: 'simple_sub', name: 'Quick Sub', icon: '✂️', color: '#FF6B6B', level: 1 },
+  { id: 'find_pair', name: 'Find the Pair', icon: '👫', color: '#6BCB77', level: 1 },
+  { id: 'take_two', name: 'Take Away Two', icon: '✌️', color: '#FF9F43', level: 1 },
+  { id: 'carry_add', name: 'Carry Addition', icon: '➕', color: '#48dbfb', level: 1 },
+  { id: 'borrow_sub', name: 'Borrow Sub', icon: '➖', color: '#ff6b81', level: 1 },
+  { id: 'add_three', name: 'Add Three', icon: '🔺', color: '#A29BFE', level: 1 },
+  { id: 'sub_two_big', name: 'Subtract Two', icon: '🔻', color: '#fd79a8', level: 1 },
+  { id: 'combo', name: 'Grand Finale', icon: '🏆', color: '#F9CA24', level: 1 }
 ];
 
-let state = { completed:{}, currentLevel:null, questions:[], qIndex:0, score:0, wrong:0, mistakes:[], hintsUsed:0, answered:false };
+// Progress tracking
+let progress = {};
+let currentLevel = null;
+let questions = [];
+let qIndex = 0;
+let score = 0;
+let wrong = 0;
+let mistakes = [];
+let hintsUsed = 0;
+let answered = false;
+let currentAnswer = null;
 
-// ------------------  helpers  ------------------
-function rnd(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
-function shuffle(a) { for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+// Initialize progress
+LEVELS.forEach(level => {
+  if (!progress[level.id]) {
+    progress[level.id] = { completed: false, score: 0 };
+  }
+});
 
-// ---------- generators (13 problems each) ----------
-function makeCountingProblems() { let q=[]; for(let i=0;i<13;i++){ if(i%2){ let b=rnd(3,12), s=rnd(1,6); q.push({type:'counting_add', q:`${b} + ${s} = ?`, answer:b+s, hint:'👉 Count UP using your fingers: put up '+s+' fingers after '+b, explanation:`${b}+${s}=${b+s}`}); } else { let b=rnd(5,18), s=rnd(2,7); q.push({type:'counting_sub', q:`${b} - ${s} = ?`, answer:b-s, hint:'👉 Count DOWN: start from '+b+' and take away '+s+' fingers', explanation:`${b}-${s}=${b-s}`}); } } return q; }
-function countingWordProblems() { return shuffle([ {q:'Emma has 9 apples, gets 4 more. How many?',a:13}, {q:'14 birds, 6 fly away. Left?',a:8}, {q:'11 fish + 7 fish = ?',a:18}, {q:'15 stickers, give 9. Left?',a:6}, {q:'8 crayons, find 8 more?',a:16} ]).map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeGroupingProblems() { let q=[]; for(let i=0;i<13;i++){ let t=rnd(2,7), o=rnd(0,9), n=t*10+o; if(i<7) q.push({type:'grouping_tens', q:`${n} has how many TENS?`, answer:t, hint:`TENS are the first digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); else q.push({type:'grouping_ones', q:`${n} has how many ONES?`, answer:o, hint:`ONES are the last digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); } return q; }
-function groupingWordProblems() { return [ {q:'3 tens + 4 ones = ?',a:34}, {q:'5 packs of ten + 7 loose = ?',a:57}, {q:'How many tens in 47?',a:4}, {q:'How many ones in 62?',a:2}, {q:'2 tens + 9 ones = ?',a:29} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeMissingAddProblems() { 
-  let q=[]; 
-  for(let i=0;i<13;i++){ 
-    let tot=rnd(8,22), a=rnd(2,8), b=rnd(2,8), x=tot-a-b; 
-    if(x>0 && i%3) {
-      let sumAb = a+b;
-      q.push({ type:'missing_3', q:`${tot} = ${a} + ${b} + ?`, answer:x, hint:`Step❶ Add ${a}+${b} = ${sumAb}   Step❷ ${tot} − ${sumAb} = ?` });
-    } else { 
-      let aa=rnd(3,12), xx=tot-aa; 
-      q.push({ type:'missing_2', q:`${tot} = ${aa} + ?`, answer:xx, hint:`✨ Just subtract: ${tot} − ${aa} = ?` });
-    } 
-  } 
-  return q; 
+// ==================== HELPER FUNCTIONS ====================
+function rnd(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function makeFindPairProblems() { 
-  let q=[]; 
-  for(let i=0;i<13;i++){ 
-    let t=rnd(6,20), a=rnd(2,12), b=t-a; 
-    q.push({ type:'find_pair', q:`${t} = ${a} + ?`, answer:b, hint:`${t} − ${a} = ${b}` }); 
-  } 
-  return q; 
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
 
-function missingAddWordProblems() { 
-  return [ {q:'Need 12 flowers, have 4 red + 5 yellow. More?',a:3}, {q:'Bag needs 15 books, has 6. More?',a:9}, {q:'20 eggs, have 7+4. Need?',a:9}, {q:'18 puzzle pieces, placed 9+5. Missing?',a:4}, {q:'10 seats, 3 boys + 4 girls. Empty?',a:3} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); 
+// ==================== PROBLEM GENERATORS ====================
+function generateCountingProblems() {
+  let problems = [];
+  for (let i = 0; i < 13; i++) {
+    if (i % 2 === 0) {
+      let a = rnd(5, 15);
+      let b = rnd(1, 5);
+      problems.push({
+        type: 'counting_add',
+        question: `${a} + ${b} = ?`,
+        answer: a + b,
+        hint: `Count up from ${a}: ${a+1}, ${a+2}... (${b} times)`,
+        explanation: `${a} + ${b} = ${a+b}`
+      });
+    } else {
+      let a = rnd(8, 18);
+      let b = rnd(2, 6);
+      problems.push({
+        type: 'counting_sub',
+        question: `${a} - ${b} = ?`,
+        answer: a - b,
+        hint: `Count down from ${a}: ${a-1}, ${a-2}... (${b} times)`,
+        explanation: `${a} - ${b} = ${a-b}`
+      });
+    }
+  }
+  return problems;
 }
 
-function makeSimpleSubProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(7,20), b=rnd(2,9); q.push({type:'sub1', q:`${a} - ${b} = ?`, answer:a-b, hint:'Count up from '+(b+1)+' to '+a+' → that’s '+(a-b)+' steps'}); } return q; }
-function simpleSubWordProblems() { return [ {q:'13 cookies, eat 4. Left?',a:9}, {q:'17 grapes, 8 eaten. Left?',a:9}, {q:'20 kids, 7 go home. Still?',a:13}, {q:'15 books, return 6. Left?',a:9}, {q:'18 butterflies, 9 fly away. Left?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeTakeTwoProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(12,28), b=rnd(2,6), c=rnd(2,6); q.push({type:'take_two', q:`${a} - ${b} - ${c} = ?`, answer:a-b-c, hint:'First: '+a+'−'+b+'='+(a-b)+'  then −'+c+' = ?'}); } return q; }
-function takeTwoWordProblems() { return [ {q:'20 marbles, take 4 then 3. Left?',a:13}, {q:'25 stickers, take 7 then 5. Left?',a:13}, {q:'18 books, borrow 5 then 4. Left?',a:9}, {q:'22 muffins, eat 3 then 6. Left?',a:13}, {q:'15 frogs, 4 hop, then 2 hop. Left?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeCarryAddProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(15,48), b=rnd(17,46); if((a%10)+(b%10)>9 && a+b<99) q.push({type:'carry_add', q:`${a} + ${b} = ?`, answer:a+b, a,b, hint:'ones: '+a%10+'+'+b%10+'='+((a%10)+(b%10))+' → write '+(a+b)%10+', carry 1'}); else i--; } return q; }
-function carryAddWordProblems() { return [ {q:'37 red + 45 blue balls?',a:82}, {q:'48 chickens + 36 ducks?',a:84}, {q:'29 kids + 43 kids?',a:72}, {q:'56 apples + 28 apples?',a:84}, {q:'67 new books + 25 old?',a:92} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeBorrowSubProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(32,81), b=rnd(14,49); if(a%10 < b%10 && a-b>9) q.push({type:'borrow_sub', q:`${a} - ${b} = ?`, answer:a-b, a,b, hint:'Borrow 1 ten: ones: '+(a%10+10)+'−'+b%10+'='+((a%10+10)-b%10)+' , tens: '+(Math.floor(a/10)-1)+'−'+Math.floor(b/10)}); else i--; } return q; }
-function borrowSubWordProblems() { return [ {q:'52 crayons, use 27. Left?',a:25}, {q:'71 stickers, give 34. Left?',a:37}, {q:'84 kids, 46 go away. Stay?',a:38}, {q:'60 cookies, eat 38. Left?',a:22}, {q:'93 pages, read 55. Left?',a:38} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeAddThreeProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(5,25), b=rnd(5,25), c=rnd(5,25); if(a+b+c<90) q.push({type:'add_three', q:`${a} + ${b} + ${c} = ?`, answer:a+b+c, hint:'add first two: '+(a+b)+' then +'+c+' = ?'}); else i--; } return q; }
-function addThreeWordProblems() { return [ {q:'19 + 21 + 30 toys?',a:70}, {q:'15+23+12 fruits?',a:50}, {q:'24+18+17 students?',a:59}, {q:'13+22+15 roses?',a:50}, {q:'31+28+11 animals?',a:70} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeSubTwoBigProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(40,90), b=rnd(10,25), c=rnd(10,25); if(a-b-c>5) q.push({type:'sub_big2', q:`${a} - ${b} - ${c} = ?`, answer:a-b-c, hint:'First: '+a+'−'+b+'='+(a-b)+' then −'+c+' = ?'}); else i--; } return q; }
-function subTwoBigWordProblems() { return [ {q:'50 marbles, take 25 then 15?',a:10}, {q:'80 cans, donate 35 then 20?',a:25}, {q:'65 sunflowers, pick 20 then 18?',a:27}, {q:'90 dollars, spend 40 then 25?',a:25}, {q:'75 chocolates, eat 30 then 15?',a:30} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeComboProblems() { let all=[...makeCountingProblems(),...makeMissingAddProblems(),...makeSimpleSubProblems(),...makeFindPairProblems(),...makeTakeTwoProblems(),...makeCarryAddProblems(),...makeBorrowSubProblems(),...makeAddThreeProblems(),...makeSubTwoBigProblems(),...makeGroupingProblems()]; return shuffle(all).slice(0,13); }
-function comboWordProblems() { let all=[...countingWordProblems(),...missingAddWordProblems(),...simpleSubWordProblems(),...findPairWordProblems(),...takeTwoWordProblems(),...carryAddWordProblems(),...borrowSubWordProblems(),...addThreeWordProblems(),...subTwoBigWordProblems(),...groupingWordProblems()]; return shuffle(all).slice(0,5); }
-
-// ----------------  start level  ----------------
-function startLevel(lv) {
-  state.currentLevel = lv;
-  let main = lv.makeProblems();      
-  let words = lv.wordProblems();      
-  state.questions = [...main, ...words]; 
-  state.qIndex = 0; state.score = 0; state.wrong = 0; state.mistakes = []; state.hintsUsed = 0; state.answered = false;
-  document.getElementById('quiz-level-name').innerHTML = lv.icon + ' ' + lv.name;
-  showScreen('quiz-screen'); renderQuestion();
+function generateWordProblems() {
+  return [
+    { type: 'word', question: 'Sara has 8 apples. Mom gives her 5 more. How many apples now?', answer: 13, hint: 'Add 8 + 5', explanation: '8 + 5 = 13' },
+    { type: 'word', question: '14 birds on a tree. 6 fly away. How many left?', answer: 8, hint: 'Subtract 14 - 6', explanation: '14 - 6 = 8' },
+    { type: 'word', question: 'Tom had 9 crayons. He got 7 more. How many now?', answer: 16, hint: '9 + 7 = ?', explanation: '9 + 7 = 16' },
+    { type: 'word', question: 'Lily had 15 stickers. She gave 8 away. How many left?', answer: 7, hint: '15 - 8 = ?', explanation: '15 - 8 = 7' },
+    { type: 'word', question: '11 fish in a pond. 4 more swim in. How many now?', answer: 15, hint: '11 + 4 = ?', explanation: '11 + 4 = 15' }
+  ];
 }
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function renderQuestion() {
-  let q = state.questions[state.qIndex];
-  let total = state.questions.length;
-  document.getElementById('quiz-score-badge').innerHTML = `✅ ${state.score}  ❌ ${state.wrong}`;
-  document.getElementById('quiz-prog-bar').style.width = ((state.qIndex)/total*100)+'%';
-  let isWord = q.type === 'word';
-  let hintAllowed = state.qIndex < 6 && state.hintsUsed < 2 && !isWord;
-
-  let area = document.getElementById('question-area');
-  let html = `<div class="question-card"><div class="question-text">${q.q}</div>`;
-
-  if (q.type === 'counting_add' || q.type === 'counting_sub') {
-    html += `<div class="finger-helper">✋ FINGER COUNTING: ${q.hint || 'count up or down'}</div>`;
-  }
-  else if (q.type && q.type.startsWith('grouping')) {
-    html += `<div class="mini-lesson"><span class="emojii">📦</span> TENS are groups of 10 · ONES are leftovers. ${q.hint}</div>`;
-  }
-  else if (q.type && (q.type.startsWith('missing') || q.type.startsWith('find'))) {
-    html += `<div class="step-hint">✨ ${q.hint || 'Step 1: add what you know · Step 2: subtract from total'}</div>`;
-  }
-  else if (q.type === 'carry_add') {
-    html += `<div class="carry-helper">🔢 ${q.hint}<br> <span style="font-size:1rem;">ones add → carry the ten!</span></div>`;
-  }
-  else if (q.type === 'borrow_sub') {
-    html += `<div class="borrow-helper">🔁 ${q.hint}<br> <span style="font-size:1rem;">borrow from tens, then subtract ones</span></div>`;
-  }
-  else if (!isWord) {
-    html += `<div class="mini-lesson">💡 ${q.hint || 'think step by step'}</div>`;
-  }
-
-  if (q.type==='carry_add' && q.a) {
-    let ones = (q.a%10)+(q.b%10); let carry = Math.floor(ones/10);
-    html += `<div style="font-size:1.8rem;text-align:center;background:#2f3750;border-radius:30px;margin-top:10px;padding:6px;"> ${q.a} + ${q.b} = ?<br> <span style="color:var(--coral);">carry: ${carry>0?'¹':''}</span></div>`;
-  }
-
-  if (isWord) {
-    html = `<div class="word-problem-card"><span class="wp-badge">📖 word problem</span><div class="question-text">${q.q}</div></div>`;
-  }
-
-  html += `<input class="answer-input" id="answer-input" type="number" inputmode="numeric" placeholder="type answer" autocomplete="off">`;
-  html += `<div class="hint-box" id="hint-box" style="display:none;">${q.hint || ''}</div>`;
-  html += `<div class="feedback-box" id="feedback-box"></div>`;
-  html += `</div>`;
-
-  area.innerHTML = html;
-  document.getElementById('answer-input').focus();
-
-  let ar = document.getElementById('action-row');
-  ar.innerHTML = `<button class="btn-back" onclick="showScreen('home-screen')">🏠 Home</button>`;
-  if (hintAllowed) {
-    ar.innerHTML += `<button class="btn-hint" id="hint-btn" onclick="showHint()">💡 Hint</button>`;
-  }
-  ar.innerHTML += `<button class="btn-primary" onclick="checkAnswer()">✅ Check</button>`;
-
-  state.answered = false;
-}
-
-function showHint() {
-  state.hintsUsed++;
-  document.getElementById('hint-box').style.display = 'block';
-  let btn = document.getElementById('hint-btn'); if(btn) btn.disabled = true;
-}
-
-function checkAnswer() {
-  if(state.answered) return;
-  let q = state.questions[state.qIndex];
-  let inp = document.getElementById('answer-input');
-  let val = parseInt(inp.value);
-  if(isNaN(val)) return;
-  state.answered = true;
-  let fb = document.getElementById('feedback-box'); fb.classList.add('show');
-  let correct = (val === q.answer);
-  if(correct) {
-    inp.classList.add('correct'); fb.classList.add('correct-fb');
-    fb.innerHTML = '✅🎉 Yes! ' + (q.explanation || 'good job!');
-    state.score++;
-  } else {
-    inp.classList.add('wrong'); fb.classList.add('wrong-fb');
-    fb.innerHTML = `❌ Your answer ${val} is not correct. The right answer is ${q.answer}. ${q.explanation?('<br>'+q.explanation):''}`;
-    state.wrong++; state.mistakes.push({q:q.q, your:val, correct:q.answer});
-  }
-  let ar = document.getElementById('action-row');
-  ar.innerHTML = `<button class="btn-primary" onclick="nextQuestion()">➡️ Next</button>`;
-}
-
-function nextQuestion() {
-  state.qIndex++;
-  if(state.qIndex >= state.questions.length) showResults();
-  else renderQuestion();
-}
-
-function showResults() {
-  let total = state.questions.length, pct = Math.round((state.score/total)*100);
-  let prev = state.completed[state.currentLevel.id]||0;
-  if(pct>prev) state.completed[state.currentLevel.id] = pct;
-
-  document.getElementById('result-emoji').innerText = pct>=98?'🏆':pct>=70?'🌟':'💪';
-  document.getElementById('result-title').innerText = pct>=98?'Amazing!':pct>=70?'Good job!':'Keep trying';
-  document.getElementById('result-score').innerText = `${state.score}/${total} correct (${pct}%)`;
-  document.getElementById('result-stars').innerHTML = pct>=98?'⭐⭐⭐':pct>=70?'⭐⭐':'⭐';
-
-  let mh = '';
-  if(state.mistakes.length){
-    mh = '<h3 style="color:var(--sun);">📋 Mistakes:</h3>';
-    state.mistakes.forEach(m=>{ mh+=`<div class="mistake-item">❓ ${m.q} → your:${m.your} ✔️ correct:${m.correct}</div>`; });
-  }
-  document.getElementById('mistakes-section').innerHTML = mh;
-
-  let idx = LEVELS.findIndex(l=>l.id===state.currentLevel.id);
-  document.getElementById('result-next-btn').style.display = (pct>=98 && idx<LEVELS.length-1)?'inline-block':'none';
-  document.getElementById('result-next-btn').onclick = ()=>startLevel(LEVELS[idx+1]);
-  document.getElementById('result-retry-btn').onclick = ()=>startLevel(state.currentLevel);
-  document.getElementById('result-home-btn').onclick = ()=>{ renderHome(); showScreen('home-screen'); };
-
-  renderHome();
-  showScreen('result-screen');
-}
-
+// ==================== RENDER HOME SCREEN (FIXED) ====================
 function renderHome() {
-  let grid = document.getElementById('levels-grid'); grid.innerHTML = '';
-  LEVELS.forEach(lv => {
-    if(!state.completed[lv.id]) state.completed[lv.id]=0;
-    let s = state.completed[lv.id];
-    let stars = s>=98?'⭐⭐⭐': s>=70?'⭐⭐':'⭐';
-    let btn = document.createElement('div'); btn.className='level-btn';
-    btn.innerHTML = `<div class="level-icon">${lv.icon}</div><div class="level-name">${lv.name}</div><div class="level-stars">${stars}</div>`;
-    btn.onclick = ()=>startLevel(lv);
+  const grid = document.getElementById('levelsGrid');
+  if (!grid) return;
+  
+  grid.innerHTML = '';
+  
+  LEVELS.forEach(level => {
+    const levelData = progress[level.id] || { completed: false, score: 0 };
+    const stars = levelData.completed ? (levelData.score >= 90 ? '⭐⭐⭐' : levelData.score >= 70 ? '⭐⭐' : '⭐') : '';
+    
+    const btn = document.createElement('div');
+    btn.className = 'level-btn';
+    btn.innerHTML = `
+      <div class="level-icon">${level.icon}</div>
+      <div class="level-name">${level.name}</div>
+      <div class="level-stars">${stars}</div>
+    `;
+    btn.onclick = () => startLevel(level);
     grid.appendChild(btn);
   });
+  
+  updateProgressStats();
 }
-function saveProgress(){ localStorage.setItem('math_save', JSON.stringify(state.completed)); alert('saved!'); }
-function loadProgress(){ let d=localStorage.getItem('math_save'); if(d){ state.completed=JSON.parse(d); renderHome(); } else alert('no save'); }
-window.onload = ()=>{ renderHome(); };
+
+function updateProgressStats() {
+  let mastered = 0;
+  LEVELS.forEach(level => {
+    if (progress[level.id]?.completed) mastered++;
+  });
+  const total = LEVELS.length;
+  const pct = Math.round((mastered / total) * 100) || 0;
+  
+  document.getElementById('progressStats').innerHTML = `${mastered} of ${total} levels mastered (${pct}%)`;
+  document.getElementById('progressBarFill').style.width = pct + '%';
+  document.getElementById('progressLabel').innerHTML = `${mastered}/${total} mastered`;
+}
+
+// ==================== START LEVEL ====================
+function startLevel(level) {
+  currentLevel = level;
+  
+  // Generate 13 math problems + 5 word problems
+  const mathProblems = generateCountingProblems(); // Using counting as base for now
+  const wordProblems = generateWordProblems();
+  questions = [...mathProblems, ...wordProblems];
+  
+  qIndex = 0;
+  score = 0;
+  wrong = 0;
+  mistakes = [];
+  hintsUsed = 0;
+  answered = false;
+  
+  document.getElementById('quizLevelLabel').innerHTML = `${level.icon} ${level.name}`;
+  
+  showScreen('quizScreen');
+  renderQuestion();
+}
+
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+}
+
+function goHome() {
+  if (confirm('Leave this level? Progress won\'t be saved.')) {
+    renderHome();
+    showScreen('homeScreen');
+  }
+}
+
+// ==================== RENDER QUESTION ====================
+function renderQuestion() {
+  const q = questions[qIndex];
+  const total = questions.length;
+  
+  document.getElementById('quizQCounter').innerHTML = `Q${qIndex + 1}/${total}`;
+  document.getElementById('scoreCorrect').innerHTML = score;
+  document.getElementById('scoreWrong').innerHTML = wrong;
+  const att = score + wrong;
+  document.getElementById('scorePercent').innerHTML = att ? Math.round((score / att) * 100) + '%' : '—';
+  document.getElementById('quizProgressBar').style.width = (qIndex / total * 100) + '%';
+  
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('checkButton').style.display = 'inline-flex';
+  document.getElementById('nextButton').style.display = 'none';
+  
+  const hintAllowed = qIndex < 4 && hintsUsed < 2 && q.type !== 'word';
+  document.getElementById('hintButton').style.display = hintAllowed ? 'inline-flex' : 'none';
+  document.getElementById('hintButton').disabled = false;
+  
+  answered = false;
+  
+  // Build question card
+  let html = '';
+  if (q.type === 'word') {
+    html = `
+      <div class="q-type-badge">📖 Word Problem</div>
+      <div class="question-text">${q.question}</div>
+    `;
+  } else {
+    html = `
+      <div class="q-type-badge">🧮 Math</div>
+      <div class="question-text">${q.question}</div>
+      <div class="equation-display">${q.question.replace('?', '<span class="eq-blank">?</span>')}</div>
+    `;
+  }
+  
+  // Add hint box
+  html += `<div class="mini-lesson" id="hintDisplay" style="display:none">💡 ${q.hint || ''}</div>`;
+  
+  // Add answer input
+  html += `<input class="answer-input" id="answerInput" type="number" inputmode="numeric" placeholder="Type answer..." autocomplete="off">`;
+  
+  document.getElementById('questionCard').innerHTML = html;
+  document.getElementById('answerInput')?.focus();
+}
+
+// ==================== SHOW HINT ====================
+function showHint() {
+  if (!questions[qIndex]) return;
+  hintsUsed++;
+  document.getElementById('hintDisplay').style.display = 'block';
+  document.getElementById('hintButton').disabled = true;
+}
+
+// ==================== CHECK ANSWER ====================
+function checkAnswer() {
+  if (answered) return;
+  
+  const q = questions[qIndex];
+  const input = document.getElementById('answerInput');
+  if (!input) return;
+  
+  const val = parseInt(input.value);
+  if (isNaN(val)) {
+    alert('Please enter a number!');
+    return;
+  }
+  
+  answered = true;
+  const isCorrect = (val === q.answer);
+  
+  if (isCorrect) {
+    score++;
+    document.getElementById('feedback').className = 'feedback show ok';
+    document.getElementById('feedback').innerHTML = '✅ Correct! ' + (q.explanation || '');
+  } else {
+    wrong++;
+    mistakes.push({
+      question: q.question,
+      yourAnswer: val,
+      correct: q.answer,
+      explanation: q.explanation
+    });
+    document.getElementById('feedback').className = 'feedback show bad';
+    document.getElementById('feedback').innerHTML = `❌ Your answer ${val} is wrong. Correct: ${q.answer}.<br>${q.explanation || ''}`;
+  }
+  
+  document.getElementById('scoreCorrect').innerHTML = score;
+  document.getElementById('scoreWrong').innerHTML = wrong;
+  const att = score + wrong;
+  document.getElementById('scorePercent').innerHTML = att ? Math.round((score / att) * 100) + '%' : '—';
+  
+  document.getElementById('checkButton').style.display = 'none';
+  document.getElementById('nextButton').style.display = 'inline-flex';
+  document.getElementById('hintButton').style.display = 'none';
+}
+
+// ==================== NEXT QUESTION ====================
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ==================== SHOW RESULTS ====================
+function showResults() {
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= 70;
+  
+  if (passed) {
+    progress[currentLevel.id] = {
+      completed: true,
+      score: pct
+    };
+  }
+  
+  document.getElementById('resultEmoji').innerHTML = pct >= 90 ? '🏆' : pct >= 70 ? '🌟' : '💪';
+  document.getElementById('resultTitle').innerHTML = pct >= 90 ? 'Amazing!' : pct >= 70 ? 'Good job!' : 'Keep practicing!';
+  document.getElementById('resultPercent').innerHTML = pct + '%';
+  document.getElementById('resultStars').innerHTML = pct >= 90 ? '⭐⭐⭐' : pct >= 70 ? '⭐⭐' : '⭐';
+  document.getElementById('resultMessage').innerHTML = `You got ${score} out of ${total} correct.`;
+  
+  // Show mistakes
+  let mistakesHtml = '';
+  if (mistakes.length > 0) {
+    mistakesHtml = '<h3 style="color:#ffb3b3; margin:15px 0 8px;">📝 Review mistakes:</h3>';
+    mistakes.forEach(m => {
+      mistakesHtml += `
+        <div class="mistake-item">
+          <strong>${m.question}</strong><br>
+          Your answer: ${m.yourAnswer} ❌ Correct: ${m.correct}<br>
+          <small>${m.explanation || ''}</small>
+        </div>
+      `;
+    });
+  }
+  document.getElementById('mistakesList').innerHTML = mistakesHtml;
+  
+  document.getElementById('retryButton').onclick = () => startLevel(currentLevel);
+  
+  // Next level button
+  const levelIndex = LEVELS.findIndex(l => l.id === currentLevel.id);
+  if (passed && levelIndex < LEVELS.length - 1) {
+    document.getElementById('nextLevelButton').style.display = 'inline-flex';
+    document.getElementById('nextLevelButton').onclick = () => startLevel(LEVELS[levelIndex + 1]);
+  } else {
+    document.getElementById('nextLevelButton').style.display = 'none';
+  }
+  
+  renderHome();
+  showScreen('resultScreen');
+}
+
+// ==================== SAVE/LOAD ====================
+function saveProgress() {
+  const data = JSON.stringify({ version: 1, progress: progress }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'math-adventure-save.json';
+  a.click();
+  alert('Progress saved!');
+}
+
+function loadProgress() {
+  document.getElementById('loadFile').click();
+}
+
+function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data && data.version === 1 && data.progress) {
+        progress = data.progress;
+        renderHome();
+        alert('Progress loaded!');
+      } else {
+        alert('Invalid save file');
+      }
+    } catch (err) {
+      alert('Error loading file');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ==================== INITIALIZE ====================
+renderHome();
 </script>
 </body>
 </html>
