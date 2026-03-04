@@ -361,76 +361,6 @@ function hintBorrowSub(a, b) {
     <div class="hint-answer">  ${a}\n-  ${b}\n  ———\n  ${a - b} ✅</div>`;
 }
 
-// Add three numbers: two steps, each following the addition rule
-function hintAddThree(a, b, c) {
-  const ab = a + b;
-  const total = a + b + c;
-  
-  // Step 1: Add a + b
-  const bigAB = Math.max(a, b);
-  const smallAB = Math.min(a, b);
-  const stepsAB = Array.from({length: smallAB}, (_, i) => bigAB + i + 1);
-  
-  // Step 2: Add (a+b) + c
-  const stepsC = Array.from({length: c}, (_, i) => ab + i + 1);
-  
-  return `
-    <div class="hint-step"><strong>Step 1 — add ${a} + ${b}:</strong></div>
-    <div class="hint-step">Start with the number <strong>after the bigger number (${bigAB})</strong> and count up <strong>${smallAB}</strong> numbers:</div>
-    <div class="hint-count">${stepsAB.join(', ')}</div>
-    <div class="hint-step">That is <strong>${smallAB} fingers</strong> → we get <strong>${ab}</strong></div>
-    <div class="hint-step"><strong>Step 2 — add ${ab} + ${c}:</strong></div>
-    <div class="hint-step">Now start with the number <strong>after ${ab}</strong> and count up <strong>${c}</strong> numbers:</div>
-    <div class="hint-count">${stepsC.join(', ')}</div>
-    <div class="hint-step">That is <strong>${c} fingers</strong> → we reach ${total}</div>
-    <div class="hint-answer">Answer: ${total} ✅</div>`;
-}
-
-// Subtract three numbers: two steps, each following the subtraction rule
-function hintSubThree(total, b, c) {
-  const afterB = total - b;
-  const result = total - b - c;
-  
-  // Step 1: total - b
-  const stepsB = Array.from({length: afterB}, (_, i) => b + i + 1);
-  
-  // Step 2: (total-b) - c
-  const stepsC = Array.from({length: result}, (_, i) => c + i + 1);
-  
-  return `
-    <div class="hint-step"><strong>Step 1 — subtract ${b} from ${total}:</strong></div>
-    <div class="hint-step">Start counting <strong>after ${b}</strong> and count up to <strong>${total}</strong>:</div>
-    <div class="hint-count">${stepsB.join(', ')}</div>
-    <div class="hint-step">We reach ${total} after <strong>${afterB} fingers</strong> → we get <strong>${afterB}</strong></div>
-    <div class="hint-step"><strong>Step 2 — subtract ${c} from ${afterB}:</strong></div>
-    <div class="hint-step">Now start counting <strong>after ${c}</strong> and count up to <strong>${afterB}</strong>:</div>
-    <div class="hint-count">${stepsC.join(', ')}</div>
-    <div class="hint-step">We reach ${afterB} after <strong>${result} fingers</strong></div>
-    <div class="hint-answer">Answer: ${result} ✅</div>`;
-}
-
-// Subtraction: Count up from after the small number to the big number - show only first few and last few
-function hintSub(a, b) {
-  const diff = a - b;
-  
-  // Create a shortened list of numbers
-  let steps = "";
-  if (diff > 10) {
-    // Show first 5 numbers, then "...", then last 3 numbers
-    const firstFew = Array.from({length: 5}, (_, i) => b + i + 1).join(', ');
-    const lastFew = Array.from({length: 3}, (_, i) => a - 2 + i).join(', ');
-    steps = `${firstFew} ... ${lastFew}`;
-  } else {
-    steps = Array.from({length: diff}, (_, i) => b + i + 1).join(', ');
-  }
-  
-  return `
-    <div class="hint-step">We subtract ${b} from ${a}.</div>
-    <div class="hint-step">Start counting <strong>after ${b}</strong> and count up to <strong>${a}</strong>:</div>
-    <div class="hint-count">${steps}</div>
-    <div class="hint-step">We reach ${a} after <strong>${diff} fingers</strong> → the answer is ${diff} ✅</div>`;
-}
-
 // Add three numbers: following your exact teaching method with column format
 function hintAddThree(a, b, c) {
   // First add a + b
@@ -530,7 +460,6 @@ function hintAddThree(a, b, c) {
   return hint1 + hint2;
 }
 
-// Subtract three numbers: two steps, each following the subtraction rule with shortened lists
 // Subtract three numbers: following your exact teaching method with split columns
 function hintSubThree(total, b, c) {
   // Step 1: Subtract b from total
@@ -842,14 +771,35 @@ const wordsSubThree = [
 //  LEVEL 8 — MAKE A SUM
 // ═══════════════════════════════════════════════════
 function hintComposeAdd(target) {
-  const eg = Math.min(5, target - 1);
-  const other = target - eg;
+  const example = 5; // Pick 5 as the example number
+  const other = target - example;
+  
+  // Show subtraction of example from target using borrow method if needed
+  let subHint = "";
+  if (target >= 10 && (target % 10) < (example % 10)) {
+    // Need to use borrow subtraction
+    subHint = hintBorrowSub(target, example);
+  } else {
+    // Simple subtraction
+    const diff = target - example;
+    const steps = Array.from({length: diff}, (_, i) => example + i + 1);
+    subHint = `
+      <div class="hint-step">We subtract ${example} from ${target}.</div>
+      <div class="hint-step">Start counting <strong>after ${example}</strong> and count up to <strong>${target}</strong>:</div>
+      <div class="hint-count">${steps.join(', ')}</div>
+      <div class="hint-step">We reach ${target} after <strong>${diff} fingers</strong> → the answer is ${diff} ✅</div>`;
+  }
+  
   return `
-    <div class="hint-step">👉 Pick <strong>any number less than ${target}</strong>. Let's try <strong>${eg}</strong>.</div>
-    <div class="hint-step">Now we ask: what number plus ${eg} makes ${target}?</div>
-    <div class="hint-step">To find the missing number, count from <strong>after ${eg}</strong> up to <strong>${target}</strong>:</div>
-    ${hintMissingAddSimple(target, eg)}
-    <div class="hint-step">So <strong>${eg} + ${other} = ${target}</strong> ✅</div>
+    <div class="hint-step"><strong>🧩 Make a Sum — Find two numbers that add up to ${target}</strong></div>
+    <div class="hint-step">Here we are trying to find how many different numbers can add up to ${target}.</div>
+    <div class="hint-step">Take any number less than ${target} since the total after adding two numbers will be ${target}. Let's take <strong>${example}</strong>.</div>
+    <div class="hint-step">We now have to find the other number that will make ${target} when we add the two numbers. How does it look?</div>
+    <div class="hint-col">  ${example} + ? = ${target}</div>
+    <div class="hint-step">So, we subtract ${example} from ${target} using the subtraction rule that we learned:</div>
+    ${subHint}
+    <div class="hint-step">Now that we have our answer, <strong>${other}</strong>, if we add the numbers ${other} + ${example}, we get ${target}:</div>
+    <div class="hint-col">  ${other} + ${example} = ${target} ✅</div>
     <div class="hint-step">Now fill in the boxes below with <strong>two different pairs</strong> that add up to ${target}.<br>Try starting with a different small number each time!</div>`;
 }
 
@@ -873,14 +823,35 @@ const wordsComposeAdd = [
 //  LEVEL 9 — FIND THE GAP
 // ═══════════════════════════════════════════════════
 function hintComposeSub(diff) {
-  const small = 3;
+  const small = 3; // Pick 3 as the example small number
   const big = small + diff;
+  
+  // Show addition of small and diff using carry method if needed
+  let addHint = "";
+  if ((small % 10) + (diff % 10) >= 10) {
+    // Need to use carry addition
+    addHint = hintCarryAdd(small, diff);
+  } else {
+    // Simple addition
+    const bigNum = Math.max(small, diff);
+    const smallNum = Math.min(small, diff);
+    const steps = Array.from({length: smallNum}, (_, i) => bigNum + i + 1);
+    addHint = `
+      <div class="hint-step">We add ${small} and ${diff}.</div>
+      <div class="hint-step">Start with the number <strong>after the bigger number (${bigNum})</strong> and count up <strong>${smallNum}</strong> numbers:</div>
+      <div class="hint-count">${steps.join(', ')}</div>
+      <div class="hint-step">That is <strong>${smallNum} fingers</strong> → we get ${big} ✅</div>`;
+  }
+  
   return `
-    <div class="hint-step">👉 Start with <strong>any small number</strong>. Let's try <strong>${small}</strong>.</div>
-    <div class="hint-step">We need to find the big number so that when we subtract ${small} from it, we get ${diff}.</div>
-    <div class="hint-step">To find the big number, we <strong>add ${small} + ${diff}</strong>:</div>
-    ${hintAdd(small, diff)}
-    <div class="hint-step">So <strong>${big} − ${small} = ${diff}</strong> ✅</div>
+    <div class="hint-step"><strong>🔍 Find the Gap — Find two numbers with a difference of ${diff}</strong></div>
+    <div class="hint-step">Here we are trying to find how many different combinations of 2 numbers when we subtract them we get ${diff}.</div>
+    <div class="hint-step">Let's pick a small number, <strong>${small}</strong>. We need to find the big number from which when we subtract ${small}, we get ${diff}. What do we have?</div>
+    <div class="hint-col">  ? - ${small} = ${diff}</div>
+    <div class="hint-step">What do we do to solve this? We add ${small} and ${diff} using the addition rule we learned:</div>
+    ${addHint}
+    <div class="hint-step">So, now that we have the answer, <strong>${big}</strong>, if we subtract ${small} from ${big} (${big} - ${small}), we get ${diff}:</div>
+    <div class="hint-col">  ${big} - ${small} = ${diff} ✅</div>
     <div class="hint-step">Now fill in the boxes below with <strong>two different pairs</strong> that have a difference of ${diff}.<br>Try starting with a different small number each time!</div>`;
 }
 
