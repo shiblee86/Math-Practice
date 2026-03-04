@@ -116,19 +116,19 @@
       <button class="tb-btn tb-load" onclick="loadProgress()">📂 Load</button>
       <input type="file" id="loadFile" accept=".json" style="display:none" onchange="handleLoadFile(event)">
     </div>
-    <div class="tb-lbl" id="progressLabel">0/10 mastered</div>
+    <div class="tb-lbl" id="progressLabel">0/11 mastered</div>
   </div>
 
   <!-- HOME -->
   <div id="homeScreen" class="screen active">
     <div class="home-hero">
       <h1>Safia's Math Adventure!</h1>
-      <p>10 levels · Learn with step-by-step hints</p>
+      <p>11 levels · Learn with step-by-step hints</p>
     </div>
     <div class="levels-grid" id="levelsGrid"></div>
     <div class="progress-chart">
       <h3 style="color:#d4c2ff;margin-bottom:8px;">📊 Safia's Progress</h3>
-      <div id="progressStats" style="color:#b1a5d9;font-size:0.85rem;">0 of 10 levels mastered (0%)</div>
+      <div id="progressStats" style="color:#b1a5d9;font-size:0.85rem;">0 of 11 levels mastered (0%)</div>
       <div class="progress-bar-cont"><div class="progress-bar-fill" id="progressBarFill"></div></div>
     </div>
   </div>
@@ -190,6 +190,7 @@ const LEVELS = [
   { id:'sub_three',   name:'Subtract Three', icon:'🔻' },
   { id:'compose_add', name:'Make a Sum',     icon:'🧩' },
   { id:'compose_sub', name:'Find the Gap',   icon:'🔍' },
+  { id:'logic',       name:'Logic Puzzles',  icon:'🧠' },
   { id:'combo',       name:'Grand Finale',   icon:'🏆' }
 ];
 
@@ -872,28 +873,327 @@ const wordsComposeSub = [
 ];
 
 // ═══════════════════════════════════════════════════
-//  LEVEL 10 — GRAND FINALE
+//  LEVEL 10 — LOGIC PUZZLES
+// ═══════════════════════════════════════════════════
+
+// Helper function for logic hints
+function hintLogic(type, data) {
+  if (type === 'pattern') {
+    return `
+      <div class="hint-step"><strong>🧩 Pattern Puzzle</strong></div>
+      <div class="hint-step">Look at the pattern carefully. What comes next?</div>
+      <div class="hint-step">Say the pattern out loud: ${data.pattern}</div>
+      <div class="hint-step">The pattern repeats every ${data.repeat} items.</div>
+      <div class="hint-step">So after ${data.last}, the next one should be <strong>${data.next}</strong> ✅</div>`;
+  }
+  
+  if (type === 'if_then') {
+    return `
+      <div class="hint-step"><strong>🤔 If-Then Puzzle</strong></div>
+      <div class="hint-step">Let's think step by step:</div>
+      <div class="hint-step">${data.statement1}</div>
+      <div class="hint-step">${data.statement2}</div>
+      <div class="hint-step">So that means: <strong>${data.conclusion}</strong> ✅</div>`;
+  }
+  
+  if (type === 'sorting') {
+    return `
+      <div class="hint-step"><strong>📦 Sorting Puzzle</strong></div>
+      <div class="hint-step">We need to find what doesn't belong.</div>
+      <div class="hint-step">Look at each item: ${data.items}</div>
+      <div class="hint-step">${data.reason}</div>
+      <div class="hint-step">So <strong>${data.oddOneOut}</strong> is the one that doesn't belong ✅</div>`;
+  }
+  
+  if (type === 'sequence') {
+    return `
+      <div class="hint-step"><strong>🔢 Number Sequence</strong></div>
+      <div class="hint-step">Look at how the numbers change:</div>
+      <div class="hint-step">${data.explanation}</div>
+      <div class="hint-step">The pattern is: ${data.rule}</div>
+      <div class="hint-step">So the next number is <strong>${data.next}</strong> ✅</div>`;
+  }
+  
+  if (type === 'analogy') {
+    return `
+      <div class="hint-step"><strong>🔄 Analogy Puzzle</strong></div>
+      <div class="hint-step">This is like a puzzle where we find the relationship.</div>
+      <div class="hint-step">${data.relationship}</div>
+      <div class="hint-step">So if ${data.pair1}, then ${data.pair2}</div>
+      <div class="hint-step">That means the answer is <strong>${data.answer}</strong> ✅</div>`;
+  }
+  
+  return "Think carefully about the pattern! 🧠";
+}
+
+function eqLogic() {
+  const type = rnd(0,4);
+  
+  // Pattern recognition: 🔴🔵🔴🔵?
+  if (type === 0) {
+    const patterns = [
+      { pattern: "🔴 🔵 🔴 🔵", next: "🔴", repeat: 2, last: "🔵", answer: "🔴" },
+      { pattern: "🟡 🟢 🟡 🟢", next: "🟡", repeat: 2, last: "🟢", answer: "🟡" },
+      { pattern: "🐶 🐱 🐶 🐱", next: "🐶", repeat: 2, last: "🐱", answer: "🐶" },
+      { pattern: "⭐ 🌙 ⭐ 🌙", next: "⭐", repeat: 2, last: "🌙", answer: "⭐" },
+      { pattern: "🍎 🍌 🍎 🍌", next: "🍎", repeat: 2, last: "🍌", answer: "🍎" },
+      { pattern: "1 2 1 2", next: "1", repeat: 2, last: "2", answer: "1" }
+    ];
+    const p = patterns[rnd(0, patterns.length-1)];
+    return {
+      type: 'logic_pattern',
+      question: `What comes next in the pattern?\n${p.pattern} __?`,
+      answer: p.next,
+      hint: hintLogic('pattern', p)
+    };
+  }
+  
+  // If-then reasoning
+  if (type === 1) {
+    const puzzles = [
+      {
+        q: "If it's raining, then we use an umbrella.\nIt is raining today.\nWhat do we use?",
+        answer: "umbrella",
+        data: {
+          statement1: "Rule: If it's raining, then we use an umbrella.",
+          statement2: "Fact: It is raining today.",
+          conclusion: "We use an umbrella."
+        }
+      },
+      {
+        q: "If you finish your vegetables, you get dessert.\nSafia finished her vegetables.\nDoes she get dessert?",
+        answer: "yes",
+        data: {
+          statement1: "Rule: If you finish vegetables, you get dessert.",
+          statement2: "Fact: Safia finished her vegetables.",
+          conclusion: "Yes, she gets dessert!"
+        }
+      },
+      {
+        q: "If an animal has fur and says 'meow', it's a cat.\nFluffy has fur and says 'meow'.\nWhat is Fluffy?",
+        answer: "cat",
+        data: {
+          statement1: "Rule: If an animal has fur and says 'meow', it's a cat.",
+          statement2: "Fact: Fluffy has fur and says 'meow'.",
+          conclusion: "Fluffy is a cat."
+        }
+      },
+      {
+        q: "If it's nighttime, the moon is out.\nIt is nighttime.\nIs the moon out?",
+        answer: "yes",
+        data: {
+          statement1: "Rule: If it's nighttime, the moon is out.",
+          statement2: "Fact: It is nighttime.",
+          conclusion: "Yes, the moon is out."
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic_if_then',
+      question: p.q,
+      answer: p.answer,
+      hint: hintLogic('if_then', p.data)
+    };
+  }
+  
+  // Which one doesn't belong? (sorting/categorization)
+  if (type === 2) {
+    const puzzles = [
+      {
+        q: "Which one doesn't belong?\n🍎 🍌 🐶 🍊",
+        answer: "🐶",
+        data: {
+          items: "apple, banana, dog, orange",
+          reason: "Apple, banana, and orange are all fruits. Dog is an animal.",
+          oddOneOut: "🐶 (dog)"
+        }
+      },
+      {
+        q: "Which one doesn't belong?\n🔴 🟡 🔵 🟢 ⭐",
+        answer: "⭐",
+        data: {
+          items: "red, yellow, blue, green, star",
+          reason: "Red, yellow, blue, and green are all colors. Star is a shape.",
+          oddOneOut: "⭐ (star)"
+        }
+      },
+      {
+        q: "Which one doesn't belong?\n🐱 🐶 🐭 🚗",
+        answer: "🚗",
+        data: {
+          items: "cat, dog, mouse, car",
+          reason: "Cat, dog, and mouse are all animals. Car is a vehicle.",
+          oddOneOut: "🚗 (car)"
+        }
+      },
+      {
+        q: "Which one doesn't belong?\n1 2 3 4 🖐️",
+        answer: "🖐️",
+        data: {
+          items: "1, 2, 3, 4, hand",
+          reason: "1, 2, 3, and 4 are numbers. Hand is not a number.",
+          oddOneOut: "🖐️ (hand)"
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic_sorting',
+      question: p.q,
+      answer: p.answer,
+      hint: hintLogic('sorting', p.data)
+    };
+  }
+  
+  // Number sequences
+  if (type === 3) {
+    const puzzles = [
+      {
+        q: "What comes next?\n2, 4, 6, 8, __?",
+        answer: "10",
+        data: {
+          explanation: "Start at 2, then add 2 each time.",
+          rule: "Add 2",
+          next: "10"
+        }
+      },
+      {
+        q: "What comes next?\n5, 10, 15, 20, __?",
+        answer: "25",
+        data: {
+          explanation: "Start at 5, then add 5 each time.",
+          rule: "Add 5",
+          next: "25"
+        }
+      },
+      {
+        q: "What comes next?\n10, 9, 8, 7, __?",
+        answer: "6",
+        data: {
+          explanation: "Start at 10, then subtract 1 each time.",
+          rule: "Subtract 1",
+          next: "6"
+        }
+      },
+      {
+        q: "What comes next?\n1, 2, 4, 7, 11, __?",
+        answer: "16",
+        data: {
+          explanation: "Add 1, then add 2, then add 3, then add 4...",
+          rule: "Add one more each time",
+          next: "16"
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic_sequence',
+      question: p.q,
+      answer: p.answer,
+      hint: hintLogic('sequence', p.data)
+    };
+  }
+  
+  // Simple analogies
+  if (type === 4) {
+    const puzzles = [
+      {
+        q: "Hot is to cold as day is to ___?",
+        answer: "night",
+        data: {
+          relationship: "Hot and cold are opposites.",
+          pair1: "day is opposite of night",
+          pair2: "night",
+          answer: "night"
+        }
+      },
+      {
+        q: "Bird is to sky as fish is to ___?",
+        answer: "water",
+        data: {
+          relationship: "A bird lives in the sky.",
+          pair1: "fish lives in water",
+          pair2: "water",
+          answer: "water"
+        }
+      },
+      {
+        q: "Puppy is to dog as kitten is to ___?",
+        answer: "cat",
+        data: {
+          relationship: "A puppy grows up to be a dog.",
+          pair1: "kitten grows up to be a cat",
+          pair2: "cat",
+          answer: "cat"
+        }
+      },
+      {
+        q: "Hand is to glove as foot is to ___?",
+        answer: "shoe",
+        data: {
+          relationship: "A hand goes inside a glove.",
+          pair1: "a foot goes inside a shoe",
+          pair2: "shoe",
+          answer: "shoe"
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic_analogy',
+      question: p.q,
+      answer: p.answer,
+      hint: hintLogic('analogy', p.data)
+    };
+  }
+}
+
+const wordsLogic = [
+  { type:'word_logic', question:"Safia has 3 red apples and 2 green apples. How many apples does she have in total? (This is like 3 + 2 = ?)", answer:"5", hint:"First count the red apples: 1, 2, 3. Then count the green apples: 1, 2. Now count them all together!" },
+  { type:'word_logic', question:"If all dogs bark and Max is a dog, does Max bark?", answer:"yes", hint:"Rule: All dogs bark. Fact: Max is a dog. So Max must bark!" },
+  { type:'word_logic', question:"Which shape is different? ○ □ △ ○", answer:"△", hint:"Three circles and one triangle. The triangle is different!" },
+  { type:'word_logic', question:"What comes next? Monday, Tuesday, Wednesday, ___?", answer:"Thursday", hint:"Days of the week: Monday, Tuesday, Wednesday, Thursday..." },
+  { type:'word_logic', question:"If you have 4 cookies and eat 1, how many are left? (4 - 1 = ?)", answer:"3", hint:"Start with 4 cookies. Eat 1, count what's left: 3 cookies!" }
+];
+
+// ═══════════════════════════════════════════════════
+//  LEVEL 11 — GRAND FINALE (22 problems - 2 from each of the 11 levels)
 // ═══════════════════════════════════════════════════
 function generateComboProblems() {
   const defs = [
-    { eqFn:eqCounting,    pool:wordsCounting   },
-    { eqFn:eqGrouping,    pool:wordsGrouping   },
-    { eqFn:eqMissingAdd,  pool:wordsMissingAdd },
-    { eqFn:eqCarryAdd,    pool:wordsCarryAdd   },
-    { eqFn:eqBorrowSub,   pool:wordsBorrowSub  },
-    { eqFn:eqAddThree,    pool:wordsAddThree   },
-    { eqFn:eqSubThree,    pool:wordsSubThree   },
-    { eqFn:eqComposeAdd,  pool:wordsComposeAdd },
-    { eqFn:eqComposeSub,  pool:wordsComposeSub }
+    { eqFn:eqCounting,    pool:wordsCounting   },   // Level 1
+    { eqFn:eqGrouping,    pool:wordsGrouping   },   // Level 2
+    { eqFn:eqMissingAdd,  pool:wordsMissingAdd },   // Level 3
+    { eqFn:eqCarryAdd,    pool:wordsCarryAdd   },   // Level 4
+    { eqFn:eqBorrowSub,   pool:wordsBorrowSub  },   // Level 5
+    { eqFn:eqAddThree,    pool:wordsAddThree   },   // Level 6
+    { eqFn:eqSubThree,    pool:wordsSubThree   },   // Level 7
+    { eqFn:eqComposeAdd,  pool:wordsComposeAdd },   // Level 8
+    { eqFn:eqComposeSub,  pool:wordsComposeSub },   // Level 9
+    { eqFn:eqLogic,       pool:wordsLogic      },   // Level 10
+    { eqFn:eqLogic,       pool:wordsLogic      }    // Level 11
   ];
+  
   const result = [];
+  
+  // For each level, add 2 problems (1 equation + 1 word problem)
   defs.forEach(({ eqFn, pool }) => {
-    let eq = null, g = 0;
-    while (!eq && g++ < 100) eq = eqFn();
+    // Add one equation problem
+    let eq = null;
+    let guard = 0;
+    while (!eq && guard++ < 100) {
+      eq = eqFn();
+    }
     if (eq) result.push({ ...eq, category:'equation', hasHint:false });
-    const wp = pool[rnd(0, pool.length-1)];
-    result.push({ ...wp, category:'word', hasHint:false });
+    
+    // Add one word problem from the pool
+    if (pool && pool.length > 0) {
+      const wp = pool[rnd(0, pool.length-1)];
+      result.push({ ...wp, category:'word', hasHint:false });
+    }
   });
+  
   return shuffle(result);
 }
 
@@ -911,7 +1211,8 @@ function generateLevel(id) {
     add_three:   { eqFn:eqAddThree,    pool:wordsAddThree   },
     sub_three:   { eqFn:eqSubThree,    pool:wordsSubThree   },
     compose_add: { eqFn:eqComposeAdd,  pool:wordsComposeAdd },
-    compose_sub: { eqFn:eqComposeSub,  pool:wordsComposeSub }
+    compose_sub: { eqFn:eqComposeSub,  pool:wordsComposeSub },
+    logic:       { eqFn:eqLogic,       pool:wordsLogic      }
   };
   const d = map[id];
   return d ? buildLevel(d.eqFn, d.pool) : [];
@@ -1012,14 +1313,15 @@ function renderQuestion() {
   hintBtn.style.display = q.hasHint ? 'block' : 'none';
   hintBtn.disabled = false;
 
-  const labels = {
-    counting_add:'🔢 Counting', counting_sub:'🔢 Counting',
-    grouping:'📦 Tens & Ones', missing_add:'❓ Missing Number', missing_sub:'❓ Missing Number', missing_add_three:'❓ Missing Number',
-    carry_add:'➕ Carry Addition', borrow_sub:'➖ Borrow Sub',
-    add_three:'🔺 Add Three', sub_three:'🔻 Subtract Three',
-    compose_add:'🧩 Make a Sum', compose_sub:'🔍 Find the Gap',
-    word:'📖 Word Problem', word_compose:'📖 Word Problem', word_compose_sub:'📖 Word Problem'
-  };
+const labels = {
+  counting_add:'🔢 Counting', counting_sub:'🔢 Counting',
+  grouping:'📦 Tens & Ones', missing_add:'❓ Missing Number', missing_sub:'❓ Missing Number', missing_add_three:'❓ Missing Number',
+  carry_add:'➕ Carry Addition', borrow_sub:'➖ Borrow Sub',
+  add_three:'🔺 Add Three', sub_three:'🔻 Subtract Three',
+  compose_add:'🧩 Make a Sum', compose_sub:'🔍 Find the Gap',
+  logic_pattern:'🧠 Pattern', logic_if_then:'🧠 If-Then', logic_sorting:'🧠 Sorting', logic_sequence:'🧠 Sequence', logic_analogy:'🧠 Analogy',
+  word:'📖 Word Problem', word_logic:'📖 Logic Word', word_compose:'📖 Word Problem', word_compose_sub:'📖 Word Problem'
+};
   const badge = labels[q.type] || '🧮 Math';
   const isComposeAdd = ['compose_add','word_compose'].includes(q.type);
   const isComposeSub = ['compose_sub','word_compose_sub'].includes(q.type);
