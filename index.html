@@ -189,21 +189,66 @@ let state = { completed:{}, currentLevel:null, questions:[], qIndex:0, score:0, 
 function rnd(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
 function shuffle(a) { for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-// ---------- each generator now returns 13 problems (instead of 20) ----------
+// ---------- each generator now returns 13 problems ----------
 function makeCountingProblems() { let q=[]; for(let i=0;i<13;i++){ if(i%2){ let b=rnd(3,12), s=rnd(1,6); q.push({type:'counting_add', q:`${b} + ${s} = ?`, answer:b+s, hint:'👉 Count UP using your fingers: put up '+s+' fingers after '+b, explanation:`${b}+${s}=${b+s}`}); } else { let b=rnd(5,18), s=rnd(2,7); q.push({type:'counting_sub', q:`${b} - ${s} = ?`, answer:b-s, hint:'👉 Count DOWN: start from '+b+' and take away '+s+' fingers', explanation:`${b}-${s}=${b-s}`}); } } return q; }
 function countingWordProblems() { return shuffle([ {q:'Emma has 9 apples, gets 4 more. How many?',a:13}, {q:'14 birds, 6 fly away. Left?',a:8}, {q:'11 fish + 7 fish = ?',a:18}, {q:'15 stickers, give 9. Left?',a:6}, {q:'8 crayons, find 8 more?',a:16} ]).map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
 
 function makeGroupingProblems() { let q=[]; for(let i=0;i<13;i++){ let t=rnd(2,7), o=rnd(0,9), n=t*10+o; if(i<7) q.push({type:'grouping_tens', q:`${n} has how many TENS?`, answer:t, hint:`TENS are the first digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); else q.push({type:'grouping_ones', q:`${n} has how many ONES?`, answer:o, hint:`ONES are the last digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); } return q; }
 function groupingWordProblems() { return [ {q:'3 tens + 4 ones = ?',a:34}, {q:'5 packs of ten + 7 loose = ?',a:57}, {q:'How many tens in 47?',a:4}, {q:'How many ones in 62?',a:2}, {q:'2 tens + 9 ones = ?',a:29} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
 
-function makeMissingAddProblems() { let q=[]; for(let i=0;i<13;i++){ let tot=rnd(8,22), a=rnd(2,8), b=rnd(2,8), x=tot-a-b; if(x>0 && i%3) q.push({type:'missing_3', q:`${tot} = ${a} + ${b} + ?`, answer:x, hint:'Step❶ Add '+a+'+'+b+'='+(a+b)+'   Step❷ '+tot+' − '+(a+b)+' = ?'}); else { let aa=rnd(3,12), xx=tot-aa; q.push({type:'missing_2', q:`${tot} = ${aa} + ?`, answer:xx, hint:'Just subtract: '+tot+' − '+aa+' = ?'}); } } return q; }
-function missingAddWordProblems() { return [ {q:'Need 12 flowers, have 4 red + 5 yellow. More?',a:3}, {q:'Bag needs 15 books, has 6. More?',a:9}, {q:'20 eggs, have 7+4. Need?',a:9}, {q:'18 puzzle pieces, placed 9+5. Missing?',a:4}, {q:'10 seats, 3 boys + 4 girls. Empty?',a:3} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+// ************** FIXED: missing number hints now use correct subtraction order **************
+function makeMissingAddProblems() { 
+  let q=[]; 
+  for(let i=0;i<13;i++){ 
+    let tot=rnd(8,22), a=rnd(2,8), b=rnd(2,8), x=tot-a-b; 
+    if(x>0 && i%3) {
+      // three numbers missing
+      let sumAb = a+b;
+      q.push({
+        type:'missing_3', 
+        q:`${tot} = ${a} + ${b} + ?`, 
+        answer:x, 
+        hint:`Step❶ Add ${a}+${b} = ${sumAb}   Step❷ ${tot} − ${sumAb} = ?`   // CORRECT: total minus known sum
+      });
+    } else { 
+      let aa=rnd(3,12), xx=tot-aa; 
+      q.push({
+        type:'missing_2', 
+        q:`${tot} = ${aa} + ?`, 
+        answer:xx, 
+        hint:`✨ Just subtract: ${tot} − ${aa} = ?`   // CORRECT: total minus known number
+      });
+    } 
+  } 
+  return q; 
+}
+
+function makeFindPairProblems() { 
+  let q=[]; 
+  for(let i=0;i<13;i++){ 
+    let t=rnd(6,20), a=rnd(2,12), b=t-a; 
+    q.push({
+      type:'find_pair', 
+      q:`${t} = ${a} + ?`, 
+      answer:b, 
+      hint:`${t} − ${a} = ${b}`   // CORRECT order
+    }); 
+  } 
+  return q; 
+}
+
+function missingAddWordProblems() { 
+  return [ 
+    {q:'Need 12 flowers, have 4 red + 5 yellow. More?',a:3}, 
+    {q:'Bag needs 15 books, has 6. More?',a:9}, 
+    {q:'20 eggs, have 7+4. Need?',a:9}, 
+    {q:'18 puzzle pieces, placed 9+5. Missing?',a:4}, 
+    {q:'10 seats, 3 boys + 4 girls. Empty?',a:3} 
+  ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); 
+}
 
 function makeSimpleSubProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(7,20), b=rnd(2,9); q.push({type:'sub1', q:`${a} - ${b} = ?`, answer:a-b, hint:'Count up from '+(b+1)+' to '+a+' → that’s '+(a-b)+' steps'}); } return q; }
 function simpleSubWordProblems() { return [ {q:'13 cookies, eat 4. Left?',a:9}, {q:'17 grapes, 8 eaten. Left?',a:9}, {q:'20 kids, 7 go home. Still?',a:13}, {q:'15 books, return 6. Left?',a:9}, {q:'18 butterflies, 9 fly away. Left?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
-
-function makeFindPairProblems() { let q=[]; for(let i=0;i<13;i++){ let t=rnd(6,20), a=rnd(2,12), b=t-a; q.push({type:'find_pair', q:`${t} = ${a} + ?`, answer:b, hint:t+' − '+a+' = '+b}); } return q; }
-function findPairWordProblems() { return [ {q:'Need 15 cookies, have 8. More?',a:7}, {q:'12 passengers, 5 seated. More?',a:7}, {q:'18 flowers, planted 9. More?',a:9}, {q:'20 beads, 13 on. Need?',a:7}, {q:'16 cups flour, have 7. Need?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
 
 function makeTakeTwoProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(12,28), b=rnd(2,6), c=rnd(2,6); q.push({type:'take_two', q:`${a} - ${b} - ${c} = ?`, answer:a-b-c, hint:'First: '+a+'−'+b+'='+(a-b)+'  then −'+c+' = ?'}); } return q; }
 function takeTwoWordProblems() { return [ {q:'20 marbles, take 4 then 3. Left?',a:13}, {q:'25 stickers, take 7 then 5. Left?',a:13}, {q:'18 books, borrow 5 then 4. Left?',a:9}, {q:'22 muffins, eat 3 then 6. Left?',a:13}, {q:'15 frogs, 4 hop, then 2 hop. Left?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
@@ -256,7 +301,6 @@ function renderQuestion() {
   }
   else if (q.type && q.type.startsWith('grouping')) {
     html += `<div class="mini-lesson"><span class="emojii">📦</span> TENS are groups of 10 · ONES are leftovers. ${q.hint}</div>`;
-    if (q.answer !== undefined) { /* visual later */ }
   }
   else if (q.type && (q.type.startsWith('missing') || q.type.startsWith('find'))) {
     html += `<div class="step-hint">✨ ${q.hint || 'Step 1: add what you know · Step 2: subtract from total'}</div>`;
@@ -271,10 +315,6 @@ function renderQuestion() {
     html += `<div class="mini-lesson">💡 ${q.hint || 'think step by step'}</div>`;
   }
 
-  // grouping visual
-  if (q.type && q.type.startsWith('grouping') && q.answer!==undefined) {
-    let t = q.q.match(/\d+/)?.[0] || 0; if(!q.tens && !q.ones){} // skip
-  }
   if (q.type==='carry_add' && q.a) {
     let ones = (q.a%10)+(q.b%10); let carry = Math.floor(ones/10);
     html += `<div style="font-size:1.8rem;text-align:center;background:#eee;border-radius:30px;margin-top:10px;"> ${q.a} + ${q.b} = ?<br> <span style="color:red;font-size:1rem;">carry: ${carry>0?'¹':''}</span></div>`;
