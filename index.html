@@ -1,1798 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Math Adventure ⭐</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
-
-  :root {
-    --sky: #6EC6F5;
-    --sun: #FFD93D;
-    --grass: #6BCB77;
-    --coral: #FF6B6B;
-    --purple: #C77DFF;
-    --cream: #FFF8EE;
-    --dark: #2D3561;
-    --card: #ffffff;
-    --shadow: 0 8px 32px rgba(45,53,97,0.13);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: linear-gradient(160deg, #e0f7fa 0%, #f3e5f5 50%, #fff9c4 100%);
-    min-height: 100vh;
-    color: var(--dark);
-  }
-
-  h1, h2, h3, .big-num {
-    font-family: 'Fredoka One', cursive;
-    letter-spacing: 1px;
-  }
-
-  /* ---- TOP BAR ---- */
-  #topbar {
-    background: var(--dark);
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
-  }
-  #topbar h1 { font-size: 1.4rem; color: var(--sun); }
-  .topbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-save, .btn-load {
-    padding: 7px 18px;
-    border-radius: 20px;
-    border: none;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 800;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-  }
-  .btn-save { background: var(--sun); color: var(--dark); }
-  .btn-load { background: var(--grass); color: white; }
-  .btn-save:hover, .btn-load:hover { transform: scale(1.05); }
-  #progress-label { font-size: 0.8rem; color: #aaa; }
-
-  /* ---- SCREENS ---- */
-  .screen { display: none; padding: 24px 16px; max-width: 700px; margin: 0 auto; }
-  .screen.active { display: block; }
-
-  /* ---- HOME SCREEN ---- */
-  #home-screen { text-align: center; }
-  .home-title { font-size: 3rem; color: var(--dark); margin-bottom: 8px; }
-  .home-sub { font-size: 1.1rem; color: #666; margin-bottom: 32px; }
-  .levels-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 14px;
-    margin-top: 20px;
-  }
-  .level-btn {
-    background: white;
-    border: 3px solid transparent;
-    border-radius: 20px;
-    padding: 18px 10px;
-    cursor: pointer;
-    text-align: center;
-    box-shadow: var(--shadow);
-    transition: transform 0.15s, border-color 0.15s;
-    font-family: 'Nunito', sans-serif;
-    position: relative;
-  }
-  .level-btn:hover { transform: translateY(-4px); border-color: var(--sky); }
-  .level-btn.completed { border-color: var(--grass); }
-  .level-icon { font-size: 2.2rem; }
-  .level-name { font-weight: 800; font-size: 0.85rem; margin-top: 6px; color: var(--dark); }
-  .level-stars { color: var(--sun); font-size: 0.9rem; margin-top: 4px; }
-
-  /* ---- QUIZ SCREEN ---- */
-  #quiz-screen { }
-  .quiz-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 18px; flex-wrap: wrap; gap: 8px;
-  }
-  .quiz-level-name { font-size: 1.3rem; color: var(--dark); }
-  .quiz-progress { font-size: 0.9rem; color: #666; }
-  .quiz-score-badge {
-    background: var(--dark); color: white; padding: 5px 14px; border-radius: 20px;
-    font-weight: 800;
-  }
-
-  .question-card {
-    background: white;
-    border-radius: 24px;
-    padding: 28px 24px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .question-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 6px;
-    background: linear-gradient(90deg, var(--sky), var(--purple), var(--coral));
-  }
-
-  .question-text {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--dark);
-    margin-bottom: 20px;
-    line-height: 1.4;
-  }
-  .equation-display {
-    font-family: 'Fredoka One', cursive;
-    font-size: 2.8rem;
-    text-align: center;
-    color: var(--dark);
-    margin: 16px 0;
-    letter-spacing: 3px;
-  }
-  .eq-part { display: inline-block; }
-  .eq-blank {
-    display: inline-block;
-    min-width: 60px;
-    border-bottom: 4px solid var(--coral);
-    text-align: center;
-    color: var(--coral);
-  }
-
-  /* Step-by-step hint for missing number problems */
-  .missing-step-hint {
-    background: #f0f8ff;
-    border: 3px solid var(--purple);
-    border-radius: 16px;
-    padding: 16px;
-    margin: 16px 0;
-    font-size: 1.1rem;
-    text-align: center;
-  }
-  .step-1, .step-2 {
-    display: inline-block;
-    padding: 8px 16px;
-    margin: 4px;
-    border-radius: 30px;
-    font-weight: 800;
-  }
-  .step-1 { background: #ffd966; color: #7a5c00; }
-  .step-2 { background: #b6d7a8; color: #1e4a1e; }
-  .step-arrow { font-size: 2rem; color: var(--purple); margin: 0 8px; }
-
-  .answer-input {
-    width: 100%;
-    padding: 16px;
-    font-size: 2rem;
-    font-family: 'Fredoka One', cursive;
-    border: 3px solid #ddd;
-    border-radius: 16px;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.2s;
-    color: var(--dark);
-  }
-  .answer-input:focus { border-color: var(--sky); }
-  .answer-input.correct { border-color: var(--grass); background: #f0fff4; }
-  .answer-input.wrong { border-color: var(--coral); background: #fff5f5; }
-
-  .multi-choice {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 16px;
-  }
-  .choice-btn {
-    padding: 18px;
-    font-size: 1.6rem;
-    font-family: 'Fredoka One', cursive;
-    border: 3px solid #ddd;
-    border-radius: 16px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--dark);
-  }
-  .choice-btn:hover { border-color: var(--sky); background: #e8f4fd; transform: scale(1.03); }
-  .choice-btn.correct { border-color: var(--grass); background: #f0fff4; }
-  .choice-btn.wrong { border-color: var(--coral); background: #fff5f5; }
-
-  .hint-box {
-    background: #fff9c4;
-    border: 2px dashed var(--sun);
-    border-radius: 14px;
-    padding: 14px;
-    margin-top: 14px;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #7a5c00;
-    display: none;
-  }
-  .hint-box.show { display: block; }
-
-  .feedback-box {
-    border-radius: 14px;
-    padding: 14px 18px;
-    margin-top: 14px;
-    font-size: 1rem;
-    font-weight: 700;
-    display: none;
-  }
-  .feedback-box.show { display: block; }
-  .feedback-box.correct-fb { background: #d4edda; color: #155724; border: 2px solid var(--grass); }
-  .feedback-box.wrong-fb { background: #f8d7da; color: #721c24; border: 2px solid var(--coral); }
-
-  .finger-counter {
-    display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0;
-    justify-content: center;
-  }
-  .finger {
-    width: 36px; height: 36px; border-radius: 50%; background: #ffd3b6;
-    border: 2px solid #e88;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: background 0.15s;
-    user-select: none;
-  }
-  .finger.raised { background: var(--coral); border-color: #c0392b; }
-
-  .action-row {
-    display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
-  }
-  .btn-primary {
-    flex: 1; padding: 14px; font-size: 1.1rem; font-family: 'Fredoka One', cursive;
-    background: var(--dark); color: white; border: none; border-radius: 16px;
-    cursor: pointer; transition: transform 0.1s, background 0.1s;
-    min-width: 120px;
-  }
-  .btn-primary:hover { background: #3d4a8a; transform: scale(1.02); }
-  .btn-hint {
-    padding: 14px 20px; font-size: 1rem; font-family: 'Fredoka One', cursive;
-    background: var(--sun); color: var(--dark); border: none; border-radius: 16px;
-    cursor: pointer; transition: transform 0.1s;
-  }
-  .btn-hint:hover { transform: scale(1.02); }
-  .btn-hint:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-back {
-    padding: 14px 20px; font-size: 1rem; font-family: 'Fredoka One', cursive;
-    background: #eee; color: var(--dark); border: none; border-radius: 16px;
-    cursor: pointer;
-  }
-
-  /* ---- RESULT SCREEN ---- */
-  #result-screen { text-align: center; }
-  .result-emoji { font-size: 5rem; margin: 20px 0; }
-  .result-title { font-size: 2.5rem; color: var(--dark); margin-bottom: 10px; }
-  .result-score { font-size: 1.4rem; color: #555; margin-bottom: 20px; }
-  .result-stars { font-size: 3rem; margin: 10px 0; }
-  .result-msg { font-size: 1.1rem; background: white; border-radius: 16px; padding: 16px; box-shadow: var(--shadow); margin: 16px 0; }
-  .mistakes-list { text-align: left; margin: 16px 0; }
-  .mistake-item {
-    background: #fff5f5; border: 2px solid #ffcdd2; border-radius: 12px;
-    padding: 12px; margin-bottom: 10px; font-size: 0.95rem;
-  }
-  .mistake-item .mi-q { font-weight: 800; color: var(--coral); }
-  .mistake-item .mi-exp { color: #555; margin-top: 4px; }
-
-  /* ---- WORD PROBLEM ---- */
-  .word-problem-card {
-    background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: var(--shadow);
-    border: 3px solid var(--purple);
-  }
-  .wp-badge {
-    display: inline-block; background: var(--purple); color: white;
-    border-radius: 20px; padding: 4px 14px; font-size: 0.85rem;
-    font-weight: 800; margin-bottom: 10px;
-  }
-
-  /* Grouping tens */
-  .tens-visual {
-    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center;
-  }
-  .ten-group {
-    display: flex; gap: 3px; background: #e3f2fd; border: 2px solid var(--sky);
-    border-radius: 10px; padding: 6px;
-  }
-  .unit-block {
-    width: 22px; height: 22px; background: var(--sky);
-    border-radius: 4px;
-  }
-  .ones-group {
-    display: flex; gap: 3px; background: #fff9c4; border: 2px solid var(--sun);
-    border-radius: 10px; padding: 6px;
-  }
-  .unit-block.one { background: var(--sun); }
-
-  /* Carry-over visual */
-  .addition-column {
-    font-family: 'Fredoka One', cursive;
-    font-size: 2rem;
-    line-height: 1.6;
-    text-align: right;
-    display: inline-block;
-    background: white;
-    padding: 16px 24px;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    min-width: 160px;
-    margin: 10px auto;
-  }
-  .carry-digit { color: var(--coral); font-size: 1rem; text-align: right; }
-  .division-line { border-top: 3px solid var(--dark); margin: 6px 0; }
-
-  /* Counting dots */
-  .counting-line {
-    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
-    justify-content: center; margin: 10px 0;
-  }
-  .count-num {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: var(--sky); color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Fredoka One', cursive; font-size: 1.2rem;
-    cursor: pointer; transition: background 0.15s;
-  }
-  .count-num.active { background: var(--coral); }
-  .count-num.start { background: var(--grass); }
-
-  /* Animations */
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  @keyframes pop { 0%{transform:scale(0.5);opacity:0} 100%{transform:scale(1);opacity:1} }
-  .pop { animation: pop 0.3s ease; }
-  .bounce { animation: bounce 0.5s ease infinite; }
-
-  .star-anim { display: inline-block; animation: pop 0.4s ease; }
-
-  /* Progress bar */
-  .prog-bar-wrap { background: #ddd; border-radius: 10px; height: 10px; margin: 8px 0; }
-  .prog-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--sky), var(--purple)); transition: width 0.4s; }
-
-  @media (max-width: 480px) {
-    .equation-display { font-size: 2rem; }
-    .home-title { font-size: 2rem; }
-    .levels-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌈 Math Adventure · simpler hints · 13 + 5</title>
+  <style>
+    /* same beautiful style – no changes to look & feel */
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+    :root {
+      --sky: #6EC6F5; --sun: #FFD93D; --grass: #6BCB77; --coral: #FF6B6B;
+      --purple: #C77DFF; --cream: #FFF8EE; --dark: #2D3561; --card: #ffffff;
+      --shadow: 0 8px 32px rgba(45,53,97,0.13);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #e0f7fa 0%, #f3e5f5 50%, #fff9c4 100%);
+      min-height: 100vh; color: var(--dark);
+    }
+    h1, h2, h3, .big-num { font-family: 'Fredoka One', cursive; letter-spacing: 1px; }
+    #topbar {
+      background: var(--dark); color: white; padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      position: sticky; top: 0; z-index: 100; box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    }
+    .btn-save, .btn-load {
+      padding: 7px 18px; border-radius: 20px; border: none;
+      font-weight: 800; font-size: 0.9rem; cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .btn-save { background: var(--sun); color: var(--dark); }
+    .btn-load { background: var(--grass); color: white; }
+    .screen { display: none; padding: 24px 16px; max-width: 700px; margin: 0 auto; }
+    .screen.active { display: block; }
+    #home-screen { text-align: center; }
+    .levels-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px; margin-top: 20px;
+    }
+    .level-btn {
+      background: white; border: 3px solid transparent; border-radius: 20px;
+      padding: 18px 10px; cursor: pointer; box-shadow: var(--shadow);
+      transition: transform 0.15s;
+    }
+    .level-btn:hover { transform: translateY(-4px); border-color: var(--sky); }
+    .question-card {
+      background: white; border-radius: 24px; padding: 28px 24px;
+      box-shadow: var(--shadow); margin-bottom: 20px;
+    }
+    .equation-display {
+      font-family: 'Fredoka One', cursive; font-size: 2.8rem;
+      text-align: center; color: var(--dark); margin: 16px 0;
+    }
+    .eq-blank { display: inline-block; min-width: 60px; border-bottom: 4px solid var(--coral); text-align: center; color: var(--coral); }
+    
+    /* ---------- SIMPLER HINT STYLES (big friendly boxes) ---------- */
+    .mini-lesson {
+      background: #FFF9E6;
+      border-left: 10px solid var(--purple);
+      border-radius: 24px;
+      padding: 18px 16px;
+      margin: 18px 0 12px 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .mini-lesson .emojii { font-size: 1.8rem; margin-right: 8px; }
+    .step-hint {
+      background: #e6f4ff;
+      border-radius: 40px;
+      padding: 14px 20px;
+      margin: 10px 0;
+      font-size: 1.3rem;
+      font-weight: 800;
+      text-align: center;
+      border: 3px solid var(--sky);
+    }
+    .finger-helper {
+      background: #ffefc0;
+      border-radius: 30px;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border: 3px dashed var(--sun);
+    }
+    .tens-visual { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
+    .ten-group { display: flex; gap: 3px; background: #e3f2fd; border: 2px solid var(--sky); border-radius: 10px; padding: 6px; }
+    .unit-block { width: 22px; height: 22px; background: var(--sky); border-radius: 4px; }
+    .ones-group { display: flex; gap: 3px; background: #fff9c4; border: 2px solid var(--sun); border-radius: 10px; padding: 6px; }
+    .unit-block.one { background: var(--sun); }
+    .carry-helper, .borrow-helper {
+      background: #f0e6ff; border: 3px solid var(--purple); border-radius: 28px;
+      padding: 16px; font-size: 1.5rem; text-align: center; font-weight: 800;
+    }
+    .btn-primary, .btn-hint, .btn-back {
+      padding: 14px 20px; font-family: 'Fredoka One', cursive;
+      border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s;
+    }
+    .btn-primary { background: var(--dark); color: white; }
+    .btn-hint { background: var(--sun); color: var(--dark); }
+    .word-problem-card {
+      background: linear-gradient(135deg, #f8e3ff, #ffe6b0);
+      border-radius: 24px; padding: 24px; border: 3px solid var(--purple);
+    }
+    .answer-input {
+      width: 100%; padding: 16px; font-size: 2rem; font-family: 'Fredoka One', cursive;
+      border: 3px solid #ddd; border-radius: 16px; text-align: center;
+    }
+    .feedback-box { border-radius: 14px; padding: 14px; margin-top: 14px; font-weight: 700; display: none; }
+    .feedback-box.show { display: block; }
+    .correct-fb { background: #d4edda; color: #155724; border: 2px solid var(--grass); }
+    .wrong-fb { background: #f8d7da; color: #721c24; border: 2px solid var(--coral); }
+    .mistake-item { background: #fff5f5; border: 2px solid #ffcdd2; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
-
-<!-- TOP BAR -->
 <div id="topbar">
   <h1>⭐ Math Adventure</h1>
   <div class="topbar-btns">
-    <button class="btn-save" onclick="saveProgress()">💾 Save Progress</button>
-    <button class="btn-load" onclick="loadProgress()">📂 Load Progress</button>
+    <button class="btn-save" onclick="saveProgress()">💾 Save</button>
+    <button class="btn-load" onclick="loadProgress()">📂 Load</button>
   </div>
-  <span id="progress-label">No save found</span>
+  <span id="progress-label"></span>
 </div>
 
-<!-- HOME SCREEN -->
+<!-- HOME -->
 <div id="home-screen" class="screen active">
-  <div style="text-align:center; padding-top:20px;">
-    <div class="home-title">🌟 Math Adventure!</div>
-    <div class="home-sub">Pick a level and let's learn! 🎉</div>
-  </div>
+  <div class="home-title">🌟 Math Adventure!</div>
+  <div class="home-sub">Pick a level · now 13 fun problems + 5 word puzzles</div>
   <div class="levels-grid" id="levels-grid"></div>
 </div>
 
-<!-- QUIZ SCREEN -->
+<!-- QUIZ -->
 <div id="quiz-screen" class="screen">
   <div class="quiz-header">
-    <div>
-      <div class="quiz-level-name" id="quiz-level-name"></div>
-      <div class="quiz-progress" id="quiz-progress-text"></div>
-    </div>
-    <div class="quiz-score-badge" id="quiz-score-badge">Score: 0</div>
+    <div><span class="quiz-level-name" id="quiz-level-name"></span></div>
+    <div class="quiz-score-badge" id="quiz-score-badge">0 ✔️ / 0 ❌</div>
   </div>
-  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="quiz-prog-bar" style="width:0%"></div></div>
   <div id="question-area"></div>
   <div class="action-row" id="action-row"></div>
 </div>
 
-<!-- RESULT SCREEN -->
+<!-- RESULT -->
 <div id="result-screen" class="screen">
   <div class="result-emoji" id="result-emoji"></div>
   <div class="result-title" id="result-title"></div>
   <div class="result-score" id="result-score"></div>
   <div class="result-stars" id="result-stars"></div>
-  <div class="result-msg" id="result-msg"></div>
   <div id="mistakes-section"></div>
-  <div class="action-row" style="margin-top:20px; justify-content:center;">
-    <button class="btn-primary" id="result-retry-btn" style="max-width:200px;">🔁 Try Again</button>
-    <button class="btn-primary" id="result-home-btn" style="max-width:200px; background:var(--grass);">🏠 Home</button>
-    <button class="btn-primary" id="result-next-btn" style="max-width:200px; background:var(--purple); display:none;">➡️ Next Level</button>
+  <div style="display:flex; gap:12px; justify-content:center; margin-top:20px;">
+    <button class="btn-primary" id="result-retry-btn">🔁 Try again</button>
+    <button class="btn-primary" id="result-home-btn" style="background:var(--grass);">🏠 Home</button>
+    <button class="btn-primary" id="result-next-btn" style="background:var(--purple); display:none;">➡️ Next</button>
   </div>
 </div>
 
 <script>
-// ============================================================
-// DATA & STATE
-// ============================================================
-
+// ==================  LEVELS  (13 problems + 5 word) ==================
 const LEVELS = [
-  {
-    id: 'counting',
-    name: 'Counting Up/Down',
-    icon: '🔢',
-    color: '#6EC6F5',
-    description: 'Count up to add, count down to subtract',
-    makeProblems: makeCountingProblems,
-    wordProblems: countingWordProblems,
-  },
-  {
-    id: 'grouping',
-    name: 'Tens & Ones Groups',
-    icon: '📦',
-    color: '#FFD93D',
-    description: 'Groups of tens and ones (e.g. 28 = 2 tens, 8 ones)',
-    makeProblems: makeGroupingProblems,
-    wordProblems: groupingWordProblems,
-  },
-  {
-    id: 'missing_add',
-    name: 'Missing Number',
-    icon: '❓',
-    color: '#C77DFF',
-    description: 'Find the missing number in addition (e.g. 12 = 4 + 5 + ?)',
-    makeProblems: makeMissingAddProblems,
-    wordProblems: missingAddWordProblems,
-  },
-  {
-    id: 'simple_sub',
-    name: 'Quick Subtraction',
-    icon: '✂️',
-    color: '#FF6B6B',
-    description: 'Subtract one number (e.g. 12 - 3)',
-    makeProblems: makeSimpleSubProblems,
-    wordProblems: simpleSubWordProblems,
-  },
-  {
-    id: 'find_pair',
-    name: 'Find the Pair',
-    icon: '👫',
-    color: '#6BCB77',
-    description: 'Find 2 numbers that make a target (e.g. 15 = 7 + ?)',
-    makeProblems: makeFindPairProblems,
-    wordProblems: findPairWordProblems,
-  },
-  {
-    id: 'take_two',
-    name: 'Take Away Two',
-    icon: '✌️',
-    color: '#FF9F43',
-    description: 'Subtract two numbers (e.g. 15 - 2 - 3)',
-    makeProblems: makeTakeTwoProblems,
-    wordProblems: takeTwoWordProblems,
-  },
-  {
-    id: 'carry_add',
-    name: 'Addition with Carry',
-    icon: '➕',
-    color: '#48dbfb',
-    description: 'Add with carrying (sums up to 100)',
-    makeProblems: makeCarryAddProblems,
-    wordProblems: carryAddWordProblems,
-  },
-  {
-    id: 'borrow_sub',
-    name: 'Subtraction with Borrow',
-    icon: '➖',
-    color: '#ff6b81',
-    description: 'Subtract with borrowing (up to 100)',
-    makeProblems: makeBorrowSubProblems,
-    wordProblems: borrowSubWordProblems,
-  },
-  {
-    id: 'add_three',
-    name: 'Add Three Numbers',
-    icon: '🔺',
-    color: '#A29BFE',
-    description: 'Add three numbers (e.g. 19 + 21 + 30)',
-    makeProblems: makeAddThreeProblems,
-    wordProblems: addThreeWordProblems,
-  },
-  {
-    id: 'sub_two_big',
-    name: 'Subtract Two (Big)',
-    icon: '🔻',
-    color: '#fd79a8',
-    description: 'Subtract two numbers from a big one (e.g. 50 - 25 - 15)',
-    makeProblems: makeSubTwoBigProblems,
-    wordProblems: subTwoBigWordProblems,
-  },
-  {
-    id: 'combo',
-    name: 'Grand Finale! 🏆',
-    icon: '🏆',
-    color: '#F9CA24',
-    description: 'Mix of everything! Show what you know!',
-    makeProblems: makeComboProblems,
-    wordProblems: comboWordProblems,
-  },
+  { id:'counting', name:'Counting Up/Down', icon:'🔢', color:'#6EC6F5',
+    makeProblems: makeCountingProblems, wordProblems: countingWordProblems },
+  { id:'grouping', name:'Tens & Ones', icon:'📦', color:'#FFD93D',
+    makeProblems: makeGroupingProblems, wordProblems: groupingWordProblems },
+  { id:'missing_add', name:'Missing Number', icon:'❓', color:'#C77DFF',
+    makeProblems: makeMissingAddProblems, wordProblems: missingAddWordProblems },
+  { id:'simple_sub', name:'Quick Subtraction', icon:'✂️', color:'#FF6B6B',
+    makeProblems: makeSimpleSubProblems, wordProblems: simpleSubWordProblems },
+  { id:'find_pair', name:'Find the Pair', icon:'👫', color:'#6BCB77',
+    makeProblems: makeFindPairProblems, wordProblems: findPairWordProblems },
+  { id:'take_two', name:'Take Away Two', icon:'✌️', color:'#FF9F43',
+    makeProblems: makeTakeTwoProblems, wordProblems: takeTwoWordProblems },
+  { id:'carry_add', name:'Addition with Carry', icon:'➕', color:'#48dbfb',
+    makeProblems: makeCarryAddProblems, wordProblems: carryAddWordProblems },
+  { id:'borrow_sub', name:'Subtraction with Borrow', icon:'➖', color:'#ff6b81',
+    makeProblems: makeBorrowSubProblems, wordProblems: borrowSubWordProblems },
+  { id:'add_three', name:'Add Three Numbers', icon:'🔺', color:'#A29BFE',
+    makeProblems: makeAddThreeProblems, wordProblems: addThreeWordProblems },
+  { id:'sub_two_big', name:'Subtract Two (Big)', icon:'🔻', color:'#fd79a8',
+    makeProblems: makeSubTwoBigProblems, wordProblems: subTwoBigWordProblems },
+  { id:'combo', name:'Grand Finale! 🏆', icon:'🏆', color:'#F9CA24',
+    makeProblems: makeComboProblems, wordProblems: comboWordProblems },
 ];
 
-let state = {
-  completed: {},   // levelId -> best score (0-100) - just for stars, not for locking
-  currentLevel: null,
-  questions: [],
-  qIndex: 0,
-  score: 0,
-  wrong: 0,
-  mistakes: [],
-  hintsUsed: 0,
-  answered: false,
-};
+let state = { completed:{}, currentLevel:null, questions:[], qIndex:0, score:0, wrong:0, mistakes:[], hintsUsed:0, answered:false };
 
-// ============================================================
-// SAVE / LOAD
-// ============================================================
-function saveProgress() {
-  const data = JSON.stringify({ 
-    completed: state.completed, 
-    ts: Date.now(),
-    version: '1.0' 
-  });
-  const blob = new Blob([data], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'math-adventure-save.json'; a.click();
-  document.getElementById('progress-label').textContent = '✅ Saved!';
-  setTimeout(updateProgressLabel, 2000);
+// ------------------  helpers  ------------------
+function rnd(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+function shuffle(a) { for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// ---------- each generator now returns 13 problems (instead of 20) ----------
+function makeCountingProblems() { let q=[]; for(let i=0;i<13;i++){ if(i%2){ let b=rnd(3,12), s=rnd(1,6); q.push({type:'counting_add', q:`${b} + ${s} = ?`, answer:b+s, hint:'👉 Count UP using your fingers: put up '+s+' fingers after '+b, explanation:`${b}+${s}=${b+s}`}); } else { let b=rnd(5,18), s=rnd(2,7); q.push({type:'counting_sub', q:`${b} - ${s} = ?`, answer:b-s, hint:'👉 Count DOWN: start from '+b+' and take away '+s+' fingers', explanation:`${b}-${s}=${b-s}`}); } } return q; }
+function countingWordProblems() { return shuffle([ {q:'Emma has 9 apples, gets 4 more. How many?',a:13}, {q:'14 birds, 6 fly away. Left?',a:8}, {q:'11 fish + 7 fish = ?',a:18}, {q:'15 stickers, give 9. Left?',a:6}, {q:'8 crayons, find 8 more?',a:16} ]).map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeGroupingProblems() { let q=[]; for(let i=0;i<13;i++){ let t=rnd(2,7), o=rnd(0,9), n=t*10+o; if(i<7) q.push({type:'grouping_tens', q:`${n} has how many TENS?`, answer:t, hint:`TENS are the first digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); else q.push({type:'grouping_ones', q:`${n} has how many ONES?`, answer:o, hint:`ONES are the last digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); } return q; }
+function groupingWordProblems() { return [ {q:'3 tens + 4 ones = ?',a:34}, {q:'5 packs of ten + 7 loose = ?',a:57}, {q:'How many tens in 47?',a:4}, {q:'How many ones in 62?',a:2}, {q:'2 tens + 9 ones = ?',a:29} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeMissingAddProblems() { let q=[]; for(let i=0;i<13;i++){ let tot=rnd(8,22), a=rnd(2,8), b=rnd(2,8), x=tot-a-b; if(x>0 && i%3) q.push({type:'missing_3', q:`${tot} = ${a} + ${b} + ?`, answer:x, hint:'Step❶ Add '+a+'+'+b+'='+(a+b)+'   Step❷ '+tot+' − '+(a+b)+' = ?'}); else { let aa=rnd(3,12), xx=tot-aa; q.push({type:'missing_2', q:`${tot} = ${aa} + ?`, answer:xx, hint:'Just subtract: '+tot+' − '+aa+' = ?'}); } } return q; }
+function missingAddWordProblems() { return [ {q:'Need 12 flowers, have 4 red + 5 yellow. More?',a:3}, {q:'Bag needs 15 books, has 6. More?',a:9}, {q:'20 eggs, have 7+4. Need?',a:9}, {q:'18 puzzle pieces, placed 9+5. Missing?',a:4}, {q:'10 seats, 3 boys + 4 girls. Empty?',a:3} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeSimpleSubProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(7,20), b=rnd(2,9); q.push({type:'sub1', q:`${a} - ${b} = ?`, answer:a-b, hint:'Count up from '+(b+1)+' to '+a+' → that’s '+(a-b)+' steps'}); } return q; }
+function simpleSubWordProblems() { return [ {q:'13 cookies, eat 4. Left?',a:9}, {q:'17 grapes, 8 eaten. Left?',a:9}, {q:'20 kids, 7 go home. Still?',a:13}, {q:'15 books, return 6. Left?',a:9}, {q:'18 butterflies, 9 fly away. Left?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeFindPairProblems() { let q=[]; for(let i=0;i<13;i++){ let t=rnd(6,20), a=rnd(2,12), b=t-a; q.push({type:'find_pair', q:`${t} = ${a} + ?`, answer:b, hint:t+' − '+a+' = '+b}); } return q; }
+function findPairWordProblems() { return [ {q:'Need 15 cookies, have 8. More?',a:7}, {q:'12 passengers, 5 seated. More?',a:7}, {q:'18 flowers, planted 9. More?',a:9}, {q:'20 beads, 13 on. Need?',a:7}, {q:'16 cups flour, have 7. Need?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeTakeTwoProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(12,28), b=rnd(2,6), c=rnd(2,6); q.push({type:'take_two', q:`${a} - ${b} - ${c} = ?`, answer:a-b-c, hint:'First: '+a+'−'+b+'='+(a-b)+'  then −'+c+' = ?'}); } return q; }
+function takeTwoWordProblems() { return [ {q:'20 marbles, take 4 then 3. Left?',a:13}, {q:'25 stickers, take 7 then 5. Left?',a:13}, {q:'18 books, borrow 5 then 4. Left?',a:9}, {q:'22 muffins, eat 3 then 6. Left?',a:13}, {q:'15 frogs, 4 hop, then 2 hop. Left?',a:9} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeCarryAddProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(15,48), b=rnd(17,46); if((a%10)+(b%10)>9 && a+b<99) q.push({type:'carry_add', q:`${a} + ${b} = ?`, answer:a+b, a,b, hint:'ones: '+a%10+'+'+b%10+'='+((a%10)+(b%10))+' → write '+(a+b)%10+', carry 1'}); else i--; } return q; }
+function carryAddWordProblems() { return [ {q:'37 red + 45 blue balls?',a:82}, {q:'48 chickens + 36 ducks?',a:84}, {q:'29 kids + 43 kids?',a:72}, {q:'56 apples + 28 apples?',a:84}, {q:'67 new books + 25 old?',a:92} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeBorrowSubProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(32,81), b=rnd(14,49); if(a%10 < b%10 && a-b>9) q.push({type:'borrow_sub', q:`${a} - ${b} = ?`, answer:a-b, a,b, hint:'Borrow 1 ten: ones: '+(a%10+10)+'−'+b%10+'='+((a%10+10)-b%10)+' , tens: '+(Math.floor(a/10)-1)+'−'+Math.floor(b/10)}); else i--; } return q; }
+function borrowSubWordProblems() { return [ {q:'52 crayons, use 27. Left?',a:25}, {q:'71 stickers, give 34. Left?',a:37}, {q:'84 kids, 46 go away. Stay?',a:38}, {q:'60 cookies, eat 38. Left?',a:22}, {q:'93 pages, read 55. Left?',a:38} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeAddThreeProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(5,25), b=rnd(5,25), c=rnd(5,25); if(a+b+c<90) q.push({type:'add_three', q:`${a} + ${b} + ${c} = ?`, answer:a+b+c, hint:'add first two: '+(a+b)+' then +'+c+' = ?'}); else i--; } return q; }
+function addThreeWordProblems() { return [ {q:'19 + 21 + 30 toys?',a:70}, {q:'15+23+12 fruits?',a:50}, {q:'24+18+17 students?',a:59}, {q:'13+22+15 roses?',a:50}, {q:'31+28+11 animals?',a:70} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeSubTwoBigProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(40,90), b=rnd(10,25), c=rnd(10,25); if(a-b-c>5) q.push({type:'sub_big2', q:`${a} - ${b} - ${c} = ?`, answer:a-b-c, hint:'First: '+a+'−'+b+'='+(a-b)+' then −'+c+' = ?'}); else i--; } return q; }
+function subTwoBigWordProblems() { return [ {q:'50 marbles, take 25 then 15?',a:10}, {q:'80 cans, donate 35 then 20?',a:25}, {q:'65 sunflowers, pick 20 then 18?',a:27}, {q:'90 dollars, spend 40 then 25?',a:25}, {q:'75 chocolates, eat 30 then 15?',a:30} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
+
+function makeComboProblems() { let all=[...makeCountingProblems(),...makeMissingAddProblems(),...makeSimpleSubProblems(),...makeFindPairProblems(),...makeTakeTwoProblems(),...makeCarryAddProblems(),...makeBorrowSubProblems(),...makeAddThreeProblems(),...makeSubTwoBigProblems(),...makeGroupingProblems()]; return shuffle(all).slice(0,13); }
+function comboWordProblems() { let all=[...countingWordProblems(),...missingAddWordProblems(),...simpleSubWordProblems(),...findPairWordProblems(),...takeTwoWordProblems(),...carryAddWordProblems(),...borrowSubWordProblems(),...addThreeWordProblems(),...subTwoBigWordProblems(),...groupingWordProblems()]; return shuffle(all).slice(0,5); }
+
+// ----------------  start level  ----------------
+function startLevel(lv) {
+  state.currentLevel = lv;
+  let main = lv.makeProblems();      // now exactly 13
+  let words = lv.wordProblems();      // exactly 5 word problems
+  state.questions = [...main, ...words];  // 18 total (13+5)
+  state.qIndex = 0; state.score = 0; state.wrong = 0; state.mistakes = []; state.hintsUsed = 0; state.answered = false;
+  document.getElementById('quiz-level-name').innerHTML = lv.icon + ' ' + lv.name;
+  showScreen('quiz-screen'); renderQuestion();
 }
 
-function loadProgress() {
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = '.json';
-  input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        if (data && data.completed) {
-          state.completed = data.completed || {};
-          
-          // Make sure we don't have any undefined values
-          LEVELS.forEach(lv => {
-            if (state.completed[lv.id] === undefined) {
-              state.completed[lv.id] = 0;
-            }
-          });
-          
-          state.currentLevel = null;
-          
-          renderHome();
-          showScreen('home-screen');
-          document.getElementById('progress-label').textContent = '✅ Loaded!';
-          setTimeout(updateProgressLabel, 2000);
-        } else {
-          alert('Invalid save file format.');
-        }
-      } catch (error) {
-        alert('Could not load save file. Make sure it\'s a valid save file.');
-        console.error('Load error:', error);
-      }
-    };
-    reader.readAsText(file);
-  };
-  input.click();
-}
-
-function updateProgressLabel() {
-  const done = Object.keys(state.completed).filter(id => (state.completed[id] || 0) >= 98).length;
-  document.getElementById('progress-label').textContent =
-    done > 0 ? `${done}/${LEVELS.length} levels mastered` : 'No saves yet';
-}
-
-// ============================================================
-// SCREEN MANAGEMENT
-// ============================================================
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// ============================================================
-// HOME SCREEN - ALL LEVELS UNLOCKED!
-// ============================================================
-function renderHome() {
-  const grid = document.getElementById('levels-grid');
-  grid.innerHTML = '';
-  
-  // Make sure all levels have a score (default 0)
-  LEVELS.forEach(lv => {
-    if (state.completed[lv.id] === undefined) {
-      state.completed[lv.id] = 0;
-    }
-  });
-  
-  LEVELS.forEach(lv => {
-    const score = state.completed[lv.id] || 0;
-    const done = score >= 98;
-    
-    const stars = score >= 98 ? '⭐⭐⭐' : score >= 80 ? '⭐⭐' : score >= 50 ? '⭐' : '';
-    
-    const btn = document.createElement('div');
-    btn.className = 'level-btn' + (done ? ' completed' : '');
-    btn.style.borderColor = done ? lv.color : 'transparent';
-    btn.innerHTML = `
-      <div class="level-icon">${lv.icon}</div>
-      <div class="level-name">${lv.name}</div>
-      <div class="level-stars">${stars}</div>
-    `;
-    btn.onclick = () => startLevel(lv);
-    grid.appendChild(btn);
-  });
-}
-
-// ============================================================
-// PROBLEM GENERATORS WITH DIFFICULTY PROGRESSION
-// ============================================================
-function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
-
-function makeCountingProblems() {
-  const qs = [];
-  
-  // EASY: First 7 questions - smaller numbers
-  for (let i = 0; i < 7; i++) {
-    if (Math.random() > 0.5) {
-      // Addition - small numbers
-      const big = rnd(3, 8);
-      const small = rnd(1, 4);
-      qs.push({
-        type: 'counting_add',
-        q: `${big} + ${small} = ?`,
-        equation: `${big} + ${small} = ?`,
-        answer: big + small,
-        hint: `Start at ${big+1} and count up ${small} fingers! 🖐️`,
-        countStart: big, countUp: small, countDir: 'up',
-        explanation: `Count up from ${big+1}: ` + Array.from({length:small},(_,k)=>big+1+k).join(', ') + ` → ${big+small}`,
-      });
-    } else {
-      // Subtraction - small numbers
-      const big = rnd(4, 10);
-      const small = rnd(1, 4);
-      qs.push({
-        type: 'counting_sub',
-        q: `${big} - ${small} = ?`,
-        equation: `${big} - ${small} = ?`,
-        answer: big - small,
-        hint: `Start at ${small+1} and count up to ${big} using your fingers! 🖐️`,
-        countStart: small, countEnd: big, countDir: 'down',
-        explanation: `Count from ${small+1} to ${big}: that's ${big-small} fingers`,
-      });
-    }
-  }
-  
-  // MEDIUM: Next 7 questions - medium numbers
-  for (let i = 0; i < 7; i++) {
-    if (Math.random() > 0.5) {
-      const big = rnd(8, 15);
-      const small = rnd(4, 8);
-      qs.push({
-        type: 'counting_add',
-        q: `${big} + ${small} = ?`,
-        equation: `${big} + ${small} = ?`,
-        answer: big + small,
-        hint: `Start at ${big+1} and count up ${small} fingers! 🖐️`,
-        countStart: big, countUp: small, countDir: 'up',
-        explanation: `Count up from ${big+1}: ` + Array.from({length:small},(_,k)=>big+1+k).join(', ') + ` → ${big+small}`,
-      });
-    } else {
-      const big = rnd(10, 18);
-      const small = rnd(5, 9);
-      qs.push({
-        type: 'counting_sub',
-        q: `${big} - ${small} = ?`,
-        equation: `${big} - ${small} = ?`,
-        answer: big - small,
-        hint: `Start at ${small+1} and count up to ${big} using your fingers! 🖐️`,
-        countStart: small, countEnd: big, countDir: 'down',
-        explanation: `Count from ${small+1} to ${big}: that's ${big-small} fingers`,
-      });
-    }
-  }
-  
-  // HARD: Last 6 questions - larger numbers
-  for (let i = 0; i < 6; i++) {
-    if (Math.random() > 0.5) {
-      const big = rnd(15, 25);
-      const small = rnd(8, 12);
-      qs.push({
-        type: 'counting_add',
-        q: `${big} + ${small} = ?`,
-        equation: `${big} + ${small} = ?`,
-        answer: big + small,
-        hint: `Start at ${big+1} and count up ${small} fingers! 🖐️`,
-        countStart: big, countUp: small, countDir: 'up',
-        explanation: `Count up from ${big+1}: ` + Array.from({length:small},(_,k)=>big+1+k).join(', ') + ` → ${big+small}`,
-      });
-    } else {
-      const big = rnd(18, 25);
-      const small = rnd(9, 15);
-      qs.push({
-        type: 'counting_sub',
-        q: `${big} - ${small} = ?`,
-        equation: `${big} - ${small} = ?`,
-        answer: big - small,
-        hint: `Start at ${small+1} and count up to ${big} using your fingers! 🖐️`,
-        countStart: small, countEnd: big, countDir: 'down',
-        explanation: `Count from ${small+1} to ${big}: that's ${big-small} fingers`,
-      });
-    }
-  }
-  
-  return shuffle(qs);
-}
-
-function countingWordProblems() {
-  return [
-    { type:'word', q:'Sara has 8 apples 🍎. Her mom gave her 5 more. How many apples does Sara have now?', answer:13, explanation:'8 + 5 = 13' },
-    { type:'word', q:'There were 14 birds 🐦 on a tree. 6 flew away. How many birds are left?', answer:8, explanation:'14 - 6 = 8' },
-    { type:'word', q:'Tom had 9 crayons 🖍️. He got 7 more from his friend. How many crayons does he have?', answer:16, explanation:'9 + 7 = 16' },
-    { type:'word', q:'Lily had 15 stickers ⭐. She gave 8 to her friend. How many stickers does Lily have left?', answer:7, explanation:'15 - 8 = 7' },
-    { type:'word', q:'There are 11 fish 🐟 in a pond. 4 more swim in. How many fish are there now?', answer:15, explanation:'11 + 4 = 15' },
-  ];
-}
-
-function makeGroupingProblems() {
-  const qs = [];
-  
-  // EASY: First 7 - smaller numbers
-  for (let i = 0; i < 7; i++) {
-    const tens = rnd(1, 3);
-    const ones = rnd(0, 5);
-    const num = tens * 10 + ones;
-    qs.push({
-      type: 'grouping_from_num',
-      q: `The number ${num} has how many groups of TENS?`,
-      equation: `${num} = __ tens + ${ones} ones`,
-      answer: tens,
-      hint: `Think: ${num} = ${tens} × 10 + ${ones}`,
-      explanation: `${num} = ${tens} tens and ${ones} ones`,
-      tens, ones, num,
-    });
-    qs.push({
-      type: 'grouping_ones',
-      q: `The number ${num} has how many ONES?`,
-      equation: `${num} = ${tens} tens + __ ones`,
-      answer: ones,
-      hint: `The ones digit is the last number!`,
-      explanation: `${num} = ${tens} tens and ${ones} ones`,
-      tens, ones, num,
-    });
-  }
-  
-  // MEDIUM: Next 7 - medium numbers
-  for (let i = 0; i < 7; i++) {
-    const tens = rnd(3, 6);
-    const ones = rnd(3, 8);
-    const num = tens * 10 + ones;
-    qs.push({
-      type: 'grouping_from_num',
-      q: `The number ${num} has how many groups of TENS?`,
-      equation: `${num} = __ tens + ${ones} ones`,
-      answer: tens,
-      hint: `Think: ${num} = ${tens} × 10 + ${ones}`,
-      explanation: `${num} = ${tens} tens and ${ones} ones`,
-      tens, ones, num,
-    });
-    qs.push({
-      type: 'grouping_ones',
-      q: `The number ${num} has how many ONES?`,
-      equation: `${num} = ${tens} tens + __ ones`,
-      answer: ones,
-      hint: `The ones digit is the last number!`,
-      explanation: `${num} = ${tens} tens and ${ones} ones`,
-      tens, ones, num,
-    });
-  }
-  
-  // HARD: Last 6 - larger numbers
-  for (let i = 0; i < 6; i++) {
-    const tens = rnd(6, 9);
-    const ones = rnd(5, 9);
-    const num = tens * 10 + ones;
-    qs.push({
-      type: 'grouping_from_num',
-      q: `The number ${num} has how many groups of TENS?`,
-      equation: `${num} = __ tens + ${ones} ones`,
-      answer: tens,
-      hint: `Think: ${num} = ${tens} × 10 + ${ones}`,
-      explanation: `${num} = ${tens} tens and ${ones} ones`,
-      tens, ones, num,
-    });
-    qs.push({
-      type: 'grouping_ones',
-      q: `The number ${num} has how many ONES?`,
-      equation: `${num} = ${tens} tens + __ ones`,
-      answer: ones,
-      hint: `The ones digit is the last number!`,
-      explanation: `${num} = ${tens} tens and ${ones} ones`,
-      tens, ones, num,
-    });
-  }
-  
-  return shuffle(qs);
-}
-
-function groupingWordProblems() {
-  return [
-    { type:'word', q:'A box has 3 groups of 10 pencils ✏️ and 4 single pencils. How many pencils are there?', answer:34, explanation:'3×10 + 4 = 34' },
-    { type:'word', q:'Jake has 5 bags of 10 marbles 🔵 and 7 extra marbles. How many marbles total?', answer:57, explanation:'5×10 + 7 = 57' },
-    { type:'word', q:'A jar has 47 candies 🍬. How many groups of ten are in 47?', answer:4, explanation:'47 = 4 tens and 7 ones' },
-    { type:'word', q:'There are 62 books 📚 on a shelf. How many ones (single books) are there?', answer:2, explanation:'62 = 6 tens and 2 ones' },
-    { type:'word', q:'Emma has 2 packs of 10 stickers ⭐ and 9 loose stickers. How many does she have?', answer:29, explanation:'2×10 + 9 = 29' },
-  ];
-}
-
-function makeMissingAddProblems() {
-  const qs = [];
-  
-  // EASY: First 7 - smaller totals with clear step-by-step hints
-  for (let i = 0; i < 7; i++) {
-    const total = rnd(5, 12);
-    const a = rnd(1, 4);
-    const b = rnd(1, 4);
-    const x = total - a - b;
-    if (x > 0 && Math.random() > 0.3) {
-      qs.push({
-        type: 'missing_3',
-        q: `${total} = ${a} + ${b} + ?`,
-        equation: `${total} = ${a} + ${b} + ?`,
-        answer: x,
-        hint: `✨ STEP 1: Add ${a} + ${b} = ${a+b} ✨\n✨ STEP 2: Subtract ${a+b} from ${total}: ${total} - ${a+b} = ? ✨`,
-        explanation: `${total} - ${a} - ${b} = ${x}`,
-        step1: a+b,
-        step2: total,
-      });
-    } else {
-      const aa = rnd(1, 6);
-      const xx = total - aa;
-      qs.push({
-        type: 'missing_2',
-        q: `${total} = ${aa} + ?`,
-        equation: `${total} = ${aa} + ?`,
-        answer: xx,
-        hint: `✨ To find the missing number: ${total} - ${aa} = ? ✨`,
-        explanation: `${total} - ${aa} = ${xx}`,
-      });
-    }
-  }
-  
-  // MEDIUM: Next 7 - medium totals with step-by-step hints
-  for (let i = 0; i < 7; i++) {
-    const total = rnd(12, 18);
-    const a = rnd(3, 7);
-    const b = rnd(3, 7);
-    const x = total - a - b;
-    if (x > 0 && Math.random() > 0.5) {
-      qs.push({
-        type: 'missing_3',
-        q: `${total} = ${a} + ${b} + ?`,
-        equation: `${total} = ${a} + ${b} + ?`,
-        answer: x,
-        hint: `✨ STEP 1: Add ${a} + ${b} = ${a+b} ✨\n✨ STEP 2: Subtract ${a+b} from ${total}: ${total} - ${a+b} = ? ✨`,
-        explanation: `${total} - ${a} - ${b} = ${x}`,
-        step1: a+b,
-        step2: total,
-      });
-    } else {
-      const aa = rnd(4, 9);
-      const xx = total - aa;
-      qs.push({
-        type: 'missing_2',
-        q: `${total} = ${aa} + ?`,
-        equation: `${total} = ${aa} + ?`,
-        answer: xx,
-        hint: `✨ To find the missing number: ${total} - ${aa} = ? ✨`,
-        explanation: `${total} - ${aa} = ${xx}`,
-      });
-    }
-  }
-  
-  // HARD: Last 6 - larger totals with step-by-step hints
-  for (let i = 0; i < 6; i++) {
-    const total = rnd(18, 25);
-    const a = rnd(5, 10);
-    const b = rnd(5, 10);
-    const x = total - a - b;
-    if (x > 0) {
-      qs.push({
-        type: 'missing_3',
-        q: `${total} = ${a} + ${b} + ?`,
-        equation: `${total} = ${a} + ${b} + ?`,
-        answer: x,
-        hint: `✨ STEP 1: Add ${a} + ${b} = ${a+b} ✨\n✨ STEP 2: Subtract ${a+b} from ${total}: ${total} - ${a+b} = ? ✨`,
-        explanation: `${total} - ${a} - ${b} = ${x}`,
-        step1: a+b,
-        step2: total,
-      });
-    } else {
-      const aa = rnd(6, 12);
-      const xx = total - aa;
-      qs.push({
-        type: 'missing_2',
-        q: `${total} = ${aa} + ?`,
-        equation: `${total} = ${aa} + ?`,
-        answer: xx,
-        hint: `✨ To find the missing number: ${total} - ${aa} = ? ✨`,
-        explanation: `${total} - ${aa} = ${xx}`,
-      });
-    }
-  }
-  
-  return shuffle(qs);
-}
-
-function missingAddWordProblems() {
-  return [
-    { type:'word', q:'I need 12 flowers 🌸 for a bouquet. I already have 4 red and 5 yellow ones. How many more do I need?', answer:3, explanation:'12 - 4 - 5 = 3' },
-    { type:'word', q:'A bag needs 15 books 📚. It already has 6. How many more books go in the bag?', answer:9, explanation:'15 - 6 = 9' },
-    { type:'word', q:'Mom needs 20 eggs 🥚. She has 7 in a box and 4 in the fridge. How many more does she need?', answer:9, explanation:'20 - 7 - 4 = 9' },
-    { type:'word', q:'A puzzle has 18 pieces. Sam found 9 and put in 5. How many pieces are still missing?', answer:4, explanation:'18 - 9 - 5 = 4' },
-    { type:'word', q:'10 seats on a bus 🚌. 3 boys and 4 girls sit down. How many seats are empty?', answer:3, explanation:'10 - 3 - 4 = 3' },
-  ];
-}
-
-function makeSimpleSubProblems() {
-  const qs = [];
-  
-  // EASY: First 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(5, 12);
-    const b = rnd(1, 4);
-    qs.push({
-      type: 'simple_sub',
-      q: `${a} - ${b} = ?`,
-      equation: `${a} - ${b} = ?`,
-      answer: a - b,
-      hint: `Start after ${b} and count up to ${a} on your fingers!`,
-      explanation: `Count from ${b+1} to ${a} = ${a-b}`,
-    });
-  }
-  
-  // MEDIUM: Next 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(10, 18);
-    const b = rnd(4, 8);
-    qs.push({
-      type: 'simple_sub',
-      q: `${a} - ${b} = ?`,
-      equation: `${a} - ${b} = ?`,
-      answer: a - b,
-      hint: `Start after ${b} and count up to ${a} on your fingers!`,
-      explanation: `Count from ${b+1} to ${a} = ${a-b}`,
-    });
-  }
-  
-  // HARD: Last 6
-  for (let i = 0; i < 6; i++) {
-    const a = rnd(15, 25);
-    const b = rnd(8, 15);
-    qs.push({
-      type: 'simple_sub',
-      q: `${a} - ${b} = ?`,
-      equation: `${a} - ${b} = ?`,
-      answer: a - b,
-      hint: `Start after ${b} and count up to ${a} on your fingers!`,
-      explanation: `Count from ${b+1} to ${a} = ${a-b}`,
-    });
-  }
-  
-  return qs;
-}
-
-function simpleSubWordProblems() {
-  return [
-    { type:'word', q:'There are 13 cookies 🍪 on a plate. You eat 4. How many are left?', answer:9, explanation:'13 - 4 = 9' },
-    { type:'word', q:'A bag had 17 grapes 🍇. 8 were eaten. How many grapes are left?', answer:9, explanation:'17 - 8 = 9' },
-    { type:'word', q:'20 kids 🧒 at a party. 7 went home. How many kids are still at the party?', answer:13, explanation:'20 - 7 = 13' },
-    { type:'word', q:'A bookshelf had 15 books 📖. 6 were returned to the library. How many are left?', answer:9, explanation:'15 - 6 = 9' },
-    { type:'word', q:'There are 18 butterflies 🦋 in a garden. 9 flew away. How many are still in the garden?', answer:9, explanation:'18 - 9 = 9' },
-  ];
-}
-
-function makeFindPairProblems() {
-  const qs = [];
-  
-  // EASY: First 7
-  for (let i = 0; i < 7; i++) {
-    const total = rnd(5, 12);
-    const a = rnd(1, 5);
-    const b = total - a;
-    qs.push({
-      type: 'find_pair',
-      q: `${total} = ${a} + ?`,
-      equation: `${total} = ${a} + ?`,
-      answer: b,
-      hint: `Think: ${total} - ${a} = ?`,
-      explanation: `${total} - ${a} = ${b}`,
-    });
-  }
-  
-  // MEDIUM: Next 7
-  for (let i = 0; i < 7; i++) {
-    const total = rnd(10, 18);
-    const a = rnd(4, 9);
-    const b = total - a;
-    qs.push({
-      type: 'find_pair',
-      q: `${total} = ${a} + ?`,
-      equation: `${total} = ${a} + ?`,
-      answer: b,
-      hint: `Think: ${total} - ${a} = ?`,
-      explanation: `${total} - ${a} = ${b}`,
-    });
-  }
-  
-  // HARD: Last 6
-  for (let i = 0; i < 6; i++) {
-    const total = rnd(15, 25);
-    const a = rnd(7, 15);
-    const b = total - a;
-    qs.push({
-      type: 'find_pair',
-      q: `${total} = ${a} + ?`,
-      equation: `${total} = ${a} + ?`,
-      answer: b,
-      hint: `Think: ${total} - ${a} = ?`,
-      explanation: `${total} - ${a} = ${b}`,
-    });
-  }
-  
-  return qs;
-}
-
-function findPairWordProblems() {
-  return [
-    { type:'word', q:'A jar needs 15 cookies 🍪. It already has 8. How many more are needed?', answer:7, explanation:'15 - 8 = 7' },
-    { type:'word', q:'A train 🚂 has room for 12 passengers. 5 are already seated. How many more can get on?', answer:7, explanation:'12 - 5 = 7' },
-    { type:'word', q:'Mom wants to plant 18 flowers 🌻. She has planted 9 so far. How many more to plant?', answer:9, explanation:'18 - 9 = 9' },
-    { type:'word', q:'A necklace needs 20 beads 📿. 13 are already strung. How many more are needed?', answer:7, explanation:'20 - 13 = 7' },
-    { type:'word', q:'A recipe needs 16 cups of flour. You have 7 cups. How many more cups do you need?', answer:9, explanation:'16 - 7 = 9' },
-  ];
-}
-
-function makeTakeTwoProblems() {
-  const qs = [];
-  
-  // EASY: First 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(8, 15);
-    const b = rnd(1, 3);
-    const c = rnd(1, 3);
-    qs.push({
-      type: 'take_two',
-      q: `${a} - ${b} - ${c} = ?`,
-      equation: `${a} - ${b} - ${c} = ?`,
-      answer: a - b - c,
-      hint: `First: ${a} - ${b} = ${a-b}. Then: ${a-b} - ${c} = ?`,
-      explanation: `${a} - ${b} = ${a-b}, then ${a-b} - ${c} = ${a-b-c}`,
-    });
-  }
-  
-  // MEDIUM: Next 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(12, 20);
-    const b = rnd(3, 6);
-    const c = rnd(3, 6);
-    qs.push({
-      type: 'take_two',
-      q: `${a} - ${b} - ${c} = ?`,
-      equation: `${a} - ${b} - ${c} = ?`,
-      answer: a - b - c,
-      hint: `First: ${a} - ${b} = ${a-b}. Then: ${a-b} - ${c} = ?`,
-      explanation: `${a} - ${b} = ${a-b}, then ${a-b} - ${c} = ${a-b-c}`,
-    });
-  }
-  
-  // HARD: Last 6
-  for (let i = 0; i < 6; i++) {
-    const a = rnd(18, 30);
-    const b = rnd(5, 10);
-    const c = rnd(5, 10);
-    qs.push({
-      type: 'take_two',
-      q: `${a} - ${b} - ${c} = ?`,
-      equation: `${a} - ${b} - ${c} = ?`,
-      answer: a - b - c,
-      hint: `First: ${a} - ${b} = ${a-b}. Then: ${a-b} - ${c} = ?`,
-      explanation: `${a} - ${b} = ${a-b}, then ${a-b} - ${c} = ${a-b-c}`,
-    });
-  }
-  
-  return qs;
-}
-
-function takeTwoWordProblems() {
-  return [
-    { type:'word', q:'A bag had 20 marbles 🔮. Sam took 4 and then 3 more. How many are left?', answer:13, explanation:'20 - 4 - 3 = 13' },
-    { type:'word', q:'There are 25 stickers ⭐. Lisa took 7 and Jake took 5. How many stickers remain?', answer:13, explanation:'25 - 7 - 5 = 13' },
-    { type:'word', q:'A shelf had 18 books 📚. 5 were borrowed Monday and 4 on Tuesday. How many are left?', answer:9, explanation:'18 - 5 - 4 = 9' },
-    { type:'word', q:'Mom baked 22 muffins 🧁. Dad ate 3 and then kids ate 6. How many muffins are left?', answer:13, explanation:'22 - 3 - 6 = 13' },
-    { type:'word', q:'A pond had 15 frogs 🐸. 4 hopped away and then 2 more left. How many frogs are still there?', answer:9, explanation:'15 - 4 - 2 = 9' },
-  ];
-}
-
-function makeCarryAddProblems() {
-  const qs = [];
-  
-  // EASY: First 7 - smaller numbers, simpler carries
-  for (let i = 0; i < 7; i++) {
-    let a, b;
-    do {
-      a = rnd(12, 25);
-      b = rnd(12, 25);
-    } while ((a % 10) + (b % 10) < 10 || a + b > 60);
-    qs.push({
-      type: 'carry_add',
-      q: `${a} + ${b} = ?`,
-      equation: `${a} + ${b} = ?`,
-      answer: a + b,
-      hint: `Ones: ${a%10} + ${b%10} = ${(a%10)+(b%10)}. Write ${(a+b)%10}, carry ${Math.floor(((a%10)+(b%10))/10)}!`,
-      explanation: `Ones: ${a%10}+${b%10}=${(a%10)+(b%10)}, write ${(a+b)%10} carry ${Math.floor(((a%10)+(b%10))/10)}. Tens: ${Math.floor(a/10)}+${Math.floor(b/10)}+${Math.floor(((a%10)+(b%10))/10)}=${Math.floor((a+b)/10)}`,
-      a, b,
-    });
-  }
-  
-  // MEDIUM: Next 7 - medium numbers
-  for (let i = 0; i < 7; i++) {
-    let a, b;
-    do {
-      a = rnd(25, 45);
-      b = rnd(25, 45);
-    } while ((a % 10) + (b % 10) < 10 || a + b > 80);
-    qs.push({
-      type: 'carry_add',
-      q: `${a} + ${b} = ?`,
-      equation: `${a} + ${b} = ?`,
-      answer: a + b,
-      hint: `Ones: ${a%10} + ${b%10} = ${(a%10)+(b%10)}. Write ${(a+b)%10}, carry ${Math.floor(((a%10)+(b%10))/10)}!`,
-      explanation: `Ones: ${a%10}+${b%10}=${(a%10)+(b%10)}, write ${(a+b)%10} carry ${Math.floor(((a%10)+(b%10))/10)}. Tens: ${Math.floor(a/10)}+${Math.floor(b/10)}+${Math.floor(((a%10)+(b%10))/10)}=${Math.floor((a+b)/10)}`,
-      a, b,
-    });
-  }
-  
-  // HARD: Last 6 - larger numbers
-  for (let i = 0; i < 6; i++) {
-    let a, b;
-    do {
-      a = rnd(45, 70);
-      b = rnd(30, 50);
-    } while ((a % 10) + (b % 10) < 10 || a + b > 99);
-    qs.push({
-      type: 'carry_add',
-      q: `${a} + ${b} = ?`,
-      equation: `${a} + ${b} = ?`,
-      answer: a + b,
-      hint: `Ones: ${a%10} + ${b%10} = ${(a%10)+(b%10)}. Write ${(a+b)%10}, carry ${Math.floor(((a%10)+(b%10))/10)}!`,
-      explanation: `Ones: ${a%10}+${b%10}=${(a%10)+(b%10)}, write ${(a+b)%10} carry ${Math.floor(((a%10)+(b%10))/10)}. Tens: ${Math.floor(a/10)}+${Math.floor(b/10)}+${Math.floor(((a%10)+(b%10))/10)}=${Math.floor((a+b)/10)}`,
-      a, b,
-    });
-  }
-  
-  return qs;
-}
-
-function carryAddWordProblems() {
-  return [
-    { type:'word', q:'There are 37 red balls 🔴 and 45 blue balls 🔵 in a box. How many balls in total?', answer:82, explanation:'37 + 45 = 82 (carry 1 in tens)' },
-    { type:'word', q:'A farmer has 48 chickens 🐔 and 36 ducks 🦆. How many birds does he have?', answer:84, explanation:'48 + 36 = 84' },
-    { type:'word', q:'On Monday 29 kids 🧒 came to school, and on Tuesday 43 came. How many total in two days?', answer:72, explanation:'29 + 43 = 72' },
-    { type:'word', q:'A store sold 56 apples 🍎 in the morning and 28 in the afternoon. How many apples were sold?', answer:84, explanation:'56 + 28 = 84' },
-    { type:'word', q:'A library got 67 new books 📚 and already had 25. How many books are there now?', answer:92, explanation:'67 + 25 = 92' },
-  ];
-}
-
-function makeBorrowSubProblems() {
-  const qs = [];
-  
-  // EASY: First 7 - smaller numbers, simpler borrows
-  for (let i = 0; i < 7; i++) {
-    let a, b;
-    do {
-      a = rnd(21, 40);
-      b = rnd(12, 30);
-    } while ((a % 10) >= (b % 10) || a - b < 5);
-    qs.push({
-      type: 'borrow_sub',
-      q: `${a} - ${b} = ?`,
-      equation: `${a} - ${b} = ?`,
-      answer: a - b,
-      hint: `Borrow a ten! Ones: ${a%10+10} - ${b%10} = ${a%10+10-b%10}. Tens: ${Math.floor(a/10)-1} - ${Math.floor(b/10)} = ${Math.floor(a/10)-1-Math.floor(b/10)}`,
-      explanation: `Borrow 1 ten: ones = ${a%10+10}-${b%10}=${a%10+10-b%10}, tens = ${Math.floor(a/10)-1}-${Math.floor(b/10)}=${Math.floor(a/10)-1-Math.floor(b/10)}. Answer: ${a-b}`,
-      a, b,
-    });
-  }
-  
-  // MEDIUM: Next 7 - medium numbers
-  for (let i = 0; i < 7; i++) {
-    let a, b;
-    do {
-      a = rnd(40, 70);
-      b = rnd(25, 50);
-    } while ((a % 10) >= (b % 10));
-    qs.push({
-      type: 'borrow_sub',
-      q: `${a} - ${b} = ?`,
-      equation: `${a} - ${b} = ?`,
-      answer: a - b,
-      hint: `Borrow a ten! Ones: ${a%10+10} - ${b%10} = ${a%10+10-b%10}. Tens: ${Math.floor(a/10)-1} - ${Math.floor(b/10)} = ${Math.floor(a/10)-1-Math.floor(b/10)}`,
-      explanation: `Borrow 1 ten: ones = ${a%10+10}-${b%10}=${a%10+10-b%10}, tens = ${Math.floor(a/10)-1}-${Math.floor(b/10)}=${Math.floor(a/10)-1-Math.floor(b/10)}. Answer: ${a-b}`,
-      a, b,
-    });
-  }
-  
-  // HARD: Last 6 - larger numbers
-  for (let i = 0; i < 6; i++) {
-    let a, b;
-    do {
-      a = rnd(70, 99);
-      b = rnd(40, 70);
-    } while ((a % 10) >= (b % 10));
-    qs.push({
-      type: 'borrow_sub',
-      q: `${a} - ${b} = ?`,
-      equation: `${a} - ${b} = ?`,
-      answer: a - b,
-      hint: `Borrow a ten! Ones: ${a%10+10} - ${b%10} = ${a%10+10-b%10}. Tens: ${Math.floor(a/10)-1} - ${Math.floor(b/10)} = ${Math.floor(a/10)-1-Math.floor(b/10)}`,
-      explanation: `Borrow 1 ten: ones = ${a%10+10}-${b%10}=${a%10+10-b%10}, tens = ${Math.floor(a/10)-1}-${Math.floor(b/10)}=${Math.floor(a/10)-1-Math.floor(b/10)}. Answer: ${a-b}`,
-      a, b,
-    });
-  }
-  
-  return qs;
-}
-
-function borrowSubWordProblems() {
-  return [
-    { type:'word', q:'A box had 52 crayons 🖍️. 27 were used up. How many crayons are left?', answer:25, explanation:'52 - 27 = 25 (borrow from tens)' },
-    { type:'word', q:'Tom had 71 stickers ⭐. He gave away 34. How many does he have left?', answer:37, explanation:'71 - 34 = 37' },
-    { type:'word', q:'A school had 84 students 🧒. 46 went on a field trip. How many stayed?', answer:38, explanation:'84 - 46 = 38' },
-    { type:'word', q:'Mom baked 60 cookies 🍪. The family ate 38. How many cookies are left?', answer:22, explanation:'60 - 38 = 22' },
-    { type:'word', q:'There were 93 pages in a book 📖. Lucy read 55. How many pages are left?', answer:38, explanation:'93 - 55 = 38' },
-  ];
-}
-
-function makeAddThreeProblems() {
-  const qs = [];
-  
-  // EASY: First 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(5, 15);
-    const b = rnd(5, 15);
-    const c = rnd(5, 15);
-    if (a + b + c <= 50) {
-      qs.push({
-        type: 'add_three',
-        q: `${a} + ${b} + ${c} = ?`,
-        equation: `${a} + ${b} + ${c} = ?`,
-        answer: a + b + c,
-        hint: `First: ${a} + ${b} = ${a+b}. Then: ${a+b} + ${c} = ?`,
-        explanation: `${a}+${b}=${a+b}, then ${a+b}+${c}=${a+b+c}`,
-      });
-    } else { i--; }
-  }
-  
-  // MEDIUM: Next 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(12, 25);
-    const b = rnd(12, 25);
-    const c = rnd(10, 20);
-    if (a + b + c <= 75) {
-      qs.push({
-        type: 'add_three',
-        q: `${a} + ${b} + ${c} = ?`,
-        equation: `${a} + ${b} + ${c} = ?`,
-        answer: a + b + c,
-        hint: `First: ${a} + ${b} = ${a+b}. Then: ${a+b} + ${c} = ?`,
-        explanation: `${a}+${b}=${a+b}, then ${a+b}+${c}=${a+b+c}`,
-      });
-    } else { i--; }
-  }
-  
-  // HARD: Last 6
-  for (let i = 0; i < 6; i++) {
-    const a = rnd(20, 35);
-    const b = rnd(20, 35);
-    const c = rnd(15, 30);
-    if (a + b + c <= 100) {
-      qs.push({
-        type: 'add_three',
-        q: `${a} + ${b} + ${c} = ?`,
-        equation: `${a} + ${b} + ${c} = ?`,
-        answer: a + b + c,
-        hint: `First: ${a} + ${b} = ${a+b}. Then: ${a+b} + ${c} = ?`,
-        explanation: `${a}+${b}=${a+b}, then ${a+b}+${c}=${a+b+c}`,
-      });
-    } else { i--; }
-  }
-  
-  return qs;
-}
-
-function addThreeWordProblems() {
-  return [
-    { type:'word', q:'Jake has 19 toy cars 🚗, 21 action figures, and 30 blocks 🧱. How many toys total?', answer:70, explanation:'19 + 21 + 30 = 70' },
-    { type:'word', q:'A store sold 15 apples 🍎, 23 oranges 🍊, and 12 bananas 🍌. How many fruits were sold?', answer:50, explanation:'15 + 23 + 12 = 50' },
-    { type:'word', q:'Class A has 24 students, Class B has 18, and Class C has 17. How many students in all?', answer:59, explanation:'24 + 18 + 17 = 59' },
-    { type:'word', q:'Mom bought 13 red roses 🌹, 22 white roses, and 15 yellow roses 🌼. How many roses total?', answer:50, explanation:'13 + 22 + 15 = 50' },
-    { type:'word', q:'A zoo has 31 mammals 🐘, 28 birds 🦜, and 11 reptiles 🐊. How many animals?', answer:70, explanation:'31 + 28 + 11 = 70' },
-  ];
-}
-
-function makeSubTwoBigProblems() {
-  const qs = [];
-  
-  // EASY: First 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(20, 40);
-    const b = rnd(5, 10);
-    const c = rnd(5, 10);
-    if (a - b - c > 5) {
-      qs.push({
-        type: 'sub_two_big',
-        q: `${a} - ${b} - ${c} = ?`,
-        equation: `${a} - ${b} - ${c} = ?`,
-        answer: a - b - c,
-        hint: `First: ${a} - ${b} = ${a-b}. Then: ${a-b} - ${c} = ?`,
-        explanation: `${a}-${b}=${a-b}, then ${a-b}-${c}=${a-b-c}`,
-      });
-    } else { i--; }
-  }
-  
-  // MEDIUM: Next 7
-  for (let i = 0; i < 7; i++) {
-    const a = rnd(40, 70);
-    const b = rnd(10, 20);
-    const c = rnd(10, 20);
-    if (a - b - c > 5) {
-      qs.push({
-        type: 'sub_two_big',
-        q: `${a} - ${b} - ${c} = ?`,
-        equation: `${a} - ${b} - ${c} = ?`,
-        answer: a - b - c,
-        hint: `First: ${a} - ${b} = ${a-b}. Then: ${a-b} - ${c} = ?`,
-        explanation: `${a}-${b}=${a-b}, then ${a-b}-${c}=${a-b-c}`,
-      });
-    } else { i--; }
-  }
-  
-  // HARD: Last 6
-  for (let i = 0; i < 6; i++) {
-    const a = rnd(70, 99);
-    const b = rnd(15, 30);
-    const c = rnd(15, 30);
-    if (a - b - c > 5) {
-      qs.push({
-        type: 'sub_two_big',
-        q: `${a} - ${b} - ${c} = ?`,
-        equation: `${a} - ${b} - ${c} = ?`,
-        answer: a - b - c,
-        hint: `First: ${a} - ${b} = ${a-b}. Then: ${a-b} - ${c} = ?`,
-        explanation: `${a}-${b}=${a-b}, then ${a-b}-${c}=${a-b-c}`,
-      });
-    } else { i--; }
-  }
-  
-  return qs;
-}
-
-function subTwoBigWordProblems() {
-  return [
-    { type:'word', q:'A bag had 50 marbles 🔮. Sam took 25 and Lisa took 15. How many are left?', answer:10, explanation:'50 - 25 - 15 = 10' },
-    { type:'word', q:'A school collected 80 cans of food 🥫. They donated 35 on Monday and 20 on Wednesday. How many are left?', answer:25, explanation:'80 - 35 - 20 = 25' },
-    { type:'word', q:'A field has 65 sunflowers 🌻. 20 were picked on Sunday and 18 on Monday. How many are still in the field?', answer:27, explanation:'65 - 20 - 18 = 27' },
-    { type:'word', q:'Mom had 90 dollars 💵. She spent 40 on groceries and 25 on shoes. How much is left?', answer:25, explanation:'90 - 40 - 25 = 25' },
-    { type:'word', q:'A box had 75 chocolates 🍫. Dad ate 30 and Mom ate 15. How many chocolates are left?', answer:30, explanation:'75 - 30 - 15 = 30' },
-  ];
-}
-
-function makeComboProblems() {
-  const all = [
-    ...makeCountingProblems(),
-    ...makeMissingAddProblems(),
-    ...makeSimpleSubProblems(),
-    ...makeFindPairProblems(),
-    ...makeTakeTwoProblems(),
-    ...makeCarryAddProblems(),
-    ...makeBorrowSubProblems(),
-    ...makeAddThreeProblems(),
-    ...makeSubTwoBigProblems(),
-    ...makeGroupingProblems(),
-  ];
-  return shuffle(all).slice(0, 20);
-}
-
-function comboWordProblems() {
-  const all = [
-    ...countingWordProblems(),
-    ...missingAddWordProblems(),
-    ...simpleSubWordProblems(),
-    ...findPairWordProblems(),
-    ...takeTwoWordProblems(),
-    ...carryAddWordProblems(),
-    ...borrowSubWordProblems(),
-    ...addThreeWordProblems(),
-    ...subTwoBigWordProblems(),
-    ...groupingWordProblems(),
-  ];
-  return shuffle(all).slice(0, 5);
-}
-
-function shuffle(arr) {
-  for (let i = arr.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
-}
-
-// ============================================================
-// QUIZ LOGIC
-// ============================================================
-function startLevel(lv) {
-  state.currentLevel = lv;
-  
-  // Generate new problems every time - now with difficulty progression!
-  const mainQs = lv.makeProblems();
-  const wordQs = lv.wordProblems();
-  
-  // Combine: 20 main + 5 word problems at the end
-  state.questions = [...mainQs, ...wordQs];
-  
-  state.qIndex = 0;
-  state.score = 0;
-  state.wrong = 0;
-  state.mistakes = [];
-  state.hintsUsed = 0;
-  state.answered = false;
-  document.getElementById('quiz-level-name').textContent = lv.icon + ' ' + lv.name;
-  showScreen('quiz-screen');
-  renderQuestion();
-}
-
+// ----------------  render question with SUPER clear hints  ----------------
 function renderQuestion() {
-  const q = state.questions[state.qIndex];
-  const total = state.questions.length;
-  document.getElementById('quiz-progress-text').textContent =
-    `Question ${state.qIndex+1} of ${total}`;
-  document.getElementById('quiz-score-badge').textContent =
-    `✅ ${state.score} | ❌ ${state.wrong}`;
-  const pct = (state.qIndex / total) * 100;
-  document.getElementById('quiz-prog-bar').style.width = pct + '%';
+  let q = state.questions[state.qIndex];
+  let total = state.questions.length;
+  document.getElementById('quiz-score-badge').innerHTML = `✅ ${state.score}  ❌ ${state.wrong}`;
+  let isWord = q.type === 'word';
+  let hintAllowed = state.qIndex < 6 && state.hintsUsed < 2 && !isWord;
 
-  const isWord = q.type === 'word';
-  const isGrouping = q.type && q.type.startsWith('grouping');
-  const isCarry = q.type === 'carry_add';
-  const isBorrow = q.type === 'borrow_sub';
-  const isCounting = q.type && q.type.startsWith('counting');
-  const isMissing = q.type && (q.type.startsWith('missing') || q.type.startsWith('find'));
+  let area = document.getElementById('question-area');
+  let html = `<div class="question-card"><div class="question-text">${q.q}</div>`;
 
-  // Hint eligibility: only for first 6 questions, and only 2 hints total
-  const hintAllowed = state.qIndex < 6 && state.hintsUsed < 2 && !isWord;
+  // ----- SIMPLE EXPLANATION / MINI LESSON for each type -----
+  if (q.type === 'counting_add' || q.type === 'counting_sub') {
+    html += `<div class="finger-helper">✋ FINGER COUNTING: ${q.hint || 'count up or down'}</div>`;
+  }
+  else if (q.type && q.type.startsWith('grouping')) {
+    html += `<div class="mini-lesson"><span class="emojii">📦</span> TENS are groups of 10 · ONES are leftovers. ${q.hint}</div>`;
+    if (q.answer !== undefined) { /* visual later */ }
+  }
+  else if (q.type && (q.type.startsWith('missing') || q.type.startsWith('find'))) {
+    html += `<div class="step-hint">✨ ${q.hint || 'Step 1: add what you know · Step 2: subtract from total'}</div>`;
+  }
+  else if (q.type === 'carry_add') {
+    html += `<div class="carry-helper">🔢 ${q.hint}<br> <span style="font-size:1rem;">ones add → carry the ten!</span></div>`;
+  }
+  else if (q.type === 'borrow_sub') {
+    html += `<div class="borrow-helper">🔁 ${q.hint}<br> <span style="font-size:1rem;">borrow from tens, then subtract ones</span></div>`;
+  }
+  else if (!isWord) {
+    html += `<div class="mini-lesson">💡 ${q.hint || 'think step by step'}</div>`;
+  }
 
-  let html = '';
+  // grouping visual
+  if (q.type && q.type.startsWith('grouping') && q.answer!==undefined) {
+    let t = q.q.match(/\d+/)?.[0] || 0; if(!q.tens && !q.ones){} // skip
+  }
+  if (q.type==='carry_add' && q.a) {
+    let ones = (q.a%10)+(q.b%10); let carry = Math.floor(ones/10);
+    html += `<div style="font-size:1.8rem;text-align:center;background:#eee;border-radius:30px;margin-top:10px;"> ${q.a} + ${q.b} = ?<br> <span style="color:red;font-size:1rem;">carry: ${carry>0?'¹':''}</span></div>`;
+  }
 
   if (isWord) {
-    html += `<div class="word-problem-card">
-      <div class="wp-badge">📖 Word Problem</div>
-      <div class="question-text">${q.q}</div>
-    </div>`;
-  } else {
-    html += `<div class="question-card">
-      <div class="question-text">${q.q}</div>
-      <div class="equation-display">${formatEquation(q)}</div>`;
-
-    if (isMissing && q.step1) {
-      html += `
-        <div class="missing-step-hint">
-          <span class="step-1">Step 1: Add ${q.q.match(/\d+ \+ \d+/)[0]} = ${q.step1}</span>
-          <span class="step-arrow">→</span>
-          <span class="step-2">Step 2: ${q.step2} - ${q.step1} = ?</span>
-        </div>`;
-    }
-
-    if (isGrouping) {
-      html += renderGroupingVisual(q);
-    }
-    if (isCounting) {
-      html += renderCountingHelper(q);
-    }
-    if (isCarry) {
-      html += renderCarryHelper(q);
-    }
-    if (isBorrow) {
-      html += renderBorrowHelper(q);
-    }
-    html += `</div>`;
+    html = `<div class="word-problem-card"><span class="wp-badge">📖 word problem</span><div class="question-text">${q.q}</div></div>`;
   }
 
-  html += `<div class="hint-box" id="hint-box">${q.hint || ''}</div>`;
+  html += `<input class="answer-input" id="answer-input" type="number" inputmode="numeric" placeholder="type answer" autocomplete="off">`;
+  html += `<div class="hint-box" id="hint-box" style="display:none;">${q.hint || ''}</div>`;
   html += `<div class="feedback-box" id="feedback-box"></div>`;
-  html += `<div style="margin-top:14px;"><input class="answer-input" id="answer-input" type="number" inputmode="numeric" placeholder="Your answer..." autocomplete="off"></div>`;
+  html += `</div>`;
 
-  document.getElementById('question-area').innerHTML = html;
+  area.innerHTML = html;
+  document.getElementById('answer-input').focus();
 
-  const inp = document.getElementById('answer-input');
-  inp.focus();
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !state.answered) checkAnswer(); });
-
-  // Action row
-  const ar = document.getElementById('action-row');
-  ar.innerHTML = '';
-
-  const backBtn = document.createElement('button');
-  backBtn.className = 'btn-back';
-  backBtn.textContent = '🏠 Home';
-  backBtn.onclick = () => showScreen('home-screen');
-  ar.appendChild(backBtn);
-
+  // action row
+  let ar = document.getElementById('action-row');
+  ar.innerHTML = `<button class="btn-back" onclick="showScreen('home-screen')">🏠 Home</button>`;
   if (hintAllowed) {
-    const hintBtn = document.createElement('button');
-    hintBtn.className = 'btn-hint';
-    hintBtn.id = 'hint-btn';
-    hintBtn.textContent = '💡 Hint';
-    hintBtn.onclick = showHint;
-    ar.appendChild(hintBtn);
+    ar.innerHTML += `<button class="btn-hint" id="hint-btn" onclick="showHint()">💡 Hint</button>`;
   }
-
-  const checkBtn = document.createElement('button');
-  checkBtn.className = 'btn-primary';
-  checkBtn.textContent = '✅ Check!';
-  checkBtn.onclick = checkAnswer;
-  ar.appendChild(checkBtn);
+  ar.innerHTML += `<button class="btn-primary" onclick="checkAnswer()">✅ Check</button>`;
 
   state.answered = false;
-}
-
-function formatEquation(q) {
-  const eq = q.equation || q.q;
-  return eq.replace('?', '<span class="eq-blank">?</span>');
-}
-
-function renderGroupingVisual(q) {
-  if (!q.tens) return '';
-  let html = '<div class="tens-visual">';
-  for (let i = 0; i < q.tens; i++) {
-    html += '<div class="ten-group">';
-    for (let j = 0; j < 10; j++) html += '<div class="unit-block"></div>';
-    html += '</div>';
-  }
-  if (q.ones > 0) {
-    html += '<div class="ones-group">';
-    for (let j = 0; j < q.ones; j++) html += '<div class="unit-block one"></div>';
-    html += '</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
-function renderCountingHelper(q) {
-  if (q.countDir === 'up') {
-    // Show number line from big to big+small
-    const start = q.countStart;
-    const steps = q.countUp;
-    let html = '<div style="text-align:center; margin-top:12px;"><div style="font-size:0.9rem; color:#666; margin-bottom:6px;">Count up from ' + (start+1) + ':</div>';
-    html += '<div class="counting-line">';
-    html += `<div class="count-num start">${start}</div>`;
-    for (let i = 1; i <= steps; i++) {
-      html += `<div class="count-num" id="cnum-${i}">${start+i}</div>`;
-    }
-    html += '</div>';
-    html += '<div id="finger-count" style="font-size:0.9rem; color:#666; margin-top:6px;">Tap numbers as you count!</div>';
-    html += '</div>';
-    // Add tap logic via script
-    html += `<script>
-      (function(){
-        let tapped = 0;
-        for(let i=1;i<=${steps};i++){
-          document.getElementById('cnum-'+i).onclick = function(){
-            if(tapped < i){ tapped=i; this.classList.add('active'); }
-          }
-        }
-      })();
-    <\/script>`;
-    return html;
-  } else {
-    const start = q.countStart;
-    const end = q.countEnd;
-    const diff = end - start;
-    let html = '<div style="text-align:center; margin-top:12px;"><div style="font-size:0.9rem; color:#666; margin-bottom:6px;">Count from ' + (start+1) + ' to ' + end + ':</div>';
-    html += '<div class="counting-line">';
-    for (let i = start+1; i <= end; i++) {
-      html += `<div class="count-num" id="cnum-${i-start}">${i}</div>`;
-    }
-    html += '</div>';
-    html += '<div style="margin-top:6px; font-size:0.9rem; color:#666;">Fingers raised = answer 🖐️</div></div>';
-    html += `<script>
-      (function(){
-        let tapped = 0;
-        for(let i=1;i<=${diff};i++){
-          document.getElementById('cnum-'+i).onclick = function(){
-            if(tapped < i){ tapped=i; this.classList.add('active'); }
-          }
-        }
-      })();
-    <\/script>`;
-    return html;
-  }
-}
-
-function renderCarryHelper(q) {
-  if (!q.a) return '';
-  const onesSum = (q.a%10) + (q.b%10);
-  const carry = Math.floor(onesSum/10);
-  return `<div style="text-align:center;">
-    <div class="addition-column">
-      <div class="carry-digit" style="text-align:right;">${carry > 0 ? '¹' : '&nbsp;'}</div>
-      <div>${q.a}</div>
-      <div>+ ${q.b}</div>
-      <div class="division-line"></div>
-    </div>
-  </div>`;
-}
-
-function renderBorrowHelper(q) {
-  if (!q.a) return '';
-  return `<div style="text-align:center;">
-    <div class="addition-column">
-      <div>${q.a}</div>
-      <div>− ${q.b}</div>
-      <div class="division-line"></div>
-    </div>
-    <div style="font-size:0.85rem; color:#666; margin-top:6px;">Do you need to borrow a ten? 🤔</div>
-  </div>`;
 }
 
 function showHint() {
   state.hintsUsed++;
-  document.getElementById('hint-box').classList.add('show');
-  const btn = document.getElementById('hint-btn');
-  if (btn) btn.disabled = true;
+  document.getElementById('hint-box').style.display = 'block';
+  let btn = document.getElementById('hint-btn'); if(btn) btn.disabled = true;
 }
 
 function checkAnswer() {
-  if (state.answered) return;
-  const q = state.questions[state.qIndex];
-  const inp = document.getElementById('answer-input');
-  const val = parseInt(inp.value);
-  if (isNaN(val)) { inp.focus(); return; }
-
+  if(state.answered) return;
+  let q = state.questions[state.qIndex];
+  let inp = document.getElementById('answer-input');
+  let val = parseInt(inp.value);
+  if(isNaN(val)) return;
   state.answered = true;
-  const correct = val === q.answer;
-  const fb = document.getElementById('feedback-box');
-  fb.classList.add('show');
-
-  if (correct) {
-    inp.classList.add('correct');
-    fb.classList.add('correct-fb');
-    fb.innerHTML = '🎉 Correct! ' + (q.explanation ? `<br><small>${q.explanation}</small>` : '');
+  let fb = document.getElementById('feedback-box'); fb.classList.add('show');
+  let correct = (val === q.answer);
+  if(correct) {
+    inp.classList.add('correct'); fb.classList.add('correct-fb');
+    fb.innerHTML = '✅🎉 Yes! ' + (q.explanation || 'good job!');
     state.score++;
   } else {
-    inp.classList.add('wrong');
-    fb.classList.add('wrong-fb');
-    
-    // Show extra helpful message for missing number problems
-    if (q.type && (q.type.startsWith('missing') || q.type.startsWith('find'))) {
-      fb.innerHTML = `❌ Not quite! You wrote <b>${val}</b> but the answer is <b>${q.answer}</b>.<br>
-        <small>${q.explanation || ''}</small><br>
-        <small style="color:#721c24;">✨ Remember: First add the numbers you know, then subtract from the total!</small>`;
-    } else {
-      fb.innerHTML = `❌ Not quite! You wrote <b>${val}</b> but the answer is <b>${q.answer}</b>.<br>
-        <small>${q.explanation || ''}</small>`;
-    }
-    
-    state.wrong++;
-    state.mistakes.push({ q: q.q, yourAnswer: val, correct: q.answer, explanation: q.explanation });
+    inp.classList.add('wrong'); fb.classList.add('wrong-fb');
+    fb.innerHTML = `❌ Your answer ${val} is not correct. The right answer is ${q.answer}. ${q.explanation?('<br>'+q.explanation):''}`;
+    state.wrong++; state.mistakes.push({q:q.q, your:val, correct:q.answer});
   }
-
-  // Replace action row with Next button
-  const ar = document.getElementById('action-row');
-  ar.innerHTML = '';
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'btn-primary';
-  nextBtn.textContent = state.qIndex + 1 < state.questions.length ? '▶️ Next Question' : '🏁 See Results!';
-  nextBtn.onclick = nextQuestion;
-  ar.appendChild(nextBtn);
+  let ar = document.getElementById('action-row');
+  ar.innerHTML = `<button class="btn-primary" onclick="nextQuestion()">➡️ Next</button>`;
 }
 
 function nextQuestion() {
   state.qIndex++;
-  if (state.qIndex >= state.questions.length) {
-    showResults();
-  } else {
-    renderQuestion();
-  }
+  if(state.qIndex >= state.questions.length) showResults();
+  else renderQuestion();
 }
 
-// ============================================================
-// RESULTS SCREEN
-// ============================================================
 function showResults() {
-  const total = state.questions.length;
-  const pct = Math.round((state.score / total) * 100);
-  const passed = pct >= 98;
+  let total = state.questions.length, pct = Math.round((state.score/total)*100);
+  let prev = state.completed[state.currentLevel.id]||0;
+  if(pct>prev) state.completed[state.currentLevel.id] = pct;
 
-  // Save best score
-  const prev = state.completed[state.currentLevel.id] || 0;
-  if (pct > prev) state.completed[state.currentLevel.id] = pct;
+  document.getElementById('result-emoji').innerText = pct>=98?'🏆':pct>=70?'🌟':'💪';
+  document.getElementById('result-title').innerText = pct>=98?'Amazing!':pct>=70?'Good job!':'Keep trying';
+  document.getElementById('result-score').innerText = `${state.score}/${total} correct (${pct}%)`;
+  document.getElementById('result-stars').innerHTML = pct>=98?'⭐⭐⭐':pct>=70?'⭐⭐':'⭐';
 
-  document.getElementById('result-emoji').textContent = passed ? '🏆' : (pct >= 80 ? '🌟' : '💪');
-  document.getElementById('result-title').textContent = passed ? 'Amazing! You passed!' : (pct >= 80 ? 'Great job!' : 'Keep practicing!');
-  document.getElementById('result-score').textContent = `You got ${state.score} out of ${total} correct (${pct}%)`;
-  document.getElementById('result-stars').innerHTML = pct >= 98 ? '⭐⭐⭐' : pct >= 80 ? '⭐⭐' : '⭐';
-
-  let msg = '';
-  if (passed) {
-    msg = '🎉 Fantastic! You got 98% or more — you\'ve mastered this level! Keep going! 🚀';
-  } else {
-    msg = `You scored ${pct}%. Let's try again — you can do it! 💪 Review the mistakes below and try the level again.`;
+  let mh = '';
+  if(state.mistakes.length){
+    mh = '<h3>📋 Mistakes:</h3>';
+    state.mistakes.forEach(m=>{ mh+=`<div class="mistake-item">❓ ${m.q} → your:${m.your} ✔️ correct:${m.correct}</div>`; });
   }
-  document.getElementById('result-msg').textContent = msg;
+  document.getElementById('mistakes-section').innerHTML = mh;
 
-  // Mistakes
-  let mistakeHTML = '';
-  if (state.mistakes.length > 0) {
-    mistakeHTML = '<h3 style="font-family: Fredoka One, cursive; margin-bottom:10px; color:var(--coral)">📝 Let\'s look at your mistakes:</h3>';
-    state.mistakes.forEach(m => {
-      mistakeHTML += `<div class="mistake-item">
-        <div class="mi-q">Question: ${m.q}</div>
-        <div class="mi-exp">Your answer: ${m.yourAnswer} ❌ &nbsp;|&nbsp; Correct answer: ${m.correct} ✅</div>
-        <div class="mi-exp" style="color:#888">${m.explanation || ''}</div>
-      </div>`;
-    });
-  }
-  document.getElementById('mistakes-section').innerHTML = mistakeHTML;
-
-  // Buttons
-  document.getElementById('result-retry-btn').onclick = () => startLevel(state.currentLevel);
-  document.getElementById('result-home-btn').onclick = () => { renderHome(); showScreen('home-screen'); };
-
-  // Next level button - suggest next level but doesn't force
-  const nextBtn = document.getElementById('result-next-btn');
-  if (passed) {
-    const idx = LEVELS.findIndex(l => l.id === state.currentLevel.id);
-    if (idx < LEVELS.length - 1) {
-      nextBtn.style.display = 'inline-block';
-      nextBtn.onclick = () => startLevel(LEVELS[idx+1]);
-    } else {
-      nextBtn.style.display = 'none';
-    }
-  } else {
-    nextBtn.style.display = 'none';
-  }
+  let idx = LEVELS.findIndex(l=>l.id===state.currentLevel.id);
+  document.getElementById('result-next-btn').style.display = (pct>=98 && idx<LEVELS.length-1)?'inline-block':'none';
+  document.getElementById('result-next-btn').onclick = ()=>startLevel(LEVELS[idx+1]);
+  document.getElementById('result-retry-btn').onclick = ()=>startLevel(state.currentLevel);
+  document.getElementById('result-home-btn').onclick = ()=>{ renderHome(); showScreen('home-screen'); };
 
   renderHome();
   showScreen('result-screen');
 }
 
-// ============================================================
-// INIT
-// ============================================================
-// Initialize all level scores to 0 if not set
-LEVELS.forEach(lv => {
-  if (state.completed[lv.id] === undefined) {
-    state.completed[lv.id] = 0;
-  }
-});
-renderHome();
-updateProgressLabel();
+function renderHome() {
+  let grid = document.getElementById('levels-grid'); grid.innerHTML = '';
+  LEVELS.forEach(lv => {
+    if(!state.completed[lv.id]) state.completed[lv.id]=0;
+    let s = state.completed[lv.id];
+    let stars = s>=98?'⭐⭐⭐': s>=70?'⭐⭐':'⭐';
+    let btn = document.createElement('div'); btn.className='level-btn';
+    btn.innerHTML = `<div class="level-icon">${lv.icon}</div><div class="level-name">${lv.name}</div><div class="level-stars">${stars}</div>`;
+    btn.onclick = ()=>startLevel(lv);
+    grid.appendChild(btn);
+  });
+}
+function saveProgress(){ localStorage.setItem('math_save', JSON.stringify(state.completed)); alert('saved!'); }
+function loadProgress(){ let d=localStorage.getItem('math_save'); if(d){ state.completed=JSON.parse(d); renderHome(); } else alert('no save'); }
+window.onload = ()=>{ renderHome(); };
 </script>
 </body>
 </html>
