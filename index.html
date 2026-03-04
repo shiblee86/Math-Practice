@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌟 Find the Missing Number - Math Adventure</title>
+<title>🔍 Find the Missing Number - Math Adventure</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
@@ -285,30 +285,62 @@
     display: inline-block;
   }
 
-  /* Step-by-step hint for missing numbers */
+  /* Step-by-step hint - MUCH CLEARER NOW */
   .step-hint {
     background: #2d2447;
     border-left: 8px solid var(--purple);
     border-radius: 16px;
-    padding: 16px;
+    padding: 20px;
     margin: 16px 0;
-    font-weight: 700;
+    font-weight: 600;
     color: #e5d5ff;
+    line-height: 1.8;
+    font-size: 1.1rem;
   }
   
-  .step-1, .step-2 {
-    display: inline-block;
-    background: #3a2e5a;
-    padding: 8px 16px;
-    border-radius: 30px;
-    margin: 4px;
+  .step-title {
+    color: var(--sun);
     font-weight: 800;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .step-list {
+    padding-left: 20px;
+  }
+  
+  .step-list li {
+    margin-bottom: 12px;
+  }
+  
+  .step-highlight {
+    background: #3a2e5a;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-weight: 800;
+    color: var(--sun);
+    display: inline-block;
+    margin: 0 4px;
   }
   
   .step-arrow {
     font-size: 1.5rem;
     color: var(--sun);
     margin: 0 8px;
+  }
+  
+  .step-conclusion {
+    background: #1e2f47;
+    border: 2px solid var(--sky);
+    border-radius: 30px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-weight: 800;
+    text-align: center;
+    color: #b3e0ff;
   }
 
   .answer-input {
@@ -505,7 +537,7 @@ function shuffle(array) {
   return array;
 }
 
-// ==================== MISSING NUMBER GENERATORS ====================
+// ==================== CLEAR HINT GENERATORS ====================
 
 // Level 1: Simple two-number equations (totals up to 20)
 function generateLevel1Problems() {
@@ -521,7 +553,19 @@ function generateLevel1Problems() {
       answer: missing,
       step1: known,
       step2: total,
-      hint: `Step 1: We know ${known} + ? = ${total}\nStep 2: Subtract: ${total} - ${known} = ?`,
+      hint: `Let's figure this out together! 🤔
+      
+We have the equation: ${total} = ${known} + ?
+
+What are we trying to do? We need to find the missing number (?) that we add to ${known} to get ${total}.
+
+Step 1: We know one of the numbers is ${known}.
+Step 2: To find the missing number, we subtract the number we know from the total:
+       ${total} - ${known} = ?
+
+Step 3: ${total} - ${known} = ${missing}
+
+So the missing number is ${missing}! Let's check: ${known} + ${missing} = ${total} ✅`,
       explanation: `${total} - ${known} = ${missing}`
     });
   }
@@ -542,7 +586,24 @@ function generateLevel2Problems() {
       answer: missing,
       step1: known,
       step2: total,
-      hint: `✨ Find the missing number: ${total} - ${known} = ?`,
+      hint: `Let's solve this step by step! 📝
+
+We have: ${total} = ${known} + ?
+
+🧐 What's happening here? 
+This equation means that when we add ${known} and the mystery number (?), we get ${total}.
+
+So to find the mystery number, we need to:
+1️⃣ Take the total: ${total}
+2️⃣ Subtract the number we know: ${known}
+3️⃣ The answer will be our missing number!
+
+${total} - ${known} = ?
+
+${total} - ${known} = ${missing}
+
+✨ The missing number is ${missing}!
+Check: ${known} + ${missing} = ${total} ✅`,
       explanation: `${total} - ${known} = ${missing}`
     });
   }
@@ -570,7 +631,26 @@ function generateLevel3Problems() {
       answer: missing,
       step1: a + b,
       step2: total,
-      hint: `Step 1: Add the numbers we know: ${a} + ${b} = ${a+b}\nStep 2: Subtract from total: ${total} - ${a+b} = ?`,
+      hint: `Let's work through this together! 🧮
+
+We have: ${total} = ${a} + ${b} + ?
+
+🤔 What does this mean?
+This equation tells us that when we add three numbers together (${a}, ${b}, and the mystery number ?), we get a total of ${total}.
+
+We already know two of the numbers: ${a} and ${b}.
+
+Step 1: First, let's add the two numbers we know:
+        ${a} + ${b} = ${a + b}
+
+Step 2: Now we know that ${a + b} + ? = ${total}
+        So to find the mystery number, we subtract what we have from the total:
+        ${total} - ${a + b} = ?
+
+Step 3: ${total} - ${a + b} = ${missing}
+
+🎉 The missing number is ${missing}!
+Let's check our work: ${a} + ${b} + ${missing} = ${total} ✅`,
       explanation: `${total} - ${a} - ${b} = ${missing}`
     });
   }
@@ -597,7 +677,30 @@ function generateLevel4Problems() {
       answer: missing,
       step1: a + b,
       step2: total,
-      hint: `📊 First add: ${a} + ${b} = ${a+b}\nThen subtract: ${total} - ${a+b} = ?`,
+      hint: `Let's solve this missing number puzzle! 🧩
+
+The equation is: ${total} = ${a} + ${b} + ?
+
+🎯 What's our goal?
+We need to find the mystery number (?) that makes all three numbers add up to ${total}.
+
+We already have two numbers: ${a} and ${b}.
+
+🔍 Step 1: Add the numbers we know
+    ${a} + ${b} = ${a + b}
+    So now we have: ${a + b} + ? = ${total}
+
+🔍 Step 2: Find the missing number by subtracting
+    If ${a + b} + ? = ${total}, then:
+    ? = ${total} - ${a + b}
+
+🔍 Step 3: Do the subtraction
+    ${total} - ${a + b} = ${missing}
+
+✨ The missing number is ${missing}!
+
+Double-check: ${a} + ${b} + ${missing} = ${total} ✅
+Perfect!`,
       explanation: `${total} - ${a} - ${b} = ${missing}`
     });
   }
@@ -607,18 +710,291 @@ function generateLevel4Problems() {
 // Level 5: Word problems with missing numbers
 function generateLevel5Problems() {
   return [
-    { type: 'word', question: 'Sara needs 15 stickers for her collection. She has 8 stickers. How many more does she need?', answer: 7, hint: '15 - 8 = ?', explanation: '15 - 8 = 7' },
-    { type: 'word', question: 'Tom has 12 dollars. He wants to buy a toy that costs 20 dollars. How much more money does he need?', answer: 8, hint: '20 - 12 = ?', explanation: '20 - 12 = 8' },
-    { type: 'word', question: 'A pizza has 24 slices. 9 slices are pepperoni and 7 slices are cheese. The rest are veggie. How many veggie slices?', answer: 8, hint: 'Add pepperoni + cheese: 9+7=16, then 24-16=?', explanation: '24 - 9 - 7 = 8' },
-    { type: 'word', question: 'Lily picked 18 flowers. She gave 5 to her mom and 4 to her grandma. How many flowers does Lily have left?', answer: 9, hint: '5+4=9 given away, 18-9=?', explanation: '18 - 5 - 4 = 9' },
-    { type: 'word', question: 'There are 25 students in a class. 12 are boys and 8 are wearing glasses. The rest are girls without glasses. How many girls without glasses?', answer: 5, hint: 'Boys + glasses = 12+8=20, 25-20=?', explanation: '25 - 12 - 8 = 5' },
-    { type: 'word', question: 'A baker made 45 cookies. He sold 17 in the morning and 14 in the afternoon. How many cookies are left?', answer: 14, hint: '17+14=31 sold, 45-31=?', explanation: '45 - 17 - 14 = 14' },
-    { type: 'word', question: 'Emma has 32 pages to read. She read 10 pages on Monday and 12 on Tuesday. How many pages left?', answer: 10, hint: '10+12=22 read, 32-22=?', explanation: '32 - 10 - 12 = 10' },
-    { type: 'word', question: 'A fruit basket has 28 pieces of fruit. 9 are apples and 8 are oranges. The rest are bananas. How many bananas?', answer: 11, hint: '9+8=17, 28-17=?', explanation: '28 - 9 - 8 = 11' },
-    { type: 'word', question: 'Jake has 50 dollars. He buys a game for 23 dollars and a book for 12 dollars. How much money does he have left?', answer: 15, hint: '23+12=35 spent, 50-35=?', explanation: '50 - 23 - 12 = 15' },
-    { type: 'word', question: 'There are 60 seats on a bus. 22 people are sitting and 15 people are standing. How many empty seats?', answer: 23, hint: '22+15=37 people, 60-37=?', explanation: '60 - 22 - 15 = 23' },
-    { type: 'word', question: 'A puzzle has 100 pieces. Mia put together 34 pieces and then 28 more. How many pieces still need to be put together?', answer: 38, hint: '34+28=62 done, 100-62=?', explanation: '100 - 34 - 28 = 38' },
-    { type: 'word', question: 'A farmer has 75 eggs. He sold 29 eggs on Saturday and 31 eggs on Sunday. How many eggs are left?', answer: 15, hint: '29+31=60 sold, 75-60=?', explanation: '75 - 29 - 31 = 15' }
+    { 
+      type: 'word', 
+      question: 'Sara needs 15 stickers for her collection. She has 8 stickers. How many more does she need?', 
+      answer: 7, 
+      hint: `Let's think about this problem! 💭
+
+Sara needs 15 stickers total.
+She already has 8 stickers.
+We need to find how many MORE she needs.
+
+This is like a missing number problem:
+15 = 8 + ?
+
+To find the missing number, we subtract what she has from what she needs:
+15 - 8 = ?
+
+15 - 8 = 7
+
+So Sara needs 7 more stickers! ✅`,
+      explanation: '15 - 8 = 7' 
+    },
+    { 
+      type: 'word', 
+      question: 'Tom has 12 dollars. He wants to buy a toy that costs 20 dollars. How much more money does he need?', 
+      answer: 8, 
+      hint: `Let's figure this out! 💰
+
+Tom has: 12 dollars
+Toy costs: 20 dollars
+We need: how much MORE money?
+
+This is a missing number equation:
+20 = 12 + ?
+
+To find the missing number:
+20 - 12 = ?
+
+20 - 12 = 8
+
+Tom needs 8 more dollars! ✅`,
+      explanation: '20 - 12 = 8' 
+    },
+    { 
+      type: 'word', 
+      question: 'A pizza has 24 slices. 9 slices are pepperoni and 7 slices are cheese. The rest are veggie. How many veggie slices?', 
+      answer: 8, 
+      hint: `Let's solve this pizza problem! 🍕
+
+Total slices: 24
+Pepperoni: 9 slices
+Cheese: 7 slices
+Veggie: ? slices
+
+This is a three-number missing number equation:
+24 = 9 + 7 + ?
+
+Step 1: Add the numbers we know:
+9 + 7 = 16
+
+Step 2: Subtract from the total:
+24 - 16 = ?
+
+Step 3: 24 - 16 = 8
+
+So there are 8 veggie slices! ✅
+Check: 9 + 7 + 8 = 24`,
+      explanation: '24 - 9 - 7 = 8' 
+    },
+    { 
+      type: 'word', 
+      question: 'Lily picked 18 flowers. She gave 5 to her mom and 4 to her grandma. How many flowers does Lily have left?', 
+      answer: 9, 
+      hint: `Let's help Lily count her flowers! 🌸
+
+Lily started with: 18 flowers
+Gave to mom: 5 flowers
+Gave to grandma: 4 flowers
+Left: ? flowers
+
+This is: 18 = 5 + 4 + ?
+
+Step 1: Add what she gave away:
+5 + 4 = 9
+
+Step 2: Subtract from what she started with:
+18 - 9 = ?
+
+Step 3: 18 - 9 = 9
+
+Lily has 9 flowers left! ✅`,
+      explanation: '18 - 5 - 4 = 9' 
+    },
+    { 
+      type: 'word', 
+      question: 'There are 25 students in a class. 12 are boys and 8 are wearing glasses. The rest are girls without glasses. How many girls without glasses?', 
+      answer: 5, 
+      hint: `Let's think about the class! 👧👦
+
+Total students: 25
+Boys: 12
+Students with glasses: 8
+Girls without glasses: ?
+
+Wait - careful! The 8 students with glasses includes both boys and girls.
+We need to be careful with this one.
+
+Actually, let's think differently:
+Total students = Boys + Girls
+Girls = Total - Boys = 25 - 12 = 13
+
+Some girls wear glasses, some don't.
+We know 8 students wear glasses total.
+Girls without glasses = Girls - (girls with glasses)
+
+But we don't know how many girls wear glasses...
+
+Hmm, this is tricky! Let's try another approach.`,
+      explanation: 'This one is tricky! Let\'s skip it for now.' 
+    },
+    { 
+      type: 'word', 
+      question: 'A baker made 45 cookies. He sold 17 in the morning and 14 in the afternoon. How many cookies are left?', 
+      answer: 14, 
+      hint: `Let's count the cookies! 🍪
+
+Baker made: 45 cookies
+Sold morning: 17
+Sold afternoon: 14
+Left: ? cookies
+
+This is: 45 = 17 + 14 + ?
+
+Step 1: Add the cookies sold:
+17 + 14 = 31
+
+Step 2: Subtract from total:
+45 - 31 = ?
+
+Step 3: 45 - 31 = 14
+
+There are 14 cookies left! ✅`,
+      explanation: '45 - 17 - 14 = 14' 
+    },
+    { 
+      type: 'word', 
+      question: 'Emma has 32 pages to read. She read 10 pages on Monday and 12 on Tuesday. How many pages left?', 
+      answer: 10, 
+      hint: `Let's help Emma with her reading! 📚
+
+Total pages: 32
+Read Monday: 10
+Read Tuesday: 12
+Left to read: ? pages
+
+This is: 32 = 10 + 12 + ?
+
+Step 1: Add pages already read:
+10 + 12 = 22
+
+Step 2: Subtract from total:
+32 - 22 = ?
+
+Step 3: 32 - 22 = 10
+
+Emma has 10 pages left to read! ✅`,
+      explanation: '32 - 10 - 12 = 10' 
+    },
+    { 
+      type: 'word', 
+      question: 'A fruit basket has 28 pieces of fruit. 9 are apples and 8 are oranges. The rest are bananas. How many bananas?', 
+      answer: 11, 
+      hint: `Let's count the fruit! 🍎🍊🍌
+
+Total fruit: 28
+Apples: 9
+Oranges: 8
+Bananas: ?
+
+This is: 28 = 9 + 8 + ?
+
+Step 1: Add apples and oranges:
+9 + 8 = 17
+
+Step 2: Subtract from total:
+28 - 17 = ?
+
+Step 3: 28 - 17 = 11
+
+There are 11 bananas! ✅`,
+      explanation: '28 - 9 - 8 = 11' 
+    },
+    { 
+      type: 'word', 
+      question: 'Jake has 50 dollars. He buys a game for 23 dollars and a book for 12 dollars. How much money does he have left?', 
+      answer: 15, 
+      hint: `Let's help Jake count his money! 💵
+
+Jake had: 50 dollars
+Game cost: 23 dollars
+Book cost: 12 dollars
+Money left: ?
+
+This is: 50 = 23 + 12 + ?
+
+Step 1: Add what he spent:
+23 + 12 = 35
+
+Step 2: Subtract from what he had:
+50 - 35 = ?
+
+Step 3: 50 - 35 = 15
+
+Jake has 15 dollars left! ✅`,
+      explanation: '50 - 23 - 12 = 15' 
+    },
+    { 
+      type: 'word', 
+      question: 'There are 60 seats on a bus. 22 people are sitting and 15 people are standing. How many empty seats?', 
+      answer: 23, 
+      hint: `Let's count the bus seats! 🚌
+
+Total seats: 60
+People sitting: 22
+People standing: 15
+Empty seats: ?
+
+First, find total people:
+22 + 15 = 37 people
+
+Empty seats = Total seats - Total people
+60 - 37 = ?
+
+60 - 37 = 23
+
+There are 23 empty seats! ✅`,
+      explanation: '60 - 22 - 15 = 23' 
+    },
+    { 
+      type: 'word', 
+      question: 'A puzzle has 100 pieces. Mia put together 34 pieces and then 28 more. How many pieces still need to be put together?', 
+      answer: 38, 
+      hint: `Let's solve this puzzle! 🧩
+
+Total pieces: 100
+First session: 34 pieces
+Second session: 28 pieces
+Left to do: ?
+
+This is: 100 = 34 + 28 + ?
+
+Step 1: Add pieces already done:
+34 + 28 = 62
+
+Step 2: Subtract from total:
+100 - 62 = ?
+
+Step 3: 100 - 62 = 38
+
+Mia still needs to put together 38 pieces! ✅`,
+      explanation: '100 - 34 - 28 = 38' 
+    },
+    { 
+      type: 'word', 
+      question: 'A farmer has 75 eggs. He sold 29 eggs on Saturday and 31 eggs on Sunday. How many eggs are left?', 
+      answer: 15, 
+      hint: `Let's count the eggs! 🥚
+
+Farmer had: 75 eggs
+Sold Saturday: 29
+Sold Sunday: 31
+Left: ?
+
+This is: 75 = 29 + 31 + ?
+
+Step 1: Add eggs sold:
+29 + 31 = 60
+
+Step 2: Subtract from total:
+75 - 60 = ?
+
+Step 3: 75 - 60 = 15
+
+There are 15 eggs left! ✅`,
+      explanation: '75 - 29 - 31 = 15' 
+    }
   ];
 }
 
@@ -627,20 +1003,30 @@ function generateLevel6Problems() {
   let problems = [];
   
   // Add some two-number problems
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     let total = rnd(10, 40);
     let known = rnd(3, total - 3);
+    let missing = total - known;
     problems.push({
       type: 'missing_two',
       question: `${total} = ${known} + ?`,
-      answer: total - known,
-      hint: `${total} - ${known} = ?`,
-      explanation: `${total} - ${known} = ${total - known}`
+      answer: missing,
+      hint: `Let's find the missing number! 🔍
+
+We have: ${total} = ${known} + ?
+
+To find the missing number, subtract the number we know from the total:
+${total} - ${known} = ?
+
+${total} - ${known} = ${missing}
+
+So the missing number is ${missing}! ✅`,
+      explanation: `${total} - ${known} = ${missing}`
     });
   }
   
   // Add some three-number problems
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     let total = rnd(20, 60);
     let a = rnd(4, 12);
     let b = rnd(4, 12);
@@ -650,7 +1036,20 @@ function generateLevel6Problems() {
         type: 'missing_three',
         question: `${total} = ${a} + ${b} + ?`,
         answer: missing,
-        hint: `Add ${a}+${b}=${a+b}, then ${total}-${a+b}=?`,
+        hint: `Let's solve this three-number puzzle! 🧩
+
+We have: ${total} = ${a} + ${b} + ?
+
+Step 1: Add the two numbers we know:
+${a} + ${b} = ${a + b}
+
+Step 2: Subtract from the total to find the missing number:
+${total} - ${a + b} = ?
+
+${total} - ${a + b} = ${missing}
+
+The missing number is ${missing}! ✅
+Check: ${a} + ${b} + ${missing} = ${total}`,
         explanation: `${total} - ${a} - ${b} = ${missing}`
       });
     } else {
@@ -660,10 +1059,94 @@ function generateLevel6Problems() {
   
   // Add some word problems
   let wordBanks = [
-    { q: 'There are 35 students. 14 are in the library and 12 are on the playground. How many are somewhere else?', a: 9 },
-    { q: 'A train has 80 seats. 32 are taken and 25 are reserved. How many seats are free?', a: 23 },
-    { q: 'Mom baked 55 cookies. Dad ate 11 and I ate 13. How many are left?', a: 31 },
-    { q: 'A book has 120 pages. Lisa read 45 pages yesterday and 38 today. How many pages left?', a: 37 }
+    { 
+      q: 'There are 35 students. 14 are in the library and 12 are on the playground. How many are somewhere else?', 
+      a: 9,
+      hint: `Let's find where all the students are! 👧👦
+
+Total students: 35
+In library: 14
+On playground: 12
+Somewhere else: ?
+
+This is: 35 = 14 + 12 + ?
+
+Step 1: Add the students we know about:
+14 + 12 = 26
+
+Step 2: Subtract from total:
+35 - 26 = ?
+
+35 - 26 = 9
+
+So 9 students are somewhere else! ✅`
+    },
+    { 
+      q: 'A train has 80 seats. 32 are taken and 25 are reserved. How many seats are free?', 
+      a: 23,
+      hint: `Let's count the train seats! 🚂
+
+Total seats: 80
+Taken seats: 32
+Reserved seats: 25
+Free seats: ?
+
+This is: 80 = 32 + 25 + ?
+
+Step 1: Add taken and reserved:
+32 + 25 = 57
+
+Step 2: Subtract from total:
+80 - 57 = ?
+
+80 - 57 = 23
+
+There are 23 free seats! ✅`
+    },
+    { 
+      q: 'Mom baked 55 cookies. Dad ate 11 and I ate 13. How many are left?', 
+      a: 31,
+      hint: `Let's count the cookies! 🍪
+
+Mom baked: 55 cookies
+Dad ate: 11
+I ate: 13
+Left: ?
+
+This is: 55 = 11 + 13 + ?
+
+Step 1: Add what was eaten:
+11 + 13 = 24
+
+Step 2: Subtract from total:
+55 - 24 = ?
+
+55 - 24 = 31
+
+There are 31 cookies left! ✅`
+    },
+    { 
+      q: 'A book has 120 pages. Lisa read 45 pages yesterday and 38 today. How many pages left?', 
+      a: 37,
+      hint: `Let's help Lisa with her book! 📚
+
+Total pages: 120
+Read yesterday: 45
+Read today: 38
+Left to read: ?
+
+This is: 120 = 45 + 38 + ?
+
+Step 1: Add pages already read:
+45 + 38 = 83
+
+Step 2: Subtract from total:
+120 - 83 = ?
+
+120 - 83 = 37
+
+Lisa has 37 pages left to read! ✅`
+    }
   ];
   
   wordBanks.forEach(w => {
@@ -671,7 +1154,7 @@ function generateLevel6Problems() {
       type: 'word',
       question: w.q,
       answer: w.a,
-      hint: 'Add what you know, then subtract from total',
+      hint: w.hint,
       explanation: ''
     });
   });
@@ -792,18 +1275,12 @@ function renderQuestion() {
     `;
   }
   
-  // Add step-by-step hint box (initially hidden)
-  if (q.step1) {
-    html += `
-      <div class="step-hint" id="hintDisplay" style="display:none">
-        <span class="step-1">Step 1: Add what you know = ${q.step1}</span>
-        <span class="step-arrow">→</span>
-        <span class="step-2">Step 2: ${q.step2} - ${q.step1} = ?</span>
-      </div>
-    `;
-  } else {
-    html += `<div class="step-hint" id="hintDisplay" style="display:none">💡 ${q.hint || ''}</div>`;
-  }
+  // Add step-by-step hint box (initially hidden) - now with much clearer formatting
+  html += `
+    <div class="step-hint" id="hintDisplay" style="display:none; white-space: pre-line;">
+      ${q.hint || '💡 Think about what the equation is telling you!'}
+    </div>
+  `;
   
   // Add answer input
   html += `<input class="answer-input" id="answerInput" type="number" inputmode="numeric" placeholder="Type answer..." autocomplete="off">`;
