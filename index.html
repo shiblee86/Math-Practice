@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌟 Math Adventure - Step by Step Learning</title>
+<title>🌟 Math Adventure - Simple Steps</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
@@ -35,7 +35,6 @@
     margin: 0 auto;
   }
 
-  /* Top bar */
   .topbar {
     background: #1f1a33;
     border-radius: 20px;
@@ -95,14 +94,8 @@
     color: #b1a5d9;
   }
 
-  /* Screens */
-  .screen {
-    display: none;
-  }
-  
-  .screen.active {
-    display: block;
-  }
+  .screen { display: none; }
+  .screen.active { display: block; }
 
   /* Home screen */
   .home-hero {
@@ -277,56 +270,59 @@
     margin-bottom: 16px;
   }
   
-  .equation-display {
+  /* Format example box */
+  .format-example {
+    background: #3a2e5a;
+    border: 2px solid var(--sun);
+    border-radius: 30px;
+    padding: 12px 16px;
+    margin: 15px 0;
+    color: var(--sun);
+    font-weight: 800;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  
+  /* Visual column math */
+  .column-math {
     font-family: 'Fredoka One', cursive;
     font-size: 2.5rem;
     text-align: center;
-    color: var(--sun);
-    margin: 16px 0;
+    background: #2d2447;
+    padding: 20px;
+    border-radius: 16px;
+    margin: 20px auto;
+    width: fit-content;
+    border: 3px solid var(--purple);
   }
   
-  .eq-blank {
-    border-bottom: 4px solid var(--coral);
+  .carry-number {
+    color: var(--sun);
+    font-size: 1.8rem;
+    text-align: right;
+    margin-bottom: 5px;
+  }
+  
+  .borrow-number {
     color: var(--coral);
-    min-width: 50px;
-    display: inline-block;
+    font-size: 1.8rem;
+    text-align: right;
+    margin-bottom: 5px;
   }
 
-  /* Step-by-step hint - CLEAR AND CONVERSATIONAL */
+  /* Step hints */
   .step-hint {
     background: #2d2447;
     border-left: 8px solid var(--purple);
     border-radius: 16px;
     padding: 20px;
     margin: 16px 0;
-    font-weight: 600;
     color: #e5d5ff;
-    line-height: 1.8;
-    font-size: 1.1rem;
+    line-height: 2;
+    font-size: 1.2rem;
     white-space: pre-line;
   }
   
-  .step-title {
-    color: var(--sun);
-    font-weight: 800;
-    font-size: 1.2rem;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .step-conclusion {
-    background: #1e2f47;
-    border: 2px solid var(--sky);
-    border-radius: 30px;
-    padding: 12px 16px;
-    margin-top: 12px;
-    font-weight: 800;
-    text-align: center;
-    color: #b3e0ff;
-  }
-
   .answer-input {
     width: 100%;
     padding: 16px;
@@ -340,9 +336,9 @@
     margin: 12px 0;
   }
   
-  .answer-input:focus {
-    border-color: var(--purple);
-    outline: none;
+  .answer-input::placeholder {
+    color: #5f4f8a;
+    font-size: 1.2rem;
   }
 
   .feedback {
@@ -380,7 +376,6 @@
   .btn-hint { background: var(--sun); color: #1a0f2a; }
   .btn-back { background: #3a3260; color: white; }
 
-  /* Result screen */
   .result-card {
     background: #1e1932;
     border-radius: 28px;
@@ -403,37 +398,34 @@
     text-align: left;
   }
   
-  .mistake-item strong {
-    color: #ffb3b3;
-  }
+  .mistake-item strong { color: #ffb3b3; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <div class="topbar">
-  <div class="topbar-title">🌟 Math Adventure - Step by Step</div>
+  <div class="topbar-title">🌟 Math Adventure - Simple Steps</div>
   <div class="topbar-btns">
     <button class="tb-btn tb-save" onclick="saveProgress()">💾 Save</button>
     <button class="tb-btn tb-load" onclick="loadProgress()">📂 Load</button>
     <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadFile(event)">
   </div>
-  <div class="tb-lbl" id="progressLabel">0/8 mastered</div>
+  <div class="tb-lbl" id="progressLabel">0/10 mastered</div>
 </div>
 
 <!-- HOME SCREEN -->
 <div id="homeScreen" class="screen active">
   <div class="home-hero">
     <h1>Math Adventure!</h1>
-    <p>8 exciting levels · step-by-step hints</p>
+    <p>10 levels · Simple step-by-step</p>
   </div>
   
-  <!-- LEVELS GRID -->
   <div class="levels-grid" id="levelsGrid"></div>
   
   <div class="progress-chart" id="progressChart">
     <h3 style="color:#d4c2ff; margin-bottom:10px;">📊 Your Progress</h3>
-    <div id="progressStats">0 of 8 levels mastered (0%)</div>
+    <div id="progressStats">0 of 10 levels mastered (0%)</div>
     <div class="progress-bar-cont"><div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div></div>
   </div>
 </div>
@@ -484,67 +476,20 @@
 </div>
 
 <script>
-// ==================== MATH ADVENTURE - 8 LEVELS ====================
+// ==================== MATH ADVENTURE - 10 LEVELS ====================
 const LEVELS = [
-  { 
-    id: 'counting', 
-    name: 'Level 1 · Counting', 
-    icon: '🔢', 
-    desc: 'Count up to add, count down to subtract',
-    color: '#6EC6F5' 
-  },
-  { 
-    id: 'grouping', 
-    name: 'Level 2 · Tens & Ones', 
-    icon: '📦', 
-    desc: 'Groups of tens and ones (e.g. 28 = 2 tens, 8 ones)',
-    color: '#FFD93D' 
-  },
-  { 
-    id: 'missing_add', 
-    name: 'Level 3 · Missing Number', 
-    icon: '❓', 
-    desc: 'Find the missing number: 12 = 4 + 5 + ?',
-    color: '#C77DFF' 
-  },
-  { 
-    id: 'carry_add', 
-    name: 'Level 4 · Carry Addition', 
-    icon: '➕', 
-    desc: 'Add with carrying (sums up to 20)',
-    color: '#48dbfb' 
-  },
-  { 
-    id: 'borrow_sub', 
-    name: 'Level 5 · Borrow Subtraction', 
-    icon: '➖', 
-    desc: 'Subtract with borrowing (up to 20)',
-    color: '#ff6b81' 
-  },
-  { 
-    id: 'add_three', 
-    name: 'Level 6 · Add Three Numbers', 
-    icon: '🔺', 
-    desc: 'Add three numbers with carry (sums up to 90)',
-    color: '#A29BFE' 
-  },
-  { 
-    id: 'sub_three', 
-    name: 'Level 7 · Subtract Three Numbers', 
-    icon: '🔻', 
-    desc: 'Subtract two numbers from a big one (e.g. 85 - 50 - 30)',
-    color: '#fd79a8' 
-  },
-  { 
-    id: 'combo', 
-    name: 'Level 8 · Grand Finale', 
-    icon: '🏆', 
-    desc: 'Mix of everything! Show what you know!',
-    color: '#F9CA24' 
-  }
+  { id: 'counting', name: 'Level 1 · Counting', icon: '🔢', desc: 'Count up to add, count down to subtract', color: '#6EC6F5' },
+  { id: 'grouping', name: 'Level 2 · Tens & Ones', icon: '📦', desc: 'Groups of tens and ones', color: '#FFD93D' },
+  { id: 'missing_add', name: 'Level 3 · Missing Number', icon: '❓', desc: 'Find the missing number', color: '#C77DFF' },
+  { id: 'carry_add', name: 'Level 4 · Carry Addition', icon: '➕', desc: 'Add with carrying (17+5, 19+3)', color: '#48dbfb' },
+  { id: 'borrow_sub', name: 'Level 5 · Borrow Subtraction', icon: '➖', desc: 'Subtract with borrowing (25-8, 52-28)', color: '#ff6b81' },
+  { id: 'add_three', name: 'Level 6 · Add Three Numbers', icon: '🔺', desc: 'Add three numbers', color: '#A29BFE' },
+  { id: 'sub_three', name: 'Level 7 · Subtract Three Numbers', icon: '🔻', desc: 'Subtract two numbers', color: '#fd79a8' },
+  { id: 'compose_add', name: 'Level 8 · Make a Sum', icon: '🧩', desc: 'Find ways to make 15, 20', color: '#F9CA24' },
+  { id: 'compose_sub', name: 'Level 9 · Make a Difference', icon: '🔍', desc: 'Find ways to subtract to 10, 15', color: '#6BCB77' },
+  { id: 'combo', name: 'Level 10 · Grand Finale', icon: '🏆', desc: 'Mix of everything!', color: '#F9CA24' }
 ];
 
-// Progress tracking
 let progress = {};
 let currentLevel = null;
 let questions = [];
@@ -555,14 +500,12 @@ let mistakes = [];
 let hintsUsed = 0;
 let answered = false;
 
-// Initialize progress
 LEVELS.forEach(level => {
   if (!progress[level.id]) {
     progress[level.id] = { completed: false, score: 0 };
   }
 });
 
-// ==================== HELPER FUNCTIONS ====================
 function rnd(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -578,405 +521,394 @@ function shuffle(array) {
 // ==================== LEVEL 1: COUNTING ====================
 function generateCountingProblems() {
   let problems = [];
-  
-  // 13 problems total
   for (let i = 0; i < 13; i++) {
     if (i % 2 === 0) {
-      // Addition counting up
       let a = rnd(3, 12);
       let b = rnd(1, 5);
       problems.push({
         type: 'counting_add',
         question: `${a} + ${b} = ?`,
         answer: a + b,
-        hint: `Let's count up to find the answer! 🖐️
+        hint: `Let's count up! 👆
 
-We have: ${a} + ${b}
+Start at ${a} and count up ${b} times:
+${a} → ${a+1} → ${a+2} → ${a+3}
 
-What are we trying to do? We start at ${a} and count up ${b} more.
+After ${b} jumps, we get to ${a+b}!
 
-Step 1: Put up ${b} fingers.
-Step 2: Start at ${a} and count each finger:
-   ${a} + 1 = ${a+1}
-   ${a+1} + 1 = ${a+2}
-   Keep going until you've counted all ${b} fingers!
-
-Step 3: After counting ${b} times, we land on ${a + b}.
-
-So ${a} + ${b} = ${a + b}! ✅`,
-        explanation: `${a} + ${b} = ${a + b}`
+So ${a} + ${b} = ${a+b}`,
+        explanation: `${a} + ${b} = ${a+b}`
       });
     } else {
-      // Subtraction counting down
       let a = rnd(5, 15);
       let b = rnd(1, 4);
       problems.push({
         type: 'counting_sub',
         question: `${a} - ${b} = ?`,
         answer: a - b,
-        hint: `Let's count down to find the answer! 🖐️
+        hint: `Let's count down! 👆
 
-We have: ${a} - ${b}
+Start at ${a} and count down ${b} times:
+${a} → ${a-1} → ${a-2} → ${a-3}
 
-What are we trying to do? We start at ${a} and count down ${b} steps.
+After ${b} jumps, we get to ${a-b}!
 
-Step 1: Put up ${b} fingers.
-Step 2: Start at ${a} and count down for each finger:
-   ${a} - 1 = ${a-1}
-   ${a-1} - 1 = ${a-2}
-   Keep going until you've counted all ${b} fingers!
-
-Step 3: After counting down ${b} times, we land on ${a - b}.
-
-So ${a} - ${b} = ${a - b}! ✅`,
-        explanation: `${a} - ${b} = ${a - b}`
+So ${a} - ${b} = ${a-b}`,
+        explanation: `${a} - ${b} = ${a-b}`
       });
     }
   }
-  
   return shuffle(problems);
 }
 
-// ==================== LEVEL 2: GROUPING (TENS AND ONES) ====================
+// ==================== LEVEL 2: GROUPING ====================
 function generateGroupingProblems() {
   let problems = [];
-  
   for (let i = 0; i < 13; i++) {
     let tens = rnd(1, 5);
     let ones = rnd(0, 9);
     let num = tens * 10 + ones;
     
     if (i < 7) {
-      // Ask for tens
       problems.push({
         type: 'grouping_tens',
-        question: `The number ${num} has how many groups of TENS?`,
+        question: `${num} has how many TENS?`,
         answer: tens,
-        hint: `Let's figure out the tens in ${num}! 📦
+        hint: `${num} means:
+- The first number (${tens}) is the TENS
+- The last number (${ones}) is the ONES
 
-What are we trying to do? We need to find how many groups of ten are in ${num}.
-
-Step 1: Think of ${num} as tens and ones.
-Step 2: The first digit tells us the tens: ${num} has ${tens} tens and ${ones} ones.
-Step 3: So ${num} = ${tens} tens + ${ones} ones.
-
-The number of TENS is ${tens}! ✅`,
-        explanation: `${num} has ${tens} tens and ${ones} ones`
+So ${num} has ${tens} tens!`,
+        explanation: `${num} = ${tens} tens + ${ones} ones`
       });
     } else {
-      // Ask for ones
       problems.push({
         type: 'grouping_ones',
-        question: `The number ${num} has how many ONES?`,
+        question: `${num} has how many ONES?`,
         answer: ones,
-        hint: `Let's figure out the ones in ${num}! 🔢
+        hint: `${num} means:
+- The first number (${tens}) is the TENS
+- The last number (${ones}) is the ONES
 
-What are we trying to do? We need to find how many single ones are in ${num}.
-
-Step 1: Think of ${num} as tens and ones.
-Step 2: The last digit tells us the ones: ${num} has ${tens} tens and ${ones} ones.
-Step 3: So ${num} = ${tens} tens + ${ones} ones.
-
-The number of ONES is ${ones}! ✅`,
-        explanation: `${num} has ${tens} tens and ${ones} ones`
+So ${num} has ${ones} ones!`,
+        explanation: `${num} = ${tens} tens + ${ones} ones`
       });
     }
   }
-  
   return shuffle(problems);
 }
 
 // ==================== LEVEL 3: MISSING NUMBER ====================
 function generateMissingAddProblems() {
   let problems = [];
-  
   for (let i = 0; i < 13; i++) {
     if (i % 3 === 0) {
-      // Two-number missing
       let total = rnd(8, 20);
       let known = rnd(2, total - 2);
       let missing = total - known;
-      
       problems.push({
         type: 'missing_two',
         question: `${total} = ${known} + ?`,
         answer: missing,
-        hint: `Let's figure this out together! 🤔
+        hint: `We have: ${total} = ${known} + ?
 
-We have the equation: ${total} = ${known} + ?
-
-What are we trying to do? We need to find the missing number (?) that we add to ${known} to get ${total}.
-
-Step 1: We know one of the numbers is ${known}.
-Step 2: To find the missing number, we subtract the number we know from the total:
+Step 1: We know one number is ${known}
+Step 2: To find the missing number:
    ${total} - ${known} = ?
 
 Step 3: ${total} - ${known} = ${missing}
 
-So the missing number is ${missing}! Let's check: ${known} + ${missing} = ${total} ✅`,
+Check: ${known} + ${missing} = ${total} ✅`,
         explanation: `${total} - ${known} = ${missing}`
       });
     } else {
-      // Three-number missing
       let total = rnd(12, 25);
       let a = rnd(2, 7);
       let b = rnd(2, 7);
       let missing = total - a - b;
-      
-      if (missing < 1 || missing > 15) {
-        i--;
-        continue;
-      }
-      
+      if (missing < 1 || missing > 15) { i--; continue; }
       problems.push({
         type: 'missing_three',
         question: `${total} = ${a} + ${b} + ?`,
         answer: missing,
-        hint: `Let's solve this step by step! 🧩
+        hint: `We have: ${total} = ${a} + ${b} + ?
 
-We have: ${total} = ${a} + ${b} + ?
-
-What does this mean? When we add three numbers (${a}, ${b}, and the mystery number ?), we get ${total}.
-
-Step 1: First, add the two numbers we know:
+Step 1: Add the numbers we know:
    ${a} + ${b} = ${a + b}
 
-Step 2: Now we know that ${a + b} + ? = ${total}
-   To find the mystery number, subtract what we have from the total:
+Step 2: Subtract from total:
    ${total} - ${a + b} = ?
 
 Step 3: ${total} - ${a + b} = ${missing}
 
-The missing number is ${missing}! 
 Check: ${a} + ${b} + ${missing} = ${total} ✅`,
         explanation: `${total} - ${a} - ${b} = ${missing}`
       });
     }
   }
-  
   return shuffle(problems);
 }
 
-// ==================== LEVEL 4: CARRY ADDITION (up to 20) ====================
+// ==================== LEVEL 4: CARRY ADDITION ====================
 function generateCarryAddProblems() {
   let problems = [];
   
+  let pairs = [
+    [17, 5], [18, 4], [19, 3], [16, 6], [15, 7], [14, 8], [13, 9],
+    [19, 4], [18, 5], [17, 6], [16, 7], [15, 8], [14, 9],
+    [27, 5], [28, 4], [29, 3], [26, 6], [25, 7], [24, 8], [23, 9]
+  ];
+  
   for (let i = 0; i < 13; i++) {
-    // Generate numbers where ones add to 10 or more (carry)
-    let a, b;
-    do {
-      a = rnd(5, 15);
-      b = rnd(5, 15);
-    } while ((a % 10) + (b % 10) < 10 || a + b > 20);
-    
+    let [a, b] = shuffle(pairs)[0];
     let onesA = a % 10;
     let onesB = b % 10;
-    let tensA = Math.floor(a / 10);
-    let tensB = Math.floor(b / 10);
-    let onesSum = onesA + onesB;
-    let carry = Math.floor(onesSum / 10);
-    let onesDigit = onesSum % 10;
-    let tensSum = tensA + tensB + carry;
     let answer = a + b;
     
     problems.push({
       type: 'carry_add',
       question: `${a} + ${b} = ?`,
       answer: answer,
-      a: a,
-      b: b,
-      hint: `Let's add with carrying! 🧮
+      hint: `Let's add like this:
 
-We have: ${a} + ${b}
+   ${a}
++   ${b}
+_____
 
-Step 1: Add the ones digits first:
-   ${a} has ${onesA} ones, ${b} has ${onesB} ones
-   ${onesA} + ${onesB} = ${onesSum}
-   ${onesSum} is 10 or more, so we need to carry!
+Step 1: Look at the ONES place (right side):
+   ${a} has ${onesA} ones
+   ${b} has ${onesB} ones
+   ${onesA} + ${onesB} = ${onesA + onesB}
 
-Step 2: Write down ${onesDigit} in the ones place and carry ${carry} to the tens place.
+Step 2: The ones place can only have numbers from 0 to 9.
+   ${onesA + onesB} is more than 9, so it's too big for just the ones place!
+   
+Step 3: We write down ${answer % 10} in the ones place,
+   and we CARRY the 1 to the tens place.
 
-Step 3: Add the tens digits plus the carry:
-   ${a} has ${tensA} ten, ${b} has ${tensB} ten
-   ${tensA} + ${tensB} + ${carry} (carry) = ${tensSum}
+   1 (carry)
+   ${a}
++   ${b}
+_____
+   ${answer % 10}
 
-Step 4: Put it together: ${tensSum} tens and ${onesDigit} ones = ${answer}
+Step 4: Now add the TENS place:
+   ${Math.floor(a/10)} + ${Math.floor(b/10)} + the carried 1 = ${Math.floor(answer/10)}
 
-So ${a} + ${b} = ${answer}! ✅`,
+Step 5: Write ${Math.floor(answer/10)} in the tens place:
+
+   1 (carry)
+   ${a}
++   ${b}
+_____
+   ${answer}
+
+So ${a} + ${b} = ${answer}! ✅
+
+Remember: The ones place can only hold 0-9. If it's 10 or more, we CARRY the 1!`,
       explanation: `${a} + ${b} = ${answer}`
     });
   }
-  
   return shuffle(problems);
 }
 
-// ==================== LEVEL 5: BORROW SUBTRACTION (up to 20) ====================
+// ==================== LEVEL 5: BORROW SUBTRACTION ====================
 function generateBorrowSubProblems() {
   let problems = [];
   
+  let pairs = [
+    [25, 8], [24, 7], [23, 6], [22, 5], [21, 4],
+    [52, 28], [51, 27], [53, 29], [42, 18], [41, 17],
+    [31, 13], [32, 14], [33, 15], [34, 16], [35, 17]
+  ];
+  
   for (let i = 0; i < 13; i++) {
-    // Generate numbers where ones need to borrow
-    let a, b;
-    do {
-      a = rnd(11, 20);
-      b = rnd(6, a - 1);
-    } while ((a % 10) >= (b % 10) || a - b < 2);
-    
+    let [a, b] = shuffle(pairs)[0];
     let onesA = a % 10;
     let onesB = b % 10;
     let tensA = Math.floor(a / 10);
     let tensB = Math.floor(b / 10);
-    
-    // After borrowing
-    let borrowedOnes = onesA + 10;
-    let onesResult = borrowedOnes - onesB;
-    let borrowedTens = tensA - 1;
-    let tensResult = borrowedTens - tensB;
     let answer = a - b;
     
     problems.push({
       type: 'borrow_sub',
       question: `${a} - ${b} = ?`,
       answer: answer,
-      a: a,
-      b: b,
-      hint: `Let's subtract with borrowing! 🧮
+      hint: `Let's subtract like this:
 
-We have: ${a} - ${b}
+   ${a}
+-   ${b}
+_____
 
-Step 1: Look at the ones place:
-   ${a} has ${onesA} ones, ${b} has ${onesB} ones
-   ${onesA} is less than ${onesB}, so we need to borrow from the tens!
+Step 1: Look at the ONES place (right side):
+   ${a} has ${onesA} ones
+   ${b} has ${onesB} ones
 
-Step 2: Borrow 1 ten from the tens place:
-   The tens place of ${a} is ${tensA}, so we borrow 1 ten (which is 10 ones).
-   Now we have ${tensA - 1} tens and ${onesA + 10} ones.
+Step 2: ${onesA} is smaller than ${onesB}, so we can't subtract!
+   We need to BORROW 1 ten from the ${tensA} tens.
 
-Step 3: Subtract the ones:
-   ${onesA + 10} - ${onesB} = ${onesResult}
+Step 3: After borrowing:
+   The ones become ${onesA + 10}
+   The tens become ${tensA - 1}
 
-Step 4: Subtract the tens:
-   ${tensA - 1} - ${tensB} = ${tensResult}
+Step 4: Now subtract the ones:
+   ${onesA + 10} - ${onesB} = ${onesA + 10 - onesB}
 
-Step 5: Put it together: ${tensResult} tens and ${onesResult} ones = ${answer}
+Step 5: Subtract the tens:
+   ${tensA - 1} - ${tensB} = ${tensA - 1 - tensB}
 
-So ${a} - ${b} = ${answer}! ✅`,
+Step 6: Put together: ${tensA - 1 - tensB}${onesA + 10 - onesB} = ${answer}
+
+So ${a} - ${b} = ${answer}! ✅
+
+Remember: If the top ones are smaller, BORROW 1 ten from the tens!`,
       explanation: `${a} - ${b} = ${answer}`
     });
   }
-  
   return shuffle(problems);
 }
 
-// ==================== LEVEL 6: ADD THREE NUMBERS (up to 90) ====================
+// ==================== LEVEL 6: ADD THREE NUMBERS ====================
 function generateAddThreeProblems() {
   let problems = [];
-  
   for (let i = 0; i < 13; i++) {
     let a = rnd(10, 30);
     let b = rnd(10, 30);
     let c = rnd(10, 30);
     let sum = a + b + c;
-    
-    if (sum > 90) {
-      i--;
-      continue;
-    }
-    
+    if (sum > 90) { i--; continue; }
     problems.push({
       type: 'add_three',
       question: `${a} + ${b} + ${c} = ?`,
       answer: sum,
-      a: a,
-      b: b,
-      c: c,
-      hint: `Let's add three numbers step by step! 🔢
+      hint: `Add step by step:
 
-We have: ${a} + ${b} + ${c}
+Step 1: ${a} + ${b} = ${a + b}
+Step 2: ${a + b} + ${c} = ${sum}
 
-Step 1: Add the first two numbers:
-   ${a} + ${b} = ${a + b}
-
-Step 2: Now add the third number to that result:
-   ${a + b} + ${c} = ?
-
-Step 3: ${a + b} + ${c} = ${sum}
-
-So ${a} + ${b} + ${c} = ${sum}! ✅
-
-Remember: When adding three numbers, you can add them in any order - the answer will be the same!`,
+So ${a} + ${b} + ${c} = ${sum}! ✅`,
       explanation: `${a} + ${b} + ${c} = ${sum}`
     });
   }
-  
   return shuffle(problems);
 }
 
 // ==================== LEVEL 7: SUBTRACT THREE NUMBERS ====================
 function generateSubThreeProblems() {
   let problems = [];
-  
   for (let i = 0; i < 13; i++) {
     let total = rnd(50, 90);
     let b = rnd(10, 30);
     let c = rnd(10, 30);
     let result = total - b - c;
-    
-    if (result < 5) {
-      i--;
-      continue;
-    }
-    
+    if (result < 5) { i--; continue; }
     problems.push({
       type: 'sub_three',
       question: `${total} - ${b} - ${c} = ?`,
       answer: result,
-      total: total,
-      b: b,
-      c: c,
-      hint: `Let's subtract two numbers from a big number! 🔢
+      hint: `Subtract step by step:
 
-We have: ${total} - ${b} - ${c}
+Step 1: ${total} - ${b} = ${total - b}
+Step 2: ${total - b} - ${c} = ${result}
 
-Step 1: First, subtract the first number:
-   ${total} - ${b} = ${total - b}
-
-Step 2: Now subtract the second number from that result:
-   ${total - b} - ${c} = ?
-
-Step 3: ${total - b} - ${c} = ${result}
-
-So ${total} - ${b} - ${c} = ${result}! ✅
-
-Think of it as: start with ${total}, take away ${b}, then take away ${c} more.`,
+So ${total} - ${b} - ${c} = ${result}! ✅`,
       explanation: `${total} - ${b} - ${c} = ${result}`
     });
   }
-  
   return shuffle(problems);
 }
 
-// ==================== LEVEL 8: GRAND FINALE (MIX) ====================
+// ==================== LEVEL 8: NUMBER COMPOSITION - ADDITION (CLEAR FORMAT) ====================
+function generateComposeAddProblems() {
+  let problems = [];
+  let targets = [10, 12, 15, 18, 20, 24, 25, 30];
+  for (let i = 0; i < 13; i++) {
+    let target = targets[rnd(0, targets.length - 1)];
+    let a = rnd(1, target - 1);
+    let b = target - a;
+    problems.push({
+      type: 'compose_add',
+      question: `Find two numbers that add up to ${target}`,
+      answer: `${a} + ${b}`,
+      target: target,
+      format: `Type your answer like this: 8 + 10`,
+      hint: `We need: __ + __ = ${target}
+
+📝 HOW TO ANSWER: Type the two numbers with a plus sign between them.
+   For example: 8 + 10
+
+Examples:
+1 + ${target-1} = ${target}
+2 + ${target-2} = ${target}
+3 + ${target-3} = ${target}
+
+One correct answer is: ${a} + ${b} = ${target}
+
+Any two numbers that add to ${target} are correct!`,
+      explanation: `${a} + ${b} = ${target}`
+    });
+  }
+  return shuffle(problems);
+}
+
+// ==================== LEVEL 9: NUMBER COMPOSITION - SUBTRACTION (CLEAR FORMAT) ====================
+function generateComposeSubProblems() {
+  let problems = [];
+  let diffs = [5, 6, 7, 8, 9, 10, 12, 15];
+  for (let i = 0; i < 13; i++) {
+    let diff = diffs[rnd(0, diffs.length - 1)];
+    let b = rnd(5, 20);
+    let a = b + diff;
+    problems.push({
+      type: 'compose_sub',
+      question: `Find two numbers with a difference of ${diff}`,
+      answer: `${a} - ${b}`,
+      diff: diff,
+      format: `Type your answer like this: 15 - 7`,
+      hint: `We need: __ - __ = ${diff}
+
+📝 HOW TO ANSWER: Type the two numbers with a minus sign between them.
+   For example: 15 - 7
+   (The bigger number comes first!)
+
+Examples:
+${diff+1} - 1 = ${diff}
+${diff+2} - 2 = ${diff}
+${diff+3} - 3 = ${diff}
+
+One correct answer is: ${a} - ${b} = ${diff}
+
+Any two numbers where the bigger minus the smaller equals ${diff} are correct!`,
+      explanation: `${a} - ${b} = ${diff}`
+    });
+  }
+  return shuffle(problems);
+}
+
+// ==================== LEVEL 10: GRAND FINALE ====================
 function generateComboProblems() {
   let problems = [];
   
-  // Mix problems from all levels
-  let countingProblems = generateCountingProblems().slice(0, 2);
-  let groupingProblems = generateGroupingProblems().slice(0, 2);
-  let missingProblems = generateMissingAddProblems().slice(0, 2);
-  let carryProblems = generateCarryAddProblems().slice(0, 2);
-  let borrowProblems = generateBorrowSubProblems().slice(0, 2);
-  let addThreeProblems = generateAddThreeProblems().slice(0, 2);
-  let subThreeProblems = generateSubThreeProblems().slice(0, 1);
+  let counting = generateCountingProblems().slice(0, 2);
+  let grouping = generateGroupingProblems().slice(0, 1);
+  let missing = generateMissingAddProblems().slice(0, 2);
+  let carry = generateCarryAddProblems().slice(0, 2);
+  let borrow = generateBorrowSubProblems().slice(0, 2);
+  let addThree = generateAddThreeProblems().slice(0, 1);
+  let subThree = generateSubThreeProblems().slice(0, 1);
+  let composeAdd = generateComposeAddProblems().slice(0, 1);
+  let composeSub = generateComposeSubProblems().slice(0, 1);
   
   problems = [
-    ...countingProblems,
-    ...groupingProblems,
-    ...missingProblems,
-    ...carryProblems,
-    ...borrowProblems,
-    ...addThreeProblems,
-    ...subThreeProblems
+    ...counting,
+    ...grouping,
+    ...missing,
+    ...carry,
+    ...borrow,
+    ...addThree,
+    ...subThree,
+    ...composeAdd,
+    ...composeSub
   ];
   
   return shuffle(problems).slice(0, 13);
@@ -1021,11 +953,9 @@ function updateProgressStats() {
   document.getElementById('progressLabel').innerHTML = `${mastered}/${total} mastered`;
 }
 
-// ==================== START LEVEL ====================
 function startLevel(level) {
   currentLevel = level;
   
-  // Generate problems based on level
   if (level.id === 'counting') questions = generateCountingProblems();
   else if (level.id === 'grouping') questions = generateGroupingProblems();
   else if (level.id === 'missing_add') questions = generateMissingAddProblems();
@@ -1033,6 +963,8 @@ function startLevel(level) {
   else if (level.id === 'borrow_sub') questions = generateBorrowSubProblems();
   else if (level.id === 'add_three') questions = generateAddThreeProblems();
   else if (level.id === 'sub_three') questions = generateSubThreeProblems();
+  else if (level.id === 'compose_add') questions = generateComposeAddProblems();
+  else if (level.id === 'compose_sub') questions = generateComposeSubProblems();
   else if (level.id === 'combo') questions = generateComboProblems();
   
   qIndex = 0;
@@ -1043,7 +975,6 @@ function startLevel(level) {
   answered = false;
   
   document.getElementById('quizLevelLabel').innerHTML = `${level.icon} ${level.name}`;
-  
   showScreen('quizScreen');
   renderQuestion();
 }
@@ -1060,7 +991,6 @@ function goHome() {
   }
 }
 
-// ==================== RENDER QUESTION ====================
 function renderQuestion() {
   const q = questions[qIndex];
   const total = questions.length;
@@ -1082,42 +1012,32 @@ function renderQuestion() {
   
   answered = false;
   
-  // Build question card
-  let typeLabel = '';
-  if (q.type.includes('counting')) typeLabel = '🔢 Counting';
-  else if (q.type.includes('grouping')) typeLabel = '📦 Tens and Ones';
-  else if (q.type.includes('missing')) typeLabel = '❓ Missing Number';
-  else if (q.type.includes('carry')) typeLabel = '➕ Carry Addition';
-  else if (q.type.includes('borrow')) typeLabel = '➖ Borrow Subtraction';
-  else if (q.type.includes('add_three')) typeLabel = '🔺 Add Three Numbers';
-  else if (q.type.includes('sub_three')) typeLabel = '🔻 Subtract Three Numbers';
-  else typeLabel = '🧮 Math';
+  let typeLabel = {
+    'counting_add': '🔢 Counting', 'counting_sub': '🔢 Counting',
+    'grouping_tens': '📦 Tens and Ones', 'grouping_ones': '📦 Tens and Ones',
+    'missing_two': '❓ Missing Number', 'missing_three': '❓ Missing Number',
+    'carry_add': '➕ Carry Addition', 'borrow_sub': '➖ Borrow Subtraction',
+    'add_three': '🔺 Add Three Numbers', 'sub_three': '🔻 Subtract Three Numbers',
+    'compose_add': '🧩 Make a Sum', 'compose_sub': '🔍 Make a Difference'
+  }[q.type] || '🧮 Math';
+  
+  let formatHtml = '';
+  if (q.format) {
+    formatHtml = `<div class="format-example">📝 ${q.format}</div>`;
+  }
   
   let html = `
     <div class="q-type-badge">${typeLabel}</div>
     <div class="question-text">${q.question}</div>
+    ${formatHtml}
+    <div class="step-hint" id="hintDisplay" style="display:none;">${q.hint}</div>
+    <input class="answer-input" id="answerInput" type="text" placeholder="${q.format || 'Type answer...'}" autocomplete="off">
   `;
-  
-  // Add equation display for non-word problems
-  if (!q.type.includes('grouping')) {
-    html += `<div class="equation-display">${q.question.replace('?', '<span class="eq-blank">?</span>')}</div>`;
-  }
-  
-  // Add step-by-step hint box (initially hidden)
-  html += `
-    <div class="step-hint" id="hintDisplay" style="display:none;">
-      ${q.hint || '💡 Think carefully about what the problem is asking!'}
-    </div>
-  `;
-  
-  // Add answer input
-  html += `<input class="answer-input" id="answerInput" type="number" inputmode="numeric" placeholder="Type answer..." autocomplete="off">`;
   
   document.getElementById('questionCard').innerHTML = html;
   document.getElementById('answerInput')?.focus();
 }
 
-// ==================== SHOW HINT ====================
 function showHint() {
   if (!questions[qIndex]) return;
   hintsUsed++;
@@ -1125,7 +1045,6 @@ function showHint() {
   document.getElementById('hintButton').disabled = true;
 }
 
-// ==================== CHECK ANSWER ====================
 function checkAnswer() {
   if (answered) return;
   
@@ -1133,14 +1052,30 @@ function checkAnswer() {
   const input = document.getElementById('answerInput');
   if (!input) return;
   
-  const val = parseInt(input.value);
-  if (isNaN(val)) {
-    alert('Please enter a number!');
+  const val = input.value.trim();
+  if (val === '') {
+    alert('Please enter an answer!');
     return;
   }
   
   answered = true;
-  const isCorrect = (val === q.answer);
+  let isCorrect = false;
+  
+  if (q.type === 'compose_add') {
+    // Check format: number + number
+    let parts = val.split('+').map(p => parseInt(p.trim()));
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      isCorrect = (parts[0] + parts[1] === q.target);
+    }
+  } else if (q.type === 'compose_sub') {
+    // Check format: number - number
+    let parts = val.split('-').map(p => parseInt(p.trim()));
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      isCorrect = (parts[0] - parts[1] === q.diff);
+    }
+  } else {
+    isCorrect = (parseInt(val) === q.answer);
+  }
   
   if (isCorrect) {
     score++;
@@ -1151,24 +1086,22 @@ function checkAnswer() {
     mistakes.push({
       question: q.question,
       yourAnswer: val,
-      correct: q.answer,
-      explanation: q.explanation || `The correct answer is ${q.answer}`
+      correct: q.answer || q.explanation,
+      explanation: q.explanation || ''
     });
     document.getElementById('feedback').className = 'feedback show bad';
-    document.getElementById('feedback').innerHTML = `❌ Your answer ${val} is wrong. Correct: ${q.answer}.<br>${q.explanation || ''}`;
+    document.getElementById('feedback').innerHTML = `❌ Not quite. ${q.explanation || 'Try again!'}`;
   }
   
   document.getElementById('scoreCorrect').innerHTML = score;
   document.getElementById('scoreWrong').innerHTML = wrong;
-  const att = score + wrong;
-  document.getElementById('scorePercent').innerHTML = att ? Math.round((score / att) * 100) + '%' : '—';
+  document.getElementById('scorePercent').innerHTML = att ? Math.round((score / (score + wrong)) * 100) + '%' : '—';
   
   document.getElementById('checkButton').style.display = 'none';
   document.getElementById('nextButton').style.display = 'inline-flex';
   document.getElementById('hintButton').style.display = 'none';
 }
 
-// ==================== NEXT QUESTION ====================
 function nextQuestion() {
   qIndex++;
   if (qIndex >= questions.length) {
@@ -1178,7 +1111,6 @@ function nextQuestion() {
   }
 }
 
-// ==================== SHOW RESULTS ====================
 function showResults() {
   const total = questions.length;
   const pct = Math.round((score / total) * 100);
@@ -1197,7 +1129,6 @@ function showResults() {
   document.getElementById('resultStars').innerHTML = pct >= 90 ? '⭐⭐⭐' : pct >= 70 ? '⭐⭐' : '⭐';
   document.getElementById('resultMessage').innerHTML = `You got ${score} out of ${total} correct.`;
   
-  // Show mistakes
   let mistakesHtml = '';
   if (mistakes.length > 0) {
     mistakesHtml = '<h3 style="color:#ffb3b3; margin:15px 0 8px;">📝 Review mistakes:</h3>';
@@ -1215,7 +1146,6 @@ function showResults() {
   
   document.getElementById('retryButton').onclick = () => startLevel(currentLevel);
   
-  // Next level button
   const levelIndex = LEVELS.findIndex(l => l.id === currentLevel.id);
   if (passed && levelIndex < LEVELS.length - 1) {
     document.getElementById('nextLevelButton').style.display = 'inline-flex';
@@ -1228,7 +1158,6 @@ function showResults() {
   showScreen('resultScreen');
 }
 
-// ==================== SAVE/LOAD ====================
 function saveProgress() {
   const data = JSON.stringify({ version: 1, progress: progress }, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
@@ -1266,7 +1195,6 @@ function loadFile(event) {
   event.target.value = '';
 }
 
-// ==================== INITIALIZE ====================
 renderHome();
 </script>
 </body>
