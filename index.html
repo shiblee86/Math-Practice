@@ -149,6 +149,27 @@
     color: var(--coral);
   }
 
+  /* Step-by-step hint for missing number problems */
+  .missing-step-hint {
+    background: #f0f8ff;
+    border: 3px solid var(--purple);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px 0;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  .step-1, .step-2 {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 4px;
+    border-radius: 30px;
+    font-weight: 800;
+  }
+  .step-1 { background: #ffd966; color: #7a5c00; }
+  .step-2 { background: #b6d7a8; color: #1e4a1e; }
+  .step-arrow { font-size: 2rem; color: var(--purple); margin: 0 8px; }
+
   .answer-input {
     width: 100%;
     padding: 16px;
@@ -822,7 +843,7 @@ function groupingWordProblems() {
 function makeMissingAddProblems() {
   const qs = [];
   
-  // EASY: First 7 - smaller totals
+  // EASY: First 7 - smaller totals with clear step-by-step hints
   for (let i = 0; i < 7; i++) {
     const total = rnd(5, 12);
     const a = rnd(1, 4);
@@ -834,8 +855,10 @@ function makeMissingAddProblems() {
         q: `${total} = ${a} + ${b} + ?`,
         equation: `${total} = ${a} + ${b} + ?`,
         answer: x,
-        hint: `${a} + ${b} = ${a+b}. Now ${total} - ${a+b} = ?`,
+        hint: `✨ STEP 1: Add ${a} + ${b} = ${a+b} ✨\n✨ STEP 2: Subtract ${a+b} from ${total}: ${total} - ${a+b} = ? ✨`,
         explanation: `${total} - ${a} - ${b} = ${x}`,
+        step1: a+b,
+        step2: total,
       });
     } else {
       const aa = rnd(1, 6);
@@ -845,13 +868,13 @@ function makeMissingAddProblems() {
         q: `${total} = ${aa} + ?`,
         equation: `${total} = ${aa} + ?`,
         answer: xx,
-        hint: `Think: ${total} - ${aa} = ?`,
+        hint: `✨ To find the missing number: ${total} - ${aa} = ? ✨`,
         explanation: `${total} - ${aa} = ${xx}`,
       });
     }
   }
   
-  // MEDIUM: Next 7 - medium totals
+  // MEDIUM: Next 7 - medium totals with step-by-step hints
   for (let i = 0; i < 7; i++) {
     const total = rnd(12, 18);
     const a = rnd(3, 7);
@@ -863,8 +886,10 @@ function makeMissingAddProblems() {
         q: `${total} = ${a} + ${b} + ?`,
         equation: `${total} = ${a} + ${b} + ?`,
         answer: x,
-        hint: `${a} + ${b} = ${a+b}. Now ${total} - ${a+b} = ?`,
+        hint: `✨ STEP 1: Add ${a} + ${b} = ${a+b} ✨\n✨ STEP 2: Subtract ${a+b} from ${total}: ${total} - ${a+b} = ? ✨`,
         explanation: `${total} - ${a} - ${b} = ${x}`,
+        step1: a+b,
+        step2: total,
       });
     } else {
       const aa = rnd(4, 9);
@@ -874,13 +899,13 @@ function makeMissingAddProblems() {
         q: `${total} = ${aa} + ?`,
         equation: `${total} = ${aa} + ?`,
         answer: xx,
-        hint: `Think: ${total} - ${aa} = ?`,
+        hint: `✨ To find the missing number: ${total} - ${aa} = ? ✨`,
         explanation: `${total} - ${aa} = ${xx}`,
       });
     }
   }
   
-  // HARD: Last 6 - larger totals
+  // HARD: Last 6 - larger totals with step-by-step hints
   for (let i = 0; i < 6; i++) {
     const total = rnd(18, 25);
     const a = rnd(5, 10);
@@ -892,8 +917,10 @@ function makeMissingAddProblems() {
         q: `${total} = ${a} + ${b} + ?`,
         equation: `${total} = ${a} + ${b} + ?`,
         answer: x,
-        hint: `${a} + ${b} = ${a+b}. Now ${total} - ${a+b} = ?`,
+        hint: `✨ STEP 1: Add ${a} + ${b} = ${a+b} ✨\n✨ STEP 2: Subtract ${a+b} from ${total}: ${total} - ${a+b} = ? ✨`,
         explanation: `${total} - ${a} - ${b} = ${x}`,
+        step1: a+b,
+        step2: total,
       });
     } else {
       const aa = rnd(6, 12);
@@ -903,7 +930,7 @@ function makeMissingAddProblems() {
         q: `${total} = ${aa} + ?`,
         equation: `${total} = ${aa} + ?`,
         answer: xx,
-        hint: `Think: ${total} - ${aa} = ?`,
+        hint: `✨ To find the missing number: ${total} - ${aa} = ? ✨`,
         explanation: `${total} - ${aa} = ${xx}`,
       });
     }
@@ -1455,6 +1482,7 @@ function renderQuestion() {
   const isCarry = q.type === 'carry_add';
   const isBorrow = q.type === 'borrow_sub';
   const isCounting = q.type && q.type.startsWith('counting');
+  const isMissing = q.type && (q.type.startsWith('missing') || q.type.startsWith('find'));
 
   // Hint eligibility: only for first 6 questions, and only 2 hints total
   const hintAllowed = state.qIndex < 6 && state.hintsUsed < 2 && !isWord;
@@ -1470,6 +1498,15 @@ function renderQuestion() {
     html += `<div class="question-card">
       <div class="question-text">${q.q}</div>
       <div class="equation-display">${formatEquation(q)}</div>`;
+
+    if (isMissing && q.step1) {
+      html += `
+        <div class="missing-step-hint">
+          <span class="step-1">Step 1: Add ${q.q.match(/\d+ \+ \d+/)[0]} = ${q.step1}</span>
+          <span class="step-arrow">→</span>
+          <span class="step-2">Step 2: ${q.step2} - ${q.step1} = ?</span>
+        </div>`;
+    }
 
     if (isGrouping) {
       html += renderGroupingVisual(q);
@@ -1650,8 +1687,17 @@ function checkAnswer() {
   } else {
     inp.classList.add('wrong');
     fb.classList.add('wrong-fb');
-    fb.innerHTML = `❌ Not quite! You wrote <b>${val}</b> but the answer is <b>${q.answer}</b>.<br>
-      <small>${q.explanation || ''}</small>`;
+    
+    // Show extra helpful message for missing number problems
+    if (q.type && (q.type.startsWith('missing') || q.type.startsWith('find'))) {
+      fb.innerHTML = `❌ Not quite! You wrote <b>${val}</b> but the answer is <b>${q.answer}</b>.<br>
+        <small>${q.explanation || ''}</small><br>
+        <small style="color:#721c24;">✨ Remember: First add the numbers you know, then subtract from the total!</small>`;
+    } else {
+      fb.innerHTML = `❌ Not quite! You wrote <b>${val}</b> but the answer is <b>${q.answer}</b>.<br>
+        <small>${q.explanation || ''}</small>`;
+    }
+    
     state.wrong++;
     state.mistakes.push({ q: q.q, yourAnswer: val, correct: q.answer, explanation: q.explanation });
   }
