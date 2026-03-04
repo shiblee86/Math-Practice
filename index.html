@@ -408,6 +408,18 @@
     text-align: center;
     margin-top: 10px;
   }
+  
+  .simple-explanation {
+    background: #3a2e5a;
+    border-radius: 30px;
+    padding: 15px 20px;
+    margin: 15px 0;
+    color: var(--sun);
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-align: center;
+    border: 2px solid var(--sun);
+  }
 
   .feedback {
     border-radius: 12px;
@@ -554,7 +566,7 @@ const LEVELS = [
   { id: 'add_three', name: 'Level 6 · Add Three Numbers', icon: '🔺', desc: 'Add three numbers', color: '#A29BFE' },
   { id: 'sub_three', name: 'Level 7 · Subtract Three Numbers', icon: '🔻', desc: 'Subtract two numbers', color: '#fd79a8' },
   { id: 'compose_add', name: 'Level 8 · Make a Sum', icon: '🧩', desc: 'Find ways to make 12, 15, 20', color: '#F9CA24' },
-  { id: 'compose_sub', name: 'Level 9 · Make a Difference', icon: '🔍', desc: 'Find ways to subtract to 8, 10, 12', color: '#6BCB77' },
+  { id: 'compose_sub', name: 'Level 9 · Find the Gap', icon: '🔍', desc: 'Find numbers with a gap of 6, 8, 10', color: '#6BCB77' },
   { id: 'combo', name: 'Level 10 · Grand Finale', icon: '🏆', desc: 'Mix of everything!', color: '#F9CA24' }
 ];
 
@@ -919,7 +931,7 @@ The third one is optional - you can skip it if you want.
   return shuffle(problems);
 }
 
-// ==================== LEVEL 9: NUMBER COMPOSITION - SUBTRACTION ====================
+// ==================== LEVEL 9: NUMBER COMPOSITION - SUBTRACTION (with kid-friendly language) ====================
 function generateComposeSubProblems() {
   let problems = [];
   let diffs = [5, 6, 7, 8, 9, 10, 12, 15];
@@ -928,25 +940,33 @@ function generateComposeSubProblems() {
     
     problems.push({
       type: 'compose_sub',
-      question: `Find two numbers with a difference of ${diff}`,
-      diff: diff,
-      hint: `🎯 HOW TO FIND THE NUMBERS:
-• Pick a smaller number
-• Add ${diff} to it
-• That's your bigger number!
+      question: `Find two numbers where one number is ${diff} more than the other`,
+      target: diff,
+      hint: `🎯 WHAT DOES THIS MEAN?
+We need two numbers where the bigger number minus the smaller number = ${diff}
+That means the bigger number is ${diff} more than the smaller number!
+
+🎯 HOW TO FIND THE NUMBERS:
+• Pick a smaller number (any number you like!)
+• Add ${diff} to it to get the bigger number
 
 For example:
-✨ Pick 3: 3 + ${diff} = ${diff + 3} → ${diff + 3} - 3 = ${diff}
-✨ Pick 6: 6 + ${diff} = ${diff + 6} → ${diff + 6} - 6 = ${diff}
-✨ Pick 9: 9 + ${diff} = ${diff + 9} → ${diff + 9} - 9 = ${diff}
+✨ Pick smaller number 3: 3 + ${diff} = ${diff + 3}
+   Check: ${diff + 3} - 3 = ${diff} ✅
+   
+✨ Pick smaller number 6: 6 + ${diff} = ${diff + 6}
+   Check: ${diff + 6} - 6 = ${diff} ✅
+   
+✨ Pick smaller number 9: 9 + ${diff} = ${diff + 9}
+   Check: ${diff + 9} - 9 = ${diff} ✅
 
 📝 You need to find THREE different pairs!
 The third one is optional - you can skip it if you want.
 
 ✅ Examples of correct answers:
-${diff+5} - 5 = ${diff}
-${diff+8} - 8 = ${diff}
-${diff+12} - 12 = ${diff}`
+${diff+5} - 5 = ${diff} (because ${diff+5} is ${diff} more than 5)
+${diff+8} - 8 = ${diff} (because ${diff+8} is ${diff} more than 8)
+${diff+12} - 12 = ${diff} (because ${diff+12} is ${diff} more than 12)`
     });
   }
   return shuffle(problems);
@@ -1073,7 +1093,7 @@ function renderQuestion() {
   document.getElementById('checkButton').style.display = 'inline-flex';
   document.getElementById('nextButton').style.display = 'none';
   
-  // Hint button should show for all questions, including composition ones
+  // Hint button should show for all questions
   const hintAllowed = hintsUsed < 2;
   document.getElementById('hintButton').style.display = hintAllowed ? 'inline-flex' : 'none';
   document.getElementById('hintButton').disabled = false;
@@ -1086,7 +1106,7 @@ function renderQuestion() {
     'missing_two': '❓ Missing Number', 'missing_three': '❓ Missing Number',
     'carry_add': '➕ Carry Addition', 'borrow_sub': '➖ Borrow Subtraction',
     'add_three': '🔺 Add Three Numbers', 'sub_three': '🔻 Subtract Three Numbers',
-    'compose_add': '🧩 Make a Sum', 'compose_sub': '🔍 Make a Difference'
+    'compose_add': '🧩 Make a Sum', 'compose_sub': '🔍 Find the Gap'
   }[q.type] || '🧮 Math';
   
   let html = '';
@@ -1094,7 +1114,7 @@ function renderQuestion() {
   if (q.type === 'compose_add' || q.type === 'compose_sub') {
     // For composition problems, show three input pairs - EMPTY fields
     let symbol = q.type === 'compose_add' ? '+' : '-';
-    let target = q.type === 'compose_add' ? q.target : q.diff;
+    let target = q.type === 'compose_add' ? q.target : q.target;
     
     html = `
       <div class="q-type-badge">${typeLabel}</div>
@@ -1130,16 +1150,15 @@ function renderQuestion() {
       <div class="hint-box" id="hintDisplay">
         <div class="hint-title">💡 How to Find the Numbers</div>
         <div class="hint-section">
-          <div class="hint-subtitle">🎯 Step-by-Step:</div>
           <div class="hint-examples">
             ${q.hint.split('\n').map(line => {
               if (line.trim().startsWith('✨')) {
                 return `<div class="hint-example">${line}</div>`;
               } else if (line.trim().startsWith('📝') || line.trim().startsWith('✅')) {
                 return `<div class="hint-note">${line}</div>`;
-              } else if (line.trim() && !line.trim().startsWith('•')) {
+              } else if (line.trim() && !line.trim().startsWith('•') && !line.trim().startsWith('🎯')) {
                 return `<div class="hint-example"><strong>•</strong> ${line}</div>`;
-              } else if (line.trim().startsWith('•')) {
+              } else if (line.trim().startsWith('•') || line.trim().startsWith('🎯')) {
                 return `<div class="hint-example">${line}</div>`;
               }
               return '';
@@ -1185,7 +1204,7 @@ function checkAnswer() {
   if (q.type === 'compose_add' || q.type === 'compose_sub') {
     // Check each pair
     let symbol = q.type === 'compose_add' ? '+' : '-';
-    let target = q.type === 'compose_add' ? q.target : q.diff;
+    let target = q.type === 'compose_add' ? q.target : q.target;
     
     // Get values from inputs
     let num1a = parseInt(document.getElementById('num1a')?.value);
