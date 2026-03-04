@@ -279,22 +279,28 @@
     background: #2d2447;
     padding: 20px;
     border-radius: 16px;
-    margin: 20px 0;
+    margin: 15px 0;
     border: 2px solid var(--purple);
   }
   
-  .carry-number {
+  .carry-row {
     color: var(--sun);
     font-size: 1.5rem;
     text-align: right;
-    margin-bottom: 5px;
+    padding-right: 30px;
   }
   
-  .borrow-number {
+  .borrow-row {
     color: var(--coral);
     font-size: 1.5rem;
     text-align: right;
-    margin-bottom: 5px;
+    padding-right: 30px;
+  }
+  
+  .math-line {
+    border-top: 3px solid var(--text-light);
+    width: 100px;
+    margin: 5px auto;
   }
 
   /* Three number inputs */
@@ -369,71 +375,97 @@
     margin-left: 15px;
   }
 
-  /* Hint box */
+  /* Hint box - CLEAN AND ORGANIZED */
   .hint-box {
     background: #2d2447;
     border: 3px solid var(--purple);
     border-radius: 24px;
-    padding: 20px;
+    padding: 0;
     margin: 20px 0;
     display: none;
+    overflow: hidden;
   }
   
   .hint-box.show {
     display: block;
   }
   
-  .hint-title {
-    color: var(--sun);
+  .hint-header {
+    background: var(--purple);
+    color: white;
+    padding: 15px 20px;
     font-size: 1.3rem;
     font-weight: 800;
-    margin-bottom: 15px;
     text-align: center;
   }
   
-  .hint-section {
+  .hint-content {
+    padding: 20px;
+  }
+  
+  .hint-step {
     background: #1e1932;
     border-radius: 16px;
     padding: 15px;
     margin-bottom: 15px;
+    border-left: 6px solid var(--sun);
   }
   
-  .hint-subtitle {
-    color: var(--sky);
-    font-size: 1.1rem;
+  .step-title {
+    color: var(--sun);
+    font-size: 1.2rem;
     font-weight: 800;
     margin-bottom: 10px;
   }
   
-  .hint-examples {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .hint-example {
+  .visual-math {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
     background: #2f274a;
-    border-radius: 30px;
-    padding: 10px 15px;
-    color: var(--text-light);
-    font-size: 1.1rem;
-    white-space: pre-line;
-  }
-  
-  .hint-example strong {
-    color: var(--sun);
-    margin-right: 5px;
-  }
-  
-  .hint-note {
-    background: #1e2f47;
-    border: 2px solid var(--sky);
-    border-radius: 30px;
-    padding: 12px 16px;
-    color: #b3e0ff;
-    font-weight: 800;
+    padding: 15px;
+    border-radius: 12px;
     text-align: center;
-    margin-top: 10px;
+    margin: 10px 0;
+    color: var(--text-light);
+  }
+  
+  .explain-text {
+    color: var(--text-soft);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 8px 0;
+    padding-left: 15px;
+    border-left: 3px solid var(--sky);
+  }
+  
+  .carry-highlight {
+    color: var(--sun);
+    font-weight: 800;
+    background: #3a2e5a;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  
+  .borrow-highlight {
+    color: var(--coral);
+    font-weight: 800;
+    background: #3a2e5a;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  
+  .result-box {
+    background: #1e2f47;
+    border: 3px solid var(--sky);
+    border-radius: 30px;
+    padding: 15px;
+    text-align: center;
+    color: #b3e0ff;
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-top: 15px;
   }
 
   .answer-input {
@@ -875,10 +907,9 @@ function generateAddThreeProblems() {
     let sum = a + b + c;
     if (sum > 99) { i--; continue; }
     
-    // Calculate carries for demonstration
     let step1 = a + b;
-    let carry1 = 0;
-    if ((a % 10) + (b % 10) >= 10) carry1 = 1;
+    let carry1 = (a % 10) + (b % 10) >= 10 ? 1 : 0;
+    let carry2 = ((step1 % 10) + (c % 10) >= 10) ? 1 : 0;
     
     problems.push({
       type: 'add_three',
@@ -888,46 +919,39 @@ function generateAddThreeProblems() {
       b: b,
       c: c,
       step1: step1,
-      hint: `Let's add three numbers with carrying! 🧮
+      hint: `STEP 1️⃣: Add the first two numbers: ${a} + ${b}
 
-We have: ${a} + ${b} + ${c}
-
-STEP 1: Add the first two numbers: ${a} + ${b}
-
-   Let's add them carefully:
-   ${a} 
+   ${a}
 +  ${b}
 _____
 
-   First, add the ones: ${a % 10} + ${b % 10} = ${(a % 10) + (b % 10)}
-   ${(a % 10) + (b % 10) >= 10 ? 'This is 10 or more, so we carry the 1!' : ''}
+   • Ones: ${a % 10} + ${b % 10} = ${(a % 10) + (b % 10)}
+   ${(a % 10) + (b % 10) >= 10 ? '✨ This is 10 or more, so we CARRY the 1!' : ''}
    
-   ${(a % 10) + (b % 10) >= 10 ? 
-     `Write down ${(a + b) % 10} in the ones place and carry 1 to the tens.
-      Then add the tens: ${Math.floor(a/10)} + ${Math.floor(b/10)} + 1 = ${Math.floor((a + b)/10)}` : 
-     `Write down ${(a + b) % 10} in the ones place.
-      Then add the tens: ${Math.floor(a/10)} + ${Math.floor(b/10)} = ${Math.floor((a + b)/10)}`}
+   • Write down ${step1 % 10} in the ones place
+   ${(a % 10) + (b % 10) >= 10 ? '• Carry 1 to the tens place' : ''}
    
-   So ${a} + ${b} = ${a + b}
+   • Tens: ${Math.floor(a/10)} + ${Math.floor(b/10)} ${(a % 10) + (b % 10) >= 10 ? '+ 1 (carry)' : ''} = ${Math.floor(step1/10)}
 
-STEP 2: Now add the third number: ${a + b} + ${c}
+   So ${a} + ${b} = ${step1}
 
-   ${a + b}
+STEP 2️⃣: Now add the third number: ${step1} + ${c}
+
+   ${step1}
 +  ${c}
 _____
 
-   Add the ones: ${(a + b) % 10} + ${c % 10} = ${((a + b) % 10) + (c % 10)}
-   ${((a + b) % 10) + (c % 10) >= 10 ? 'This is 10 or more, so we carry the 1!' : ''}
+   • Ones: ${step1 % 10} + ${c % 10} = ${(step1 % 10) + (c % 10)}
+   ${(step1 % 10) + (c % 10) >= 10 ? '✨ This is 10 or more, so we CARRY the 1!' : ''}
    
-   ${((a + b) % 10) + (c % 10) >= 10 ? 
-     `Write down ${sum % 10} in the ones place and carry 1 to the tens.
-      Then add the tens: ${Math.floor((a + b)/10)} + ${Math.floor(c/10)} + 1 = ${Math.floor(sum/10)}` : 
-     `Write down ${sum % 10} in the ones place.
-      Then add the tens: ${Math.floor((a + b)/10)} + ${Math.floor(c/10)} = ${Math.floor(sum/10)}`}
+   • Write down ${sum % 10} in the ones place
+   ${(step1 % 10) + (c % 10) >= 10 ? '• Carry 1 to the tens place' : ''}
    
-   So ${a + b} + ${c} = ${sum}
+   • Tens: ${Math.floor(step1/10)} + ${Math.floor(c/10)} ${(step1 % 10) + (c % 10) >= 10 ? '+ 1 (carry)' : ''} = ${Math.floor(sum/10)}
 
-Therefore, ${a} + ${b} + ${c} = ${sum}! ✅`,
+   So ${step1} + ${c} = ${sum}
+
+✅ FINAL ANSWER: ${a} + ${b} + ${c} = ${sum}`,
       explanation: `${a} + ${b} + ${c} = ${sum}`
     });
   }
@@ -944,6 +968,8 @@ function generateSubThreeProblems() {
     let result = total - b - c;
     if (result < 5) { i--; continue; }
     
+    let step1 = total - b;
+    
     problems.push({
       type: 'sub_three',
       question: `${total} - ${b} - ${c} = ?`,
@@ -951,62 +977,46 @@ function generateSubThreeProblems() {
       total: total,
       b: b,
       c: c,
-      step1: total - b,
-      hint: `Let's subtract two numbers with borrowing! 🧮
-
-We have: ${total} - ${b} - ${c}
-
-STEP 1: First subtract ${b} from ${total}
+      step1: step1,
+      hint: `STEP 1️⃣: First subtract ${b} from ${total}
 
    ${total}
 -  ${b}
 _____
 
-   Look at the ones: ${total % 10} - ${b % 10}
+   • Look at the ones: ${total % 10} - ${b % 10}
    ${total % 10 < b % 10 ? 
-     `${total % 10} is smaller than ${b % 10}, so we need to borrow!` : 
-     `${total % 10} is bigger than ${b % 10}, so we can subtract directly.`}
+     `✨ ${total % 10} is smaller than ${b % 10}, so we need to BORROW!
+      Borrow 1 ten from the ${Math.floor(total/10)}:
+      • Ones become ${total % 10 + 10}
+      • Tens become ${Math.floor(total/10) - 1}` : 
+     `✓ ${total % 10} is bigger than ${b % 10}, so we can subtract directly.`}
    
-   ${total % 10 < b % 10 ? 
-     `Borrow 1 ten from the ${Math.floor(total/10)}:
-      Ones become ${total % 10 + 10}
-      Tens become ${Math.floor(total/10) - 1}
-      
-      Then subtract: 
-      Ones: ${total % 10 + 10} - ${b % 10} = ${(total % 10 + 10) - (b % 10)}
-      Tens: ${Math.floor(total/10) - 1} - ${Math.floor(b/10)} = ${Math.floor((total - b)/10)}` : 
-     `Subtract:
-      Ones: ${total % 10} - ${b % 10} = ${(total % 10) - (b % 10)}
-      Tens: ${Math.floor(total/10)} - ${Math.floor(b/10)} = ${Math.floor((total - b)/10)}`}
-   
-   So ${total} - ${b} = ${total - b}
+   • Subtract ones: ${total % 10 < b % 10 ? total % 10 + 10 : total % 10} - ${b % 10} = ${(total - b) % 10}
+   • Subtract tens: ${total % 10 < b % 10 ? Math.floor(total/10) - 1 : Math.floor(total/10)} - ${Math.floor(b/10)} = ${Math.floor((total - b)/10)}
 
-STEP 2: Now subtract ${c} from ${total - b}
+   So ${total} - ${b} = ${step1}
 
-   ${total - b}
+STEP 2️⃣: Now subtract ${c} from ${step1}
+
+   ${step1}
 -  ${c}
 _____
 
-   Look at the ones: ${(total - b) % 10} - ${c % 10}
-   ${(total - b) % 10 < c % 10 ? 
-     `${(total - b) % 10} is smaller than ${c % 10}, so we need to borrow!` : 
-     `${(total - b) % 10} is bigger than ${c % 10}, so we can subtract directly.`}
+   • Look at the ones: ${step1 % 10} - ${c % 10}
+   ${step1 % 10 < c % 10 ? 
+     `✨ ${step1 % 10} is smaller than ${c % 10}, so we need to BORROW!
+      Borrow 1 ten from the ${Math.floor(step1/10)}:
+      • Ones become ${step1 % 10 + 10}
+      • Tens become ${Math.floor(step1/10) - 1}` : 
+     `✓ ${step1 % 10} is bigger than ${c % 10}, so we can subtract directly.`}
    
-   ${(total - b) % 10 < c % 10 ? 
-     `Borrow 1 ten from the ${Math.floor((total - b)/10)}:
-      Ones become ${(total - b) % 10 + 10}
-      Tens become ${Math.floor((total - b)/10) - 1}
-      
-      Then subtract: 
-      Ones: ${(total - b) % 10 + 10} - ${c % 10} = ${((total - b) % 10 + 10) - (c % 10)}
-      Tens: ${Math.floor((total - b)/10) - 1} - ${Math.floor(c/10)} = ${Math.floor(result/10)}` : 
-     `Subtract:
-      Ones: ${(total - b) % 10} - ${c % 10} = ${((total - b) % 10) - (c % 10)}
-      Tens: ${Math.floor((total - b)/10)} - ${Math.floor(c/10)} = ${Math.floor(result/10)}`}
-   
-   So ${total - b} - ${c} = ${result}
+   • Subtract ones: ${step1 % 10 < c % 10 ? step1 % 10 + 10 : step1 % 10} - ${c % 10} = ${result % 10}
+   • Subtract tens: ${step1 % 10 < c % 10 ? Math.floor(step1/10) - 1 : Math.floor(step1/10)} - ${Math.floor(c/10)} = ${Math.floor(result/10)}
 
-Therefore, ${total} - ${b} - ${c} = ${result}! ✅`,
+   So ${step1} - ${c} = ${result}
+
+✅ FINAL ANSWER: ${total} - ${b} - ${c} = ${result}`,
       explanation: `${total} - ${b} - ${c} = ${result}`
     });
   }
@@ -1261,22 +1271,20 @@ function renderQuestion() {
       </div>
       
       <div class="hint-box" id="hintDisplay">
-        <div class="hint-title">💡 How to Find the Numbers</div>
-        <div class="hint-section">
-          <div class="hint-examples">
-            ${q.hint.split('\n').map(line => {
-              if (line.trim().startsWith('✨')) {
-                return `<div class="hint-example">${line}</div>`;
-              } else if (line.trim().startsWith('📝') || line.trim().startsWith('✅')) {
-                return `<div class="hint-note">${line}</div>`;
-              } else if (line.trim() && !line.trim().startsWith('•') && !line.trim().startsWith('🎯')) {
-                return `<div class="hint-example"><strong>•</strong> ${line}</div>`;
-              } else if (line.trim().startsWith('•') || line.trim().startsWith('🎯')) {
-                return `<div class="hint-example">${line}</div>`;
-              }
-              return '';
-            }).join('')}
-          </div>
+        <div class="hint-header">💡 How to Find the Numbers</div>
+        <div class="hint-content">
+          ${q.hint.split('\n').map(line => {
+            if (line.trim().startsWith('✨')) {
+              return `<div class="hint-example">${line}</div>`;
+            } else if (line.trim().startsWith('📝') || line.trim().startsWith('✅')) {
+              return `<div class="hint-note">${line}</div>`;
+            } else if (line.trim() && !line.trim().startsWith('•') && !line.trim().startsWith('🎯')) {
+              return `<div class="explain-text">${line}</div>`;
+            } else if (line.trim().startsWith('•') || line.trim().startsWith('🎯')) {
+              return `<div class="hint-example">${line}</div>`;
+            }
+            return '';
+          }).join('')}
         </div>
       </div>
     `;
@@ -1284,7 +1292,25 @@ function renderQuestion() {
     html = `
       <div class="q-type-badge">${typeLabel}</div>
       <div class="question-text">${q.question}</div>
-      <div class="hint-box" id="hintDisplay">${q.hint}</div>
+      <div class="hint-box" id="hintDisplay">
+        <div class="hint-header">📘 Step-by-Step Solution</div>
+        <div class="hint-content">
+          ${q.hint.split('\n').map(line => {
+            if (line.trim().startsWith('STEP')) {
+              return `<div class="hint-step"><div class="step-title">${line}</div>`;
+            } else if (line.trim().startsWith('✅')) {
+              return `<div class="result-box">${line}</div>`;
+            } else if (line.trim().match(/^   •/)) {
+              return `<div class="explain-text">${line}</div>`;
+            } else if (line.trim().match(/^   /) && line.trim().length > 0) {
+              return `<div class="visual-math">${line.trim()}</div>`;
+            } else if (line.trim().length > 0) {
+              return `<div class="explain-text">${line}</div>`;
+            }
+            return '';
+          }).join('')}
+        </div>
+      </div>
       <input class="answer-input" id="answerInput" type="text" placeholder="Type answer..." autocomplete="off">
     `;
   }
