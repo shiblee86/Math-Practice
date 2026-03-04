@@ -272,33 +272,39 @@
   }
 
   /* Visual column math */
-  .column-math {
+  .visual-math {
     font-family: 'Fredoka One', cursive;
-    font-size: 2rem;
-    text-align: center;
     background: #2d2447;
-    padding: 20px;
-    border-radius: 16px;
-    margin: 15px 0;
-    border: 2px solid var(--purple);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 10px 0;
+    text-align: center;
   }
   
-  .carry-row {
+  .math-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.8rem;
+  }
+  
+  .carry-number {
     color: var(--sun);
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     text-align: right;
-    padding-right: 30px;
+    margin-right: 30px;
   }
   
-  .borrow-row {
+  .borrow-number {
     color: var(--coral);
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     text-align: right;
-    padding-right: 30px;
+    margin-right: 30px;
   }
   
   .math-line {
-    border-top: 3px solid var(--text-light);
+    border-top: 2px solid var(--text-light);
     width: 100px;
     margin: 5px auto;
   }
@@ -418,17 +424,6 @@
     margin-bottom: 10px;
   }
   
-  .visual-math {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.8rem;
-    background: #2f274a;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-    margin: 10px 0;
-    color: var(--text-light);
-  }
-  
   .explain-text {
     color: var(--text-soft);
     font-size: 1.1rem;
@@ -438,17 +433,8 @@
     border-left: 3px solid var(--sky);
   }
   
-  .carry-highlight {
+  .highlight {
     color: var(--sun);
-    font-weight: 800;
-    background: #3a2e5a;
-    padding: 2px 8px;
-    border-radius: 20px;
-    display: inline-block;
-  }
-  
-  .borrow-highlight {
-    color: var(--coral);
     font-weight: 800;
     background: #3a2e5a;
     padding: 2px 8px;
@@ -794,7 +780,7 @@ Check: ${a} + ${b} + ${missing} = ${total} ✅`,
   return shuffle(problems);
 }
 
-// ==================== LEVEL 4: CARRY ADDITION ====================
+// ==================== LEVEL 4: CARRY ADDITION (formatted hint) ====================
 function generateCarryAddProblems() {
   let problems = [];
   
@@ -808,48 +794,60 @@ function generateCarryAddProblems() {
     let [a, b] = shuffle(pairs)[0];
     let onesA = a % 10;
     let onesB = b % 10;
+    let tensA = Math.floor(a / 10);
+    let tensB = Math.floor(b / 10);
     let answer = a + b;
+    let onesSum = onesA + onesB;
+    let carry = Math.floor(onesSum / 10);
+    let onesDigit = onesSum % 10;
+    let tensSum = tensA + tensB + carry;
     
     problems.push({
       type: 'carry_add',
       question: `${a} + ${b} = ?`,
       answer: answer,
-      hint: `Let's add with carrying! 🧮
+      a: a,
+      b: b,
+      hint: `STEP 1️⃣: Add the ones digits
 
-We have: ${a} + ${b}
-
-Step 1: Add the ones: ${onesA} + ${onesB} = ${onesA + onesB}
-   ${onesA + onesB} is more than 9, so we need to carry!
-
-Step 2: Write down ${answer % 10} in the ones place.
-   Carry the 1 to the tens place.
-
-   1 (carry)
    ${a}
-+   ${b}
++  ${b}
 _____
-   ${answer % 10}
 
-Step 3: Add the tens: ${Math.floor(a/10)} + ${Math.floor(b/10)} + the carried 1 = ${Math.floor(answer/10)}
+   • Ones: ${onesA} + ${onesB} = ${onesSum}
+   ✨ ${onesSum} is 10 or more, so we need to CARRY!
 
-Step 4: Write ${Math.floor(answer/10)} in the tens place.
+STEP 2️⃣: Write the ones digit and carry the 1
 
-   1 (carry)
-   ${a}
-+   ${b}
-_____
-   ${answer}
+   • Write down ${onesDigit} in the ones place
+   • Carry the 1 to the tens place
 
-So ${a} + ${b} = ${answer}! ✅
+     1 (carry)
+     ${a}
+   + ${b}
+   _____
+     ${onesDigit}
 
-Remember: When ones add to 10 or more, we CARRY the 1 to the tens!`,
+STEP 3️⃣: Add the tens digits
+
+   • Tens: ${tensA} + ${tensB} + ${carry} (carry) = ${tensSum}
+
+STEP 4️⃣: Write the final answer
+
+     1 (carry)
+     ${a}
+   + ${b}
+   _____
+     ${answer}
+
+✅ FINAL ANSWER: ${a} + ${b} = ${answer}`,
       explanation: `${a} + ${b} = ${answer}`
     });
   }
   return shuffle(problems);
 }
 
-// ==================== LEVEL 5: BORROW SUBTRACTION ====================
+// ==================== LEVEL 5: BORROW SUBTRACTION (formatted hint) ====================
 function generateBorrowSubProblems() {
   let problems = [];
   
@@ -871,33 +869,44 @@ function generateBorrowSubProblems() {
       type: 'borrow_sub',
       question: `${a} - ${b} = ?`,
       answer: answer,
-      hint: `Let's subtract with borrowing! 🧮
+      a: a,
+      b: b,
+      hint: `STEP 1️⃣: Look at the ones place
 
-We have: ${a} - ${b}
+   ${a}
+-  ${b}
+_____
 
-Step 1: Look at the ones: ${onesA} - ${onesB}
-   ${onesA} is smaller than ${onesB}, so we need to borrow!
+   • Ones: ${onesA} - ${onesB}
+   ✨ ${onesA} is smaller than ${onesB}, so we need to BORROW!
 
-Step 2: Borrow 1 ten from the ${tensA}:
-   The ones become ${onesA + 10}
-   The tens become ${tensA - 1}
+STEP 2️⃣: Borrow 1 ten from the tens place
 
-Step 3: Subtract the ones: ${onesA + 10} - ${onesB} = ${onesA + 10 - onesB}
+   • The ${tensA} tens becomes ${tensA - 1} ten
+   • The ${onesA} ones becomes ${onesA + 10} ones
 
-Step 4: Subtract the tens: ${tensA - 1} - ${tensB} = ${tensA - 1 - tensB}
+   Now we have: ${tensA - 1} ten and ${onesA + 10} ones
 
-Step 5: Put together: ${tensA - 1 - tensB}${onesA + 10 - onesB} = ${answer}
+STEP 3️⃣: Subtract the ones
 
-So ${a} - ${b} = ${answer}! ✅
+   • ${onesA + 10} - ${onesB} = ${onesA + 10 - onesB}
 
-Remember: If the top ones are smaller, BORROW 1 ten from the tens!`,
+STEP 4️⃣: Subtract the tens
+
+   • ${tensA - 1} - ${tensB} = ${tensA - 1 - tensB}
+
+STEP 5️⃣: Put the numbers together
+
+   • ${tensA - 1 - tensB} ten and ${onesA + 10 - onesB} ones = ${answer}
+
+✅ FINAL ANSWER: ${a} - ${b} = ${answer}`,
       explanation: `${a} - ${b} = ${answer}`
     });
   }
   return shuffle(problems);
 }
 
-// ==================== LEVEL 6: ADD THREE NUMBERS (with carry) ====================
+// ==================== LEVEL 6: ADD THREE NUMBERS ====================
 function generateAddThreeProblems() {
   let problems = [];
   for (let i = 0; i < 13; i++) {
@@ -908,8 +917,6 @@ function generateAddThreeProblems() {
     if (sum > 99) { i--; continue; }
     
     let step1 = a + b;
-    let carry1 = (a % 10) + (b % 10) >= 10 ? 1 : 0;
-    let carry2 = ((step1 % 10) + (c % 10) >= 10) ? 1 : 0;
     
     problems.push({
       type: 'add_three',
@@ -958,7 +965,7 @@ _____
   return shuffle(problems);
 }
 
-// ==================== LEVEL 7: SUBTRACT THREE NUMBERS (with borrowing) ====================
+// ==================== LEVEL 7: SUBTRACT THREE NUMBERS ====================
 function generateSubThreeProblems() {
   let problems = [];
   for (let i = 0; i < 13; i++) {
@@ -1034,7 +1041,10 @@ function generateComposeAddProblems() {
       type: 'compose_add',
       question: `Find two numbers that add up to ${target}`,
       target: target,
-      hint: `🎯 HOW TO FIND THE NUMBERS:
+      hint: `🎯 WHAT TO DO:
+We need two numbers that add together to make ${target}.
+
+🎯 HOW TO FIND THE NUMBERS:
 • Pick any number you like
 • Subtract it from ${target}
 • The answer is the other number!
@@ -1067,7 +1077,7 @@ function generateComposeSubProblems() {
       type: 'compose_sub',
       question: `Find two numbers where one number is ${diff} more than the other`,
       target: diff,
-      hint: `🎯 WHAT DOES THIS MEAN?
+      hint: `🎯 WHAT THIS MEANS:
 We need two numbers where the bigger number minus the smaller number = ${diff}
 That means the bigger number is ${diff} more than the smaller number!
 
@@ -1275,13 +1285,13 @@ function renderQuestion() {
         <div class="hint-content">
           ${q.hint.split('\n').map(line => {
             if (line.trim().startsWith('✨')) {
-              return `<div class="hint-example">${line}</div>`;
-            } else if (line.trim().startsWith('📝') || line.trim().startsWith('✅')) {
-              return `<div class="hint-note">${line}</div>`;
-            } else if (line.trim() && !line.trim().startsWith('•') && !line.trim().startsWith('🎯')) {
               return `<div class="explain-text">${line}</div>`;
-            } else if (line.trim().startsWith('•') || line.trim().startsWith('🎯')) {
-              return `<div class="hint-example">${line}</div>`;
+            } else if (line.trim().startsWith('📝') || line.trim().startsWith('✅')) {
+              return `<div class="result-box">${line}</div>`;
+            } else if (line.trim() && !line.trim().startsWith('🎯')) {
+              return `<div class="explain-text">${line}</div>`;
+            } else if (line.trim().startsWith('🎯')) {
+              return `<div class="step-title">${line}</div>`;
             }
             return '';
           }).join('')}
@@ -1300,11 +1310,11 @@ function renderQuestion() {
               return `<div class="hint-step"><div class="step-title">${line}</div>`;
             } else if (line.trim().startsWith('✅')) {
               return `<div class="result-box">${line}</div>`;
-            } else if (line.trim().match(/^   •/)) {
+            } else if (line.trim().startsWith('   •')) {
               return `<div class="explain-text">${line}</div>`;
-            } else if (line.trim().match(/^   /) && line.trim().length > 0) {
-              return `<div class="visual-math">${line.trim()}</div>`;
-            } else if (line.trim().length > 0) {
+            } else if (line.trim().startsWith('✨') || line.trim().startsWith('✓')) {
+              return `<div class="explain-text">${line}</div>`;
+            } else if (line.trim().length > 0 && !line.trim().startsWith('STEP')) {
               return `<div class="explain-text">${line}</div>`;
             }
             return '';
