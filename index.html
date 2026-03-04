@@ -271,7 +271,33 @@
     text-align: center;
   }
 
-  /* Three number inputs - EMPTY by default */
+  /* Visual column math */
+  .column-math {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    text-align: center;
+    background: #2d2447;
+    padding: 20px;
+    border-radius: 16px;
+    margin: 20px 0;
+    border: 2px solid var(--purple);
+  }
+  
+  .carry-number {
+    color: var(--sun);
+    font-size: 1.5rem;
+    text-align: right;
+    margin-bottom: 5px;
+  }
+  
+  .borrow-number {
+    color: var(--coral);
+    font-size: 1.5rem;
+    text-align: right;
+    margin-bottom: 5px;
+  }
+
+  /* Three number inputs */
   .triple-inputs {
     display: flex;
     flex-direction: column;
@@ -343,7 +369,7 @@
     margin-left: 15px;
   }
 
-  /* Hint box - CLEAN AND ORGANIZED */
+  /* Hint box */
   .hint-box {
     background: #2d2447;
     border: 3px solid var(--purple);
@@ -391,6 +417,7 @@
     padding: 10px 15px;
     color: var(--text-light);
     font-size: 1.1rem;
+    white-space: pre-line;
   }
   
   .hint-example strong {
@@ -408,17 +435,23 @@
     text-align: center;
     margin-top: 10px;
   }
-  
-  .simple-explanation {
-    background: #3a2e5a;
-    border-radius: 30px;
-    padding: 15px 20px;
-    margin: 15px 0;
+
+  .answer-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 2rem;
+    font-family: 'Fredoka One', cursive;
+    background: #1f1937;
+    border: 3px solid #4e4280;
+    border-radius: 16px;
     color: var(--sun);
-    font-size: 1.3rem;
-    font-weight: 800;
     text-align: center;
-    border: 2px solid var(--sun);
+    margin: 12px 0;
+  }
+  
+  .answer-input::placeholder {
+    color: #5f4f8a;
+    font-size: 1.2rem;
   }
 
   .feedback {
@@ -563,8 +596,8 @@ const LEVELS = [
   { id: 'missing_add', name: 'Level 3 · Missing Number', icon: '❓', desc: 'Find the missing number', color: '#C77DFF' },
   { id: 'carry_add', name: 'Level 4 · Carry Addition', icon: '➕', desc: 'Add with carrying (17+5, 19+3)', color: '#48dbfb' },
   { id: 'borrow_sub', name: 'Level 5 · Borrow Subtraction', icon: '➖', desc: 'Subtract with borrowing (25-8, 52-28)', color: '#ff6b81' },
-  { id: 'add_three', name: 'Level 6 · Add Three Numbers', icon: '🔺', desc: 'Add three numbers', color: '#A29BFE' },
-  { id: 'sub_three', name: 'Level 7 · Subtract Three Numbers', icon: '🔻', desc: 'Subtract two numbers', color: '#fd79a8' },
+  { id: 'add_three', name: 'Level 6 · Add Three Numbers', icon: '🔺', desc: 'Add three numbers with carrying', color: '#A29BFE' },
+  { id: 'sub_three', name: 'Level 7 · Subtract Three Numbers', icon: '🔻', desc: 'Subtract two numbers with borrowing', color: '#fd79a8' },
   { id: 'compose_add', name: 'Level 8 · Make a Sum', icon: '🧩', desc: 'Find ways to make 12, 15, 20', color: '#F9CA24' },
   { id: 'compose_sub', name: 'Level 9 · Find the Gap', icon: '🔍', desc: 'Find numbers with a gap of 6, 8, 10', color: '#6BCB77' },
   { id: 'combo', name: 'Level 10 · Grand Finale', icon: '🏆', desc: 'Mix of everything!', color: '#F9CA24' }
@@ -749,22 +782,15 @@ function generateCarryAddProblems() {
       type: 'carry_add',
       question: `${a} + ${b} = ?`,
       answer: answer,
-      hint: `Let's add like this:
+      hint: `Let's add with carrying! 🧮
 
-   ${a}
-+   ${b}
-_____
+We have: ${a} + ${b}
 
-Step 1: Look at the ONES place (right side):
-   ${a} has ${onesA} ones
-   ${b} has ${onesB} ones
-   ${onesA} + ${onesB} = ${onesA + onesB}
+Step 1: Add the ones: ${onesA} + ${onesB} = ${onesA + onesB}
+   ${onesA + onesB} is more than 9, so we need to carry!
 
-Step 2: The ones place can only have numbers from 0 to 9.
-   ${onesA + onesB} is more than 9, so it's too big for just the ones place!
-   
-Step 3: We write down ${answer % 10} in the ones place,
-   and we CARRY the 1 to the tens place.
+Step 2: Write down ${answer % 10} in the ones place.
+   Carry the 1 to the tens place.
 
    1 (carry)
    ${a}
@@ -772,10 +798,9 @@ Step 3: We write down ${answer % 10} in the ones place,
 _____
    ${answer % 10}
 
-Step 4: Now add the TENS place:
-   ${Math.floor(a/10)} + ${Math.floor(b/10)} + the carried 1 = ${Math.floor(answer/10)}
+Step 3: Add the tens: ${Math.floor(a/10)} + ${Math.floor(b/10)} + the carried 1 = ${Math.floor(answer/10)}
 
-Step 5: Write ${Math.floor(answer/10)} in the tens place:
+Step 4: Write ${Math.floor(answer/10)} in the tens place.
 
    1 (carry)
    ${a}
@@ -785,7 +810,7 @@ _____
 
 So ${a} + ${b} = ${answer}! ✅
 
-Remember: The ones place can only hold 0-9. If it's 10 or more, we CARRY the 1!`,
+Remember: When ones add to 10 or more, we CARRY the 1 to the tens!`,
       explanation: `${a} + ${b} = ${answer}`
     });
   }
@@ -814,30 +839,22 @@ function generateBorrowSubProblems() {
       type: 'borrow_sub',
       question: `${a} - ${b} = ?`,
       answer: answer,
-      hint: `Let's subtract like this:
+      hint: `Let's subtract with borrowing! 🧮
 
-   ${a}
--   ${b}
-_____
+We have: ${a} - ${b}
 
-Step 1: Look at the ONES place (right side):
-   ${a} has ${onesA} ones
-   ${b} has ${onesB} ones
+Step 1: Look at the ones: ${onesA} - ${onesB}
+   ${onesA} is smaller than ${onesB}, so we need to borrow!
 
-Step 2: ${onesA} is smaller than ${onesB}, so we can't subtract!
-   We need to BORROW 1 ten from the ${tensA} tens.
-
-Step 3: After borrowing:
+Step 2: Borrow 1 ten from the ${tensA}:
    The ones become ${onesA + 10}
    The tens become ${tensA - 1}
 
-Step 4: Now subtract the ones:
-   ${onesA + 10} - ${onesB} = ${onesA + 10 - onesB}
+Step 3: Subtract the ones: ${onesA + 10} - ${onesB} = ${onesA + 10 - onesB}
 
-Step 5: Subtract the tens:
-   ${tensA - 1} - ${tensB} = ${tensA - 1 - tensB}
+Step 4: Subtract the tens: ${tensA - 1} - ${tensB} = ${tensA - 1 - tensB}
 
-Step 6: Put together: ${tensA - 1 - tensB}${onesA + 10 - onesB} = ${answer}
+Step 5: Put together: ${tensA - 1 - tensB}${onesA + 10 - onesB} = ${answer}
 
 So ${a} - ${b} = ${answer}! ✅
 
@@ -848,50 +865,148 @@ Remember: If the top ones are smaller, BORROW 1 ten from the tens!`,
   return shuffle(problems);
 }
 
-// ==================== LEVEL 6: ADD THREE NUMBERS ====================
+// ==================== LEVEL 6: ADD THREE NUMBERS (with carry) ====================
 function generateAddThreeProblems() {
   let problems = [];
   for (let i = 0; i < 13; i++) {
-    let a = rnd(10, 30);
-    let b = rnd(10, 30);
-    let c = rnd(10, 30);
+    let a = rnd(15, 35);
+    let b = rnd(15, 35);
+    let c = rnd(15, 35);
     let sum = a + b + c;
-    if (sum > 90) { i--; continue; }
+    if (sum > 99) { i--; continue; }
+    
+    // Calculate carries for demonstration
+    let step1 = a + b;
+    let carry1 = 0;
+    if ((a % 10) + (b % 10) >= 10) carry1 = 1;
+    
     problems.push({
       type: 'add_three',
       question: `${a} + ${b} + ${c} = ?`,
       answer: sum,
-      hint: `Add step by step:
+      a: a,
+      b: b,
+      c: c,
+      step1: step1,
+      hint: `Let's add three numbers with carrying! 🧮
 
-Step 1: ${a} + ${b} = ${a + b}
-Step 2: ${a + b} + ${c} = ${sum}
+We have: ${a} + ${b} + ${c}
 
-So ${a} + ${b} + ${c} = ${sum}! ✅`,
+STEP 1: Add the first two numbers: ${a} + ${b}
+
+   Let's add them carefully:
+   ${a} 
++  ${b}
+_____
+
+   First, add the ones: ${a % 10} + ${b % 10} = ${(a % 10) + (b % 10)}
+   ${(a % 10) + (b % 10) >= 10 ? 'This is 10 or more, so we carry the 1!' : ''}
+   
+   ${(a % 10) + (b % 10) >= 10 ? 
+     `Write down ${(a + b) % 10} in the ones place and carry 1 to the tens.
+      Then add the tens: ${Math.floor(a/10)} + ${Math.floor(b/10)} + 1 = ${Math.floor((a + b)/10)}` : 
+     `Write down ${(a + b) % 10} in the ones place.
+      Then add the tens: ${Math.floor(a/10)} + ${Math.floor(b/10)} = ${Math.floor((a + b)/10)}`}
+   
+   So ${a} + ${b} = ${a + b}
+
+STEP 2: Now add the third number: ${a + b} + ${c}
+
+   ${a + b}
++  ${c}
+_____
+
+   Add the ones: ${(a + b) % 10} + ${c % 10} = ${((a + b) % 10) + (c % 10)}
+   ${((a + b) % 10) + (c % 10) >= 10 ? 'This is 10 or more, so we carry the 1!' : ''}
+   
+   ${((a + b) % 10) + (c % 10) >= 10 ? 
+     `Write down ${sum % 10} in the ones place and carry 1 to the tens.
+      Then add the tens: ${Math.floor((a + b)/10)} + ${Math.floor(c/10)} + 1 = ${Math.floor(sum/10)}` : 
+     `Write down ${sum % 10} in the ones place.
+      Then add the tens: ${Math.floor((a + b)/10)} + ${Math.floor(c/10)} = ${Math.floor(sum/10)}`}
+   
+   So ${a + b} + ${c} = ${sum}
+
+Therefore, ${a} + ${b} + ${c} = ${sum}! ✅`,
       explanation: `${a} + ${b} + ${c} = ${sum}`
     });
   }
   return shuffle(problems);
 }
 
-// ==================== LEVEL 7: SUBTRACT THREE NUMBERS ====================
+// ==================== LEVEL 7: SUBTRACT THREE NUMBERS (with borrowing) ====================
 function generateSubThreeProblems() {
   let problems = [];
   for (let i = 0; i < 13; i++) {
     let total = rnd(50, 90);
-    let b = rnd(10, 30);
-    let c = rnd(10, 30);
+    let b = rnd(15, 35);
+    let c = rnd(15, 35);
     let result = total - b - c;
     if (result < 5) { i--; continue; }
+    
     problems.push({
       type: 'sub_three',
       question: `${total} - ${b} - ${c} = ?`,
       answer: result,
-      hint: `Subtract step by step:
+      total: total,
+      b: b,
+      c: c,
+      step1: total - b,
+      hint: `Let's subtract two numbers with borrowing! 🧮
 
-Step 1: ${total} - ${b} = ${total - b}
-Step 2: ${total - b} - ${c} = ${result}
+We have: ${total} - ${b} - ${c}
 
-So ${total} - ${b} - ${c} = ${result}! ✅`,
+STEP 1: First subtract ${b} from ${total}
+
+   ${total}
+-  ${b}
+_____
+
+   Look at the ones: ${total % 10} - ${b % 10}
+   ${total % 10 < b % 10 ? 
+     `${total % 10} is smaller than ${b % 10}, so we need to borrow!` : 
+     `${total % 10} is bigger than ${b % 10}, so we can subtract directly.`}
+   
+   ${total % 10 < b % 10 ? 
+     `Borrow 1 ten from the ${Math.floor(total/10)}:
+      Ones become ${total % 10 + 10}
+      Tens become ${Math.floor(total/10) - 1}
+      
+      Then subtract: 
+      Ones: ${total % 10 + 10} - ${b % 10} = ${(total % 10 + 10) - (b % 10)}
+      Tens: ${Math.floor(total/10) - 1} - ${Math.floor(b/10)} = ${Math.floor((total - b)/10)}` : 
+     `Subtract:
+      Ones: ${total % 10} - ${b % 10} = ${(total % 10) - (b % 10)}
+      Tens: ${Math.floor(total/10)} - ${Math.floor(b/10)} = ${Math.floor((total - b)/10)}`}
+   
+   So ${total} - ${b} = ${total - b}
+
+STEP 2: Now subtract ${c} from ${total - b}
+
+   ${total - b}
+-  ${c}
+_____
+
+   Look at the ones: ${(total - b) % 10} - ${c % 10}
+   ${(total - b) % 10 < c % 10 ? 
+     `${(total - b) % 10} is smaller than ${c % 10}, so we need to borrow!` : 
+     `${(total - b) % 10} is bigger than ${c % 10}, so we can subtract directly.`}
+   
+   ${(total - b) % 10 < c % 10 ? 
+     `Borrow 1 ten from the ${Math.floor((total - b)/10)}:
+      Ones become ${(total - b) % 10 + 10}
+      Tens become ${Math.floor((total - b)/10) - 1}
+      
+      Then subtract: 
+      Ones: ${(total - b) % 10 + 10} - ${c % 10} = ${((total - b) % 10 + 10) - (c % 10)}
+      Tens: ${Math.floor((total - b)/10) - 1} - ${Math.floor(c/10)} = ${Math.floor(result/10)}` : 
+     `Subtract:
+      Ones: ${(total - b) % 10} - ${c % 10} = ${((total - b) % 10) - (c % 10)}
+      Tens: ${Math.floor((total - b)/10)} - ${Math.floor(c/10)} = ${Math.floor(result/10)}`}
+   
+   So ${total - b} - ${c} = ${result}
+
+Therefore, ${total} - ${b} - ${c} = ${result}! ✅`,
       explanation: `${total} - ${b} - ${c} = ${result}`
     });
   }
@@ -931,7 +1046,7 @@ The third one is optional - you can skip it if you want.
   return shuffle(problems);
 }
 
-// ==================== LEVEL 9: NUMBER COMPOSITION - SUBTRACTION (with kid-friendly language) ====================
+// ==================== LEVEL 9: NUMBER COMPOSITION - SUBTRACTION ====================
 function generateComposeSubProblems() {
   let problems = [];
   let diffs = [5, 6, 7, 8, 9, 10, 12, 15];
@@ -1093,7 +1208,6 @@ function renderQuestion() {
   document.getElementById('checkButton').style.display = 'inline-flex';
   document.getElementById('nextButton').style.display = 'none';
   
-  // Hint button should show for all questions
   const hintAllowed = hintsUsed < 2;
   document.getElementById('hintButton').style.display = hintAllowed ? 'inline-flex' : 'none';
   document.getElementById('hintButton').disabled = false;
@@ -1112,9 +1226,8 @@ function renderQuestion() {
   let html = '';
   
   if (q.type === 'compose_add' || q.type === 'compose_sub') {
-    // For composition problems, show three input pairs - EMPTY fields
     let symbol = q.type === 'compose_add' ? '+' : '-';
-    let target = q.type === 'compose_add' ? q.target : q.target;
+    let target = q.target;
     
     html = `
       <div class="q-type-badge">${typeLabel}</div>
@@ -1168,7 +1281,6 @@ function renderQuestion() {
       </div>
     `;
   } else {
-    // For regular problems, show single input
     html = `
       <div class="q-type-badge">${typeLabel}</div>
       <div class="question-text">${q.question}</div>
@@ -1202,11 +1314,9 @@ function checkAnswer() {
   let totalPairs = 0;
   
   if (q.type === 'compose_add' || q.type === 'compose_sub') {
-    // Check each pair
     let symbol = q.type === 'compose_add' ? '+' : '-';
-    let target = q.type === 'compose_add' ? q.target : q.target;
+    let target = q.target;
     
-    // Get values from inputs
     let num1a = parseInt(document.getElementById('num1a')?.value);
     let num1b = parseInt(document.getElementById('num1b')?.value);
     let num2a = parseInt(document.getElementById('num2a')?.value);
@@ -1214,28 +1324,24 @@ function checkAnswer() {
     let num3a = parseInt(document.getElementById('num3a')?.value);
     let num3b = parseInt(document.getElementById('num3b')?.value);
     
-    // Check first pair (required)
     if (!isNaN(num1a) && !isNaN(num1b)) {
       totalPairs++;
       if (q.type === 'compose_add' && num1a + num1b === target) correctCount++;
       else if (q.type === 'compose_sub' && num1a - num1b === target) correctCount++;
     }
     
-    // Check second pair (required)
     if (!isNaN(num2a) && !isNaN(num2b)) {
       totalPairs++;
       if (q.type === 'compose_add' && num2a + num2b === target) correctCount++;
       else if (q.type === 'compose_sub' && num2a - num2b === target) correctCount++;
     }
     
-    // Check third pair (optional)
     if (!isNaN(num3a) && !isNaN(num3b)) {
       totalPairs++;
       if (q.type === 'compose_add' && num3a + num3b === target) correctCount++;
       else if (q.type === 'compose_sub' && num3a - num3b === target) correctCount++;
     }
     
-    // Need at least first two pairs correct
     isCorrect = (correctCount >= 2);
     
     if (isCorrect) {
@@ -1257,7 +1363,6 @@ function checkAnswer() {
     }
     
   } else {
-    // Regular answer checking
     const input = document.getElementById('answerInput');
     if (!input) return;
     
