@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌟 Math Adventure - Dark Mode (fixed)</title>
+<title>🌟 Find the Missing Number - Math Adventure</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
@@ -125,7 +125,7 @@
     margin-top: 8px;
   }
 
-  /* Level grid - FIXED: now visible */
+  /* Level grid */
   .levels-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -285,8 +285,8 @@
     display: inline-block;
   }
 
-  /* Hints */
-  .mini-lesson {
+  /* Step-by-step hint for missing numbers */
+  .step-hint {
     background: #2d2447;
     border-left: 8px solid var(--purple);
     border-radius: 16px;
@@ -296,24 +296,19 @@
     color: #e5d5ff;
   }
   
-  .step-hint {
-    background: #1e2f47;
-    border: 2px solid var(--sky);
-    border-radius: 40px;
-    padding: 14px;
-    text-align: center;
+  .step-1, .step-2 {
+    display: inline-block;
+    background: #3a2e5a;
+    padding: 8px 16px;
+    border-radius: 30px;
+    margin: 4px;
     font-weight: 800;
-    color: #b3e0ff;
   }
   
-  .finger-helper {
-    background: #3a2e3a;
-    border: 3px dashed var(--sun);
-    border-radius: 30px;
-    padding: 16px;
-    text-align: center;
-    font-weight: 700;
-    color: #ffe6b3;
+  .step-arrow {
+    font-size: 1.5rem;
+    color: var(--sun);
+    margin: 0 8px;
   }
 
   .answer-input {
@@ -397,28 +392,28 @@
 <div class="wrap">
 
 <div class="topbar">
-  <div class="topbar-title">🌟 Math Adventure (dark)</div>
+  <div class="topbar-title">🔍 Find the Missing Number!</div>
   <div class="topbar-btns">
     <button class="tb-btn tb-save" onclick="saveProgress()">💾 Save</button>
     <button class="tb-btn tb-load" onclick="loadProgress()">📂 Load</button>
     <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadFile(event)">
   </div>
-  <div class="tb-lbl" id="progressLabel">0/11 mastered</div>
+  <div class="tb-lbl" id="progressLabel">0/6 mastered</div>
 </div>
 
 <!-- HOME SCREEN -->
 <div id="homeScreen" class="screen active">
   <div class="home-hero">
-    <h1>Math Adventure!</h1>
-    <p>Pick a level · 13 problems + 5 word puzzles</p>
+    <h1>Missing Number Mission!</h1>
+    <p>Solve equations like: 15 = 8 + ?  and  25 = 13 + 7 + ?</p>
   </div>
   
-  <!-- LEVELS GRID - FIXED: now visible -->
+  <!-- LEVELS GRID -->
   <div class="levels-grid" id="levelsGrid"></div>
   
   <div class="progress-chart" id="progressChart">
     <h3 style="color:#d4c2ff; margin-bottom:10px;">📊 Your Progress</h3>
-    <div id="progressStats">0 of 11 levels mastered (0%)</div>
+    <div id="progressStats">0 of 6 levels mastered (0%)</div>
     <div class="progress-bar-cont"><div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div></div>
   </div>
 </div>
@@ -428,7 +423,7 @@
   <div class="quiz-head">
     <div class="quiz-meta">
       <span id="quizLevelLabel">Level 1</span>
-      <span id="quizQCounter">Q1 / 18</span>
+      <span id="quizQCounter">Q1 / 15</span>
     </div>
     <div class="quiz-score-row">
       <div class="qs-item"><div class="qs-label">✅</div><div class="qs-val" id="scoreCorrect">0</div></div>
@@ -469,19 +464,14 @@
 </div>
 
 <script>
-// ==================== MATH ADVENTURE DATA ====================
+// ==================== MISSING NUMBER ADVENTURE ====================
 const LEVELS = [
-  { id: 'counting', name: 'Counting', icon: '🔢', color: '#6EC6F5', level: 1 },
-  { id: 'grouping', name: 'Tens & Ones', icon: '📦', color: '#FFD93D', level: 1 },
-  { id: 'missing_add', name: 'Missing Number', icon: '❓', color: '#C77DFF', level: 1 },
-  { id: 'simple_sub', name: 'Quick Sub', icon: '✂️', color: '#FF6B6B', level: 1 },
-  { id: 'find_pair', name: 'Find the Pair', icon: '👫', color: '#6BCB77', level: 1 },
-  { id: 'take_two', name: 'Take Away Two', icon: '✌️', color: '#FF9F43', level: 1 },
-  { id: 'carry_add', name: 'Carry Addition', icon: '➕', color: '#48dbfb', level: 1 },
-  { id: 'borrow_sub', name: 'Borrow Sub', icon: '➖', color: '#ff6b81', level: 1 },
-  { id: 'add_three', name: 'Add Three', icon: '🔺', color: '#A29BFE', level: 1 },
-  { id: 'sub_two_big', name: 'Subtract Two', icon: '🔻', color: '#fd79a8', level: 1 },
-  { id: 'combo', name: 'Grand Finale', icon: '🏆', color: '#F9CA24', level: 1 }
+  { id: 'level1', name: 'Level 1 · Two Numbers', icon: '🔍', desc: 'Find the missing number: 10 = 6 + ?', color: '#6EC6F5' },
+  { id: 'level2', name: 'Level 2 · Two Numbers', icon: '🔎', desc: 'Larger totals: 25 = 13 + ?', color: '#FFD93D' },
+  { id: 'level3', name: 'Level 3 · Three Numbers', icon: '❓', desc: 'Three numbers: 20 = 8 + 5 + ?', color: '#C77DFF' },
+  { id: 'level4', name: 'Level 4 · Three Numbers', icon: '❔', desc: 'Larger: 45 = 17 + 12 + ?', color: '#6BCB77' },
+  { id: 'level5', name: 'Level 5 · Word Problems', icon: '📝', desc: 'Real-world missing numbers', color: '#FF6B6B' },
+  { id: 'level6', name: 'Level 6 · Mixed Challenge', icon: '🏆', desc: 'All types together', color: '#F9CA24' }
 ];
 
 // Progress tracking
@@ -494,7 +484,6 @@ let wrong = 0;
 let mistakes = [];
 let hintsUsed = 0;
 let answered = false;
-let currentAnswer = null;
 
 // Initialize progress
 LEVELS.forEach(level => {
@@ -516,46 +505,181 @@ function shuffle(array) {
   return array;
 }
 
-// ==================== PROBLEM GENERATORS ====================
-function generateCountingProblems() {
+// ==================== MISSING NUMBER GENERATORS ====================
+
+// Level 1: Simple two-number equations (totals up to 20)
+function generateLevel1Problems() {
   let problems = [];
-  for (let i = 0; i < 13; i++) {
-    if (i % 2 === 0) {
-      let a = rnd(5, 15);
-      let b = rnd(1, 5);
-      problems.push({
-        type: 'counting_add',
-        question: `${a} + ${b} = ?`,
-        answer: a + b,
-        hint: `Count up from ${a}: ${a+1}, ${a+2}... (${b} times)`,
-        explanation: `${a} + ${b} = ${a+b}`
-      });
-    } else {
-      let a = rnd(8, 18);
-      let b = rnd(2, 6);
-      problems.push({
-        type: 'counting_sub',
-        question: `${a} - ${b} = ?`,
-        answer: a - b,
-        hint: `Count down from ${a}: ${a-1}, ${a-2}... (${b} times)`,
-        explanation: `${a} - ${b} = ${a-b}`
-      });
-    }
+  for (let i = 0; i < 15; i++) {
+    let total = rnd(8, 20);
+    let known = rnd(2, total - 2);
+    let missing = total - known;
+    
+    problems.push({
+      type: 'missing_two',
+      question: `${total} = ${known} + ?`,
+      answer: missing,
+      step1: known,
+      step2: total,
+      hint: `Step 1: We know ${known} + ? = ${total}\nStep 2: Subtract: ${total} - ${known} = ?`,
+      explanation: `${total} - ${known} = ${missing}`
+    });
   }
-  return problems;
+  return shuffle(problems);
 }
 
-function generateWordProblems() {
+// Level 2: Two-number equations with larger totals (up to 50)
+function generateLevel2Problems() {
+  let problems = [];
+  for (let i = 0; i < 15; i++) {
+    let total = rnd(21, 50);
+    let known = rnd(5, total - 5);
+    let missing = total - known;
+    
+    problems.push({
+      type: 'missing_two',
+      question: `${total} = ${known} + ?`,
+      answer: missing,
+      step1: known,
+      step2: total,
+      hint: `✨ Find the missing number: ${total} - ${known} = ?`,
+      explanation: `${total} - ${known} = ${missing}`
+    });
+  }
+  return shuffle(problems);
+}
+
+// Level 3: Three-number equations (totals up to 30)
+function generateLevel3Problems() {
+  let problems = [];
+  for (let i = 0; i < 15; i++) {
+    let total = rnd(12, 30);
+    let a = rnd(2, 8);
+    let b = rnd(2, 8);
+    let missing = total - a - b;
+    
+    // Make sure missing is positive and not too large
+    if (missing < 1 || missing > 15) {
+      i--;
+      continue;
+    }
+    
+    problems.push({
+      type: 'missing_three',
+      question: `${total} = ${a} + ${b} + ?`,
+      answer: missing,
+      step1: a + b,
+      step2: total,
+      hint: `Step 1: Add the numbers we know: ${a} + ${b} = ${a+b}\nStep 2: Subtract from total: ${total} - ${a+b} = ?`,
+      explanation: `${total} - ${a} - ${b} = ${missing}`
+    });
+  }
+  return shuffle(problems);
+}
+
+// Level 4: Three-number equations with larger totals (up to 70)
+function generateLevel4Problems() {
+  let problems = [];
+  for (let i = 0; i < 15; i++) {
+    let total = rnd(31, 70);
+    let a = rnd(5, 15);
+    let b = rnd(5, 15);
+    let missing = total - a - b;
+    
+    if (missing < 5 || missing > 30) {
+      i--;
+      continue;
+    }
+    
+    problems.push({
+      type: 'missing_three',
+      question: `${total} = ${a} + ${b} + ?`,
+      answer: missing,
+      step1: a + b,
+      step2: total,
+      hint: `📊 First add: ${a} + ${b} = ${a+b}\nThen subtract: ${total} - ${a+b} = ?`,
+      explanation: `${total} - ${a} - ${b} = ${missing}`
+    });
+  }
+  return shuffle(problems);
+}
+
+// Level 5: Word problems with missing numbers
+function generateLevel5Problems() {
   return [
-    { type: 'word', question: 'Sara has 8 apples. Mom gives her 5 more. How many apples now?', answer: 13, hint: 'Add 8 + 5', explanation: '8 + 5 = 13' },
-    { type: 'word', question: '14 birds on a tree. 6 fly away. How many left?', answer: 8, hint: 'Subtract 14 - 6', explanation: '14 - 6 = 8' },
-    { type: 'word', question: 'Tom had 9 crayons. He got 7 more. How many now?', answer: 16, hint: '9 + 7 = ?', explanation: '9 + 7 = 16' },
-    { type: 'word', question: 'Lily had 15 stickers. She gave 8 away. How many left?', answer: 7, hint: '15 - 8 = ?', explanation: '15 - 8 = 7' },
-    { type: 'word', question: '11 fish in a pond. 4 more swim in. How many now?', answer: 15, hint: '11 + 4 = ?', explanation: '11 + 4 = 15' }
+    { type: 'word', question: 'Sara needs 15 stickers for her collection. She has 8 stickers. How many more does she need?', answer: 7, hint: '15 - 8 = ?', explanation: '15 - 8 = 7' },
+    { type: 'word', question: 'Tom has 12 dollars. He wants to buy a toy that costs 20 dollars. How much more money does he need?', answer: 8, hint: '20 - 12 = ?', explanation: '20 - 12 = 8' },
+    { type: 'word', question: 'A pizza has 24 slices. 9 slices are pepperoni and 7 slices are cheese. The rest are veggie. How many veggie slices?', answer: 8, hint: 'Add pepperoni + cheese: 9+7=16, then 24-16=?', explanation: '24 - 9 - 7 = 8' },
+    { type: 'word', question: 'Lily picked 18 flowers. She gave 5 to her mom and 4 to her grandma. How many flowers does Lily have left?', answer: 9, hint: '5+4=9 given away, 18-9=?', explanation: '18 - 5 - 4 = 9' },
+    { type: 'word', question: 'There are 25 students in a class. 12 are boys and 8 are wearing glasses. The rest are girls without glasses. How many girls without glasses?', answer: 5, hint: 'Boys + glasses = 12+8=20, 25-20=?', explanation: '25 - 12 - 8 = 5' },
+    { type: 'word', question: 'A baker made 45 cookies. He sold 17 in the morning and 14 in the afternoon. How many cookies are left?', answer: 14, hint: '17+14=31 sold, 45-31=?', explanation: '45 - 17 - 14 = 14' },
+    { type: 'word', question: 'Emma has 32 pages to read. She read 10 pages on Monday and 12 on Tuesday. How many pages left?', answer: 10, hint: '10+12=22 read, 32-22=?', explanation: '32 - 10 - 12 = 10' },
+    { type: 'word', question: 'A fruit basket has 28 pieces of fruit. 9 are apples and 8 are oranges. The rest are bananas. How many bananas?', answer: 11, hint: '9+8=17, 28-17=?', explanation: '28 - 9 - 8 = 11' },
+    { type: 'word', question: 'Jake has 50 dollars. He buys a game for 23 dollars and a book for 12 dollars. How much money does he have left?', answer: 15, hint: '23+12=35 spent, 50-35=?', explanation: '50 - 23 - 12 = 15' },
+    { type: 'word', question: 'There are 60 seats on a bus. 22 people are sitting and 15 people are standing. How many empty seats?', answer: 23, hint: '22+15=37 people, 60-37=?', explanation: '60 - 22 - 15 = 23' },
+    { type: 'word', question: 'A puzzle has 100 pieces. Mia put together 34 pieces and then 28 more. How many pieces still need to be put together?', answer: 38, hint: '34+28=62 done, 100-62=?', explanation: '100 - 34 - 28 = 38' },
+    { type: 'word', question: 'A farmer has 75 eggs. He sold 29 eggs on Saturday and 31 eggs on Sunday. How many eggs are left?', answer: 15, hint: '29+31=60 sold, 75-60=?', explanation: '75 - 29 - 31 = 15' }
   ];
 }
 
-// ==================== RENDER HOME SCREEN (FIXED) ====================
+// Level 6: Mixed challenge (all types)
+function generateLevel6Problems() {
+  let problems = [];
+  
+  // Add some two-number problems
+  for (let i = 0; i < 5; i++) {
+    let total = rnd(10, 40);
+    let known = rnd(3, total - 3);
+    problems.push({
+      type: 'missing_two',
+      question: `${total} = ${known} + ?`,
+      answer: total - known,
+      hint: `${total} - ${known} = ?`,
+      explanation: `${total} - ${known} = ${total - known}`
+    });
+  }
+  
+  // Add some three-number problems
+  for (let i = 0; i < 5; i++) {
+    let total = rnd(20, 60);
+    let a = rnd(4, 12);
+    let b = rnd(4, 12);
+    let missing = total - a - b;
+    if (missing > 0 && missing < 30) {
+      problems.push({
+        type: 'missing_three',
+        question: `${total} = ${a} + ${b} + ?`,
+        answer: missing,
+        hint: `Add ${a}+${b}=${a+b}, then ${total}-${a+b}=?`,
+        explanation: `${total} - ${a} - ${b} = ${missing}`
+      });
+    } else {
+      i--;
+    }
+  }
+  
+  // Add some word problems
+  let wordBanks = [
+    { q: 'There are 35 students. 14 are in the library and 12 are on the playground. How many are somewhere else?', a: 9 },
+    { q: 'A train has 80 seats. 32 are taken and 25 are reserved. How many seats are free?', a: 23 },
+    { q: 'Mom baked 55 cookies. Dad ate 11 and I ate 13. How many are left?', a: 31 },
+    { q: 'A book has 120 pages. Lisa read 45 pages yesterday and 38 today. How many pages left?', a: 37 }
+  ];
+  
+  wordBanks.forEach(w => {
+    problems.push({
+      type: 'word',
+      question: w.q,
+      answer: w.a,
+      hint: 'Add what you know, then subtract from total',
+      explanation: ''
+    });
+  });
+  
+  return shuffle(problems).slice(0, 15);
+}
+
+// ==================== RENDER HOME SCREEN ====================
 function renderHome() {
   const grid = document.getElementById('levelsGrid');
   if (!grid) return;
@@ -571,6 +695,7 @@ function renderHome() {
     btn.innerHTML = `
       <div class="level-icon">${level.icon}</div>
       <div class="level-name">${level.name}</div>
+      <div class="level-desc" style="font-size:0.8rem; color:#b8aae6; margin:5px 0;">${level.desc}</div>
       <div class="level-stars">${stars}</div>
     `;
     btn.onclick = () => startLevel(level);
@@ -597,10 +722,13 @@ function updateProgressStats() {
 function startLevel(level) {
   currentLevel = level;
   
-  // Generate 13 math problems + 5 word problems
-  const mathProblems = generateCountingProblems(); // Using counting as base for now
-  const wordProblems = generateWordProblems();
-  questions = [...mathProblems, ...wordProblems];
+  // Generate problems based on level
+  if (level.id === 'level1') questions = generateLevel1Problems();
+  else if (level.id === 'level2') questions = generateLevel2Problems();
+  else if (level.id === 'level3') questions = generateLevel3Problems();
+  else if (level.id === 'level4') questions = generateLevel4Problems();
+  else if (level.id === 'level5') questions = generateLevel5Problems();
+  else if (level.id === 'level6') questions = generateLevel6Problems();
   
   qIndex = 0;
   score = 0;
@@ -643,7 +771,7 @@ function renderQuestion() {
   document.getElementById('checkButton').style.display = 'inline-flex';
   document.getElementById('nextButton').style.display = 'none';
   
-  const hintAllowed = qIndex < 4 && hintsUsed < 2 && q.type !== 'word';
+  const hintAllowed = qIndex < 4 && hintsUsed < 2;
   document.getElementById('hintButton').style.display = hintAllowed ? 'inline-flex' : 'none';
   document.getElementById('hintButton').disabled = false;
   
@@ -658,14 +786,24 @@ function renderQuestion() {
     `;
   } else {
     html = `
-      <div class="q-type-badge">🧮 Math</div>
+      <div class="q-type-badge">🔍 Find the Missing Number</div>
       <div class="question-text">${q.question}</div>
       <div class="equation-display">${q.question.replace('?', '<span class="eq-blank">?</span>')}</div>
     `;
   }
   
-  // Add hint box
-  html += `<div class="mini-lesson" id="hintDisplay" style="display:none">💡 ${q.hint || ''}</div>`;
+  // Add step-by-step hint box (initially hidden)
+  if (q.step1) {
+    html += `
+      <div class="step-hint" id="hintDisplay" style="display:none">
+        <span class="step-1">Step 1: Add what you know = ${q.step1}</span>
+        <span class="step-arrow">→</span>
+        <span class="step-2">Step 2: ${q.step2} - ${q.step1} = ?</span>
+      </div>
+    `;
+  } else {
+    html += `<div class="step-hint" id="hintDisplay" style="display:none">💡 ${q.hint || ''}</div>`;
+  }
   
   // Add answer input
   html += `<input class="answer-input" id="answerInput" type="number" inputmode="numeric" placeholder="Type answer..." autocomplete="off">`;
@@ -709,7 +847,7 @@ function checkAnswer() {
       question: q.question,
       yourAnswer: val,
       correct: q.answer,
-      explanation: q.explanation
+      explanation: q.explanation || `The answer is ${q.answer}`
     });
     document.getElementById('feedback').className = 'feedback show bad';
     document.getElementById('feedback').innerHTML = `❌ Your answer ${val} is wrong. Correct: ${q.answer}.<br>${q.explanation || ''}`;
@@ -791,7 +929,7 @@ function saveProgress() {
   const blob = new Blob([data], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'math-adventure-save.json';
+  a.download = 'missing-number-save.json';
   a.click();
   alert('Progress saved!');
 }
