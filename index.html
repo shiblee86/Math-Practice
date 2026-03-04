@@ -3,71 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌈 Math Adventure · simpler hints · 13 + 5</title>
+  <title>🌙 Math Adventure · dark theme · 13 + 5</title>
   <style>
-    /* same beautiful style – no changes to look & feel */
+    /* same friendly fonts but now DARK theme */
     @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
     :root {
-      --sky: #6EC6F5; --sun: #FFD93D; --grass: #6BCB77; --coral: #FF6B6B;
-      --purple: #C77DFF; --cream: #FFF8EE; --dark: #2D3561; --card: #ffffff;
-      --shadow: 0 8px 32px rgba(45,53,97,0.13);
+      --bg-dark: #0b0e1f;        /* deep space background */
+      --card-dark: #1e243b;       /* dark card background */
+      --text-light: #f0eef7;      /* soft white for text */
+      --text-soft: #cbd5e8;       
+      --sky: #6EC6F5;             /* keep bright colors for accents */
+      --sun: #FFD93D;
+      --grass: #6BCB77;
+      --coral: #FF6B6B;
+      --purple: #C77DFF;
+      --dark-accent: #2a3150;     /* for borders / subtle contrast */
+      --shadow-dark: 0 8px 24px rgba(0,0,0,0.6);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Nunito', sans-serif;
-      background: linear-gradient(160deg, #e0f7fa 0%, #f3e5f5 50%, #fff9c4 100%);
-      min-height: 100vh; color: var(--dark);
+      background: var(--bg-dark);
+      min-height: 100vh;
+      color: var(--text-light);
     }
-    h1, h2, h3, .big-num { font-family: 'Fredoka One', cursive; letter-spacing: 1px; }
+    h1, h2, h3, .big-num {
+      font-family: 'Fredoka One', cursive;
+      letter-spacing: 1px;
+      color: var(--text-light);
+    }
+
+    /* ---- TOP BAR (still dark but with brighter accents) ---- */
     #topbar {
-      background: var(--dark); color: white; padding: 10px 20px;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      position: sticky; top: 0; z-index: 100; box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+      background: #0f1425;
+      color: var(--text-light);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.8);
+      border-bottom: 1px solid #3a405b;
     }
+    #topbar h1 { font-size: 1.4rem; color: var(--sun); }
     .btn-save, .btn-load {
-      padding: 7px 18px; border-radius: 20px; border: none;
-      font-weight: 800; font-size: 0.9rem; cursor: pointer;
+      padding: 7px 18px;
+      border-radius: 20px;
+      border: none;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
       transition: transform 0.1s;
     }
-    .btn-save { background: var(--sun); color: var(--dark); }
-    .btn-load { background: var(--grass); color: white; }
+    .btn-save { background: var(--sun); color: #0b0e1f; }
+    .btn-load { background: var(--grass); color: #0b0e1f; }
+    #progress-label { color: #a9b7d4; font-size: 0.8rem; }
+
+    /* ---- SCREENS ---- */
     .screen { display: none; padding: 24px 16px; max-width: 700px; margin: 0 auto; }
     .screen.active { display: block; }
+
+    /* ---- HOME SCREEN (dark cards) ---- */
     #home-screen { text-align: center; }
+    .home-title { font-size: 3rem; color: var(--sun); margin-bottom: 8px; text-shadow: 0 0 8px #ffd96680; }
+    .home-sub { font-size: 1.1rem; color: var(--text-soft); margin-bottom: 32px; }
     .levels-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 14px; margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
     }
     .level-btn {
-      background: white; border: 3px solid transparent; border-radius: 20px;
-      padding: 18px 10px; cursor: pointer; box-shadow: var(--shadow);
-      transition: transform 0.15s;
+      background: var(--card-dark);
+      border: 3px solid transparent;
+      border-radius: 20px;
+      padding: 18px 10px;
+      cursor: pointer;
+      box-shadow: var(--shadow-dark);
+      transition: transform 0.15s, border-color 0.15s;
+      color: var(--text-light);
     }
     .level-btn:hover { transform: translateY(-4px); border-color: var(--sky); }
+    .level-btn.completed { border-color: var(--grass); }
+    .level-icon { font-size: 2.2rem; }
+    .level-name { font-weight: 800; font-size: 0.85rem; margin-top: 6px; color: var(--text-light); }
+    .level-stars { color: var(--sun); font-size: 0.9rem; margin-top: 4px; }
+
+    /* ---- QUIZ SCREEN (dark cards) ---- */
+    .quiz-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 18px; flex-wrap: wrap; gap: 8px;
+    }
+    .quiz-level-name { font-size: 1.3rem; color: var(--sun); }
+    .quiz-score-badge {
+      background: #2a3150; color: white; padding: 5px 14px; border-radius: 20px;
+      font-weight: 800; border: 1px solid #4a5280;
+    }
+
     .question-card {
-      background: white; border-radius: 24px; padding: 28px 24px;
-      box-shadow: var(--shadow); margin-bottom: 20px;
+      background: var(--card-dark);
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow-dark);
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #3a405b;
+    }
+    .question-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(90deg, var(--sky), var(--purple), var(--coral));
+    }
+
+    .question-text {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-light);
+      margin-bottom: 20px;
+      line-height: 1.4;
     }
     .equation-display {
-      font-family: 'Fredoka One', cursive; font-size: 2.8rem;
-      text-align: center; color: var(--dark); margin: 16px 0;
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.8rem;
+      text-align: center;
+      color: var(--sun);
+      margin: 16px 0;
+      letter-spacing: 3px;
     }
-    .eq-blank { display: inline-block; min-width: 60px; border-bottom: 4px solid var(--coral); text-align: center; color: var(--coral); }
-    
-    /* ---------- SIMPLER HINT STYLES (big friendly boxes) ---------- */
+    .eq-blank {
+      display: inline-block;
+      min-width: 60px;
+      border-bottom: 4px solid var(--coral);
+      text-align: center;
+      color: var(--coral);
+    }
+
+    /* hint boxes — now on dark background but still bright */
     .mini-lesson {
-      background: #FFF9E6;
+      background: #2a3150;
       border-left: 10px solid var(--purple);
       border-radius: 24px;
       padding: 18px 16px;
       margin: 18px 0 12px 0;
       font-size: 1.2rem;
       font-weight: 700;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      color: var(--text-light);
+      border: 1px solid #4a5280;
     }
-    .mini-lesson .emojii { font-size: 1.8rem; margin-right: 8px; }
     .step-hint {
-      background: #e6f4ff;
+      background: #1e2a47;
       border-radius: 40px;
       padding: 14px 20px;
       margin: 10px 0;
@@ -75,49 +164,118 @@
       font-weight: 800;
       text-align: center;
       border: 3px solid var(--sky);
+      color: #fff9e6;
     }
     .finger-helper {
-      background: #ffefc0;
+      background: #3a3150;
       border-radius: 30px;
       padding: 15px;
       text-align: center;
       font-size: 1.2rem;
       font-weight: 600;
       border: 3px dashed var(--sun);
+      color: #ffefc0;
     }
-    .tens-visual { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
-    .ten-group { display: flex; gap: 3px; background: #e3f2fd; border: 2px solid var(--sky); border-radius: 10px; padding: 6px; }
-    .unit-block { width: 22px; height: 22px; background: var(--sky); border-radius: 4px; }
-    .ones-group { display: flex; gap: 3px; background: #fff9c4; border: 2px solid var(--sun); border-radius: 10px; padding: 6px; }
-    .unit-block.one { background: var(--sun); }
     .carry-helper, .borrow-helper {
-      background: #f0e6ff; border: 3px solid var(--purple); border-radius: 28px;
-      padding: 16px; font-size: 1.5rem; text-align: center; font-weight: 800;
+      background: #2e1b4a;
+      border: 3px solid var(--purple);
+      border-radius: 28px;
+      padding: 16px;
+      font-size: 1.5rem;
+      text-align: center;
+      font-weight: 800;
+      color: #f0e6ff;
     }
-    .btn-primary, .btn-hint, .btn-back {
-      padding: 14px 20px; font-family: 'Fredoka One', cursive;
-      border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s;
-    }
-    .btn-primary { background: var(--dark); color: white; }
-    .btn-hint { background: var(--sun); color: var(--dark); }
+
+    /* visual grouping — tens/ones blocks adapt */
+    .tens-visual { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
+    .ten-group { display: flex; gap: 3px; background: #26324e; border: 2px solid var(--sky); border-radius: 10px; padding: 6px; }
+    .unit-block { width: 22px; height: 22px; background: var(--sky); border-radius: 4px; opacity: 0.9; }
+    .ones-group { display: flex; gap: 3px; background: #3d3b2b; border: 2px solid var(--sun); border-radius: 10px; padding: 6px; }
+    .unit-block.one { background: var(--sun); }
+
     .word-problem-card {
-      background: linear-gradient(135deg, #f8e3ff, #ffe6b0);
-      border-radius: 24px; padding: 24px; border: 3px solid var(--purple);
+      background: linear-gradient(135deg, #2d2645, #3f3529);
+      border-radius: 24px;
+      padding: 24px;
+      border: 3px solid var(--purple);
+      color: var(--text-light);
     }
+    .wp-badge {
+      display: inline-block; background: var(--purple); color: #0b0e1f;
+      border-radius: 20px; padding: 4px 14px; font-size: 0.85rem;
+      font-weight: 800; margin-bottom: 10px;
+    }
+
     .answer-input {
-      width: 100%; padding: 16px; font-size: 2rem; font-family: 'Fredoka One', cursive;
-      border: 3px solid #ddd; border-radius: 16px; text-align: center;
+      width: 100%;
+      padding: 16px;
+      font-size: 2rem;
+      font-family: 'Fredoka One', cursive;
+      border: 3px solid #3f4868;
+      border-radius: 16px;
+      text-align: center;
+      outline: none;
+      background: #151c32;
+      color: var(--sun);
+      transition: border-color 0.2s;
     }
-    .feedback-box { border-radius: 14px; padding: 14px; margin-top: 14px; font-weight: 700; display: none; }
+    .answer-input:focus { border-color: var(--sky); }
+    .answer-input.correct { border-color: var(--grass); background: #1d3a2a; color: #b7f0b7; }
+    .answer-input.wrong { border-color: var(--coral); background: #3f2025; color: #ffb0b0; }
+
+    .feedback-box {
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-top: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      display: none;
+    }
     .feedback-box.show { display: block; }
-    .correct-fb { background: #d4edda; color: #155724; border: 2px solid var(--grass); }
-    .wrong-fb { background: #f8d7da; color: #721c24; border: 2px solid var(--coral); }
-    .mistake-item { background: #fff5f5; border: 2px solid #ffcdd2; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+    .correct-fb { background: #1d4a2a; color: #c3f0c3; border: 2px solid var(--grass); }
+    .wrong-fb { background: #5a2e36; color: #ffcfcf; border: 2px solid var(--coral); }
+
+    /* buttons */
+    .btn-primary {
+      flex: 1; padding: 14px; font-size: 1.1rem; font-family: 'Fredoka One', cursive;
+      background: #353f6a; color: white; border: none; border-radius: 16px;
+      cursor: pointer; transition: transform 0.1s, background 0.1s;
+      border: 1px solid #6c7ac0;
+    }
+    .btn-primary:hover { background: #4d5a90; transform: scale(1.02); }
+    .btn-hint {
+      padding: 14px 20px; font-size: 1rem; font-family: 'Fredoka One', cursive;
+      background: var(--sun); color: #0b0e1f; border: none; border-radius: 16px;
+      cursor: pointer;
+    }
+    .btn-back {
+      padding: 14px 20px; font-size: 1rem; font-family: 'Fredoka One', cursive;
+      background: #2e3447; color: var(--text-light); border: 1px solid #545c84; border-radius: 16px;
+      cursor: pointer;
+    }
+
+    /* result screen */
+    #result-screen .result-emoji { font-size: 5rem; margin: 20px 0; }
+    #result-screen .result-title { font-size: 2.5rem; color: var(--sun); }
+    #result-screen .result-score { color: var(--text-soft); }
+    #result-screen .result-stars { font-size: 3rem; color: var(--sun); }
+    .mistake-item {
+      background: #2a1f2a; border: 2px solid #b3545c; border-radius: 12px;
+      padding: 12px; margin-bottom: 10px; color: #f0c0c0;
+    }
+
+    .prog-bar-wrap { background: #2a3150; border-radius: 10px; height: 10px; margin: 8px 0; }
+    .prog-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--sky), var(--purple)); transition: width 0.4s; }
+
+    @media (max-width: 480px) {
+      .home-title { font-size: 2rem; }
+    }
   </style>
 </head>
 <body>
 <div id="topbar">
-  <h1>⭐ Math Adventure</h1>
+  <h1>🌙 Math Adventure (dark)</h1>
   <div class="topbar-btns">
     <button class="btn-save" onclick="saveProgress()">💾 Save</button>
     <button class="btn-load" onclick="loadProgress()">📂 Load</button>
@@ -128,7 +286,7 @@
 <!-- HOME -->
 <div id="home-screen" class="screen active">
   <div class="home-title">🌟 Math Adventure!</div>
-  <div class="home-sub">Pick a level · now 13 fun problems + 5 word puzzles</div>
+  <div class="home-sub">Pick a level · 13 problems + 5 word puzzles</div>
   <div class="levels-grid" id="levels-grid"></div>
 </div>
 
@@ -138,6 +296,7 @@
     <div><span class="quiz-level-name" id="quiz-level-name"></span></div>
     <div class="quiz-score-badge" id="quiz-score-badge">0 ✔️ / 0 ❌</div>
   </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="quiz-prog-bar" style="width:0%"></div></div>
   <div id="question-area"></div>
   <div class="action-row" id="action-row"></div>
 </div>
@@ -151,7 +310,7 @@
   <div id="mistakes-section"></div>
   <div style="display:flex; gap:12px; justify-content:center; margin-top:20px;">
     <button class="btn-primary" id="result-retry-btn">🔁 Try again</button>
-    <button class="btn-primary" id="result-home-btn" style="background:var(--grass);">🏠 Home</button>
+    <button class="btn-primary" id="result-home-btn" style="background:var(--grass); color:#0b0e1f;">🏠 Home</button>
     <button class="btn-primary" id="result-next-btn" style="background:var(--purple); display:none;">➡️ Next</button>
   </div>
 </div>
@@ -189,35 +348,23 @@ let state = { completed:{}, currentLevel:null, questions:[], qIndex:0, score:0, 
 function rnd(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
 function shuffle(a) { for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-// ---------- each generator now returns 13 problems ----------
+// ---------- generators (13 problems each) ----------
 function makeCountingProblems() { let q=[]; for(let i=0;i<13;i++){ if(i%2){ let b=rnd(3,12), s=rnd(1,6); q.push({type:'counting_add', q:`${b} + ${s} = ?`, answer:b+s, hint:'👉 Count UP using your fingers: put up '+s+' fingers after '+b, explanation:`${b}+${s}=${b+s}`}); } else { let b=rnd(5,18), s=rnd(2,7); q.push({type:'counting_sub', q:`${b} - ${s} = ?`, answer:b-s, hint:'👉 Count DOWN: start from '+b+' and take away '+s+' fingers', explanation:`${b}-${s}=${b-s}`}); } } return q; }
 function countingWordProblems() { return shuffle([ {q:'Emma has 9 apples, gets 4 more. How many?',a:13}, {q:'14 birds, 6 fly away. Left?',a:8}, {q:'11 fish + 7 fish = ?',a:18}, {q:'15 stickers, give 9. Left?',a:6}, {q:'8 crayons, find 8 more?',a:16} ]).map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
 
 function makeGroupingProblems() { let q=[]; for(let i=0;i<13;i++){ let t=rnd(2,7), o=rnd(0,9), n=t*10+o; if(i<7) q.push({type:'grouping_tens', q:`${n} has how many TENS?`, answer:t, hint:`TENS are the first digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); else q.push({type:'grouping_ones', q:`${n} has how many ONES?`, answer:o, hint:`ONES are the last digit → ${n} = ${t} tens + ${o} ones`, explanation:''}); } return q; }
 function groupingWordProblems() { return [ {q:'3 tens + 4 ones = ?',a:34}, {q:'5 packs of ten + 7 loose = ?',a:57}, {q:'How many tens in 47?',a:4}, {q:'How many ones in 62?',a:2}, {q:'2 tens + 9 ones = ?',a:29} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); }
 
-// ************** FIXED: missing number hints now use correct subtraction order **************
 function makeMissingAddProblems() { 
   let q=[]; 
   for(let i=0;i<13;i++){ 
     let tot=rnd(8,22), a=rnd(2,8), b=rnd(2,8), x=tot-a-b; 
     if(x>0 && i%3) {
-      // three numbers missing
       let sumAb = a+b;
-      q.push({
-        type:'missing_3', 
-        q:`${tot} = ${a} + ${b} + ?`, 
-        answer:x, 
-        hint:`Step❶ Add ${a}+${b} = ${sumAb}   Step❷ ${tot} − ${sumAb} = ?`   // CORRECT: total minus known sum
-      });
+      q.push({ type:'missing_3', q:`${tot} = ${a} + ${b} + ?`, answer:x, hint:`Step❶ Add ${a}+${b} = ${sumAb}   Step❷ ${tot} − ${sumAb} = ?` });
     } else { 
       let aa=rnd(3,12), xx=tot-aa; 
-      q.push({
-        type:'missing_2', 
-        q:`${tot} = ${aa} + ?`, 
-        answer:xx, 
-        hint:`✨ Just subtract: ${tot} − ${aa} = ?`   // CORRECT: total minus known number
-      });
+      q.push({ type:'missing_2', q:`${tot} = ${aa} + ?`, answer:xx, hint:`✨ Just subtract: ${tot} − ${aa} = ?` });
     } 
   } 
   return q; 
@@ -227,24 +374,13 @@ function makeFindPairProblems() {
   let q=[]; 
   for(let i=0;i<13;i++){ 
     let t=rnd(6,20), a=rnd(2,12), b=t-a; 
-    q.push({
-      type:'find_pair', 
-      q:`${t} = ${a} + ?`, 
-      answer:b, 
-      hint:`${t} − ${a} = ${b}`   // CORRECT order
-    }); 
+    q.push({ type:'find_pair', q:`${t} = ${a} + ?`, answer:b, hint:`${t} − ${a} = ${b}` }); 
   } 
   return q; 
 }
 
 function missingAddWordProblems() { 
-  return [ 
-    {q:'Need 12 flowers, have 4 red + 5 yellow. More?',a:3}, 
-    {q:'Bag needs 15 books, has 6. More?',a:9}, 
-    {q:'20 eggs, have 7+4. Need?',a:9}, 
-    {q:'18 puzzle pieces, placed 9+5. Missing?',a:4}, 
-    {q:'10 seats, 3 boys + 4 girls. Empty?',a:3} 
-  ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); 
+  return [ {q:'Need 12 flowers, have 4 red + 5 yellow. More?',a:3}, {q:'Bag needs 15 books, has 6. More?',a:9}, {q:'20 eggs, have 7+4. Need?',a:9}, {q:'18 puzzle pieces, placed 9+5. Missing?',a:4}, {q:'10 seats, 3 boys + 4 girls. Empty?',a:3} ].map(o=>({type:'word', q:o.q, answer:o.a, explanation:''})); 
 }
 
 function makeSimpleSubProblems() { let q=[]; for(let i=0;i<13;i++){ let a=rnd(7,20), b=rnd(2,9); q.push({type:'sub1', q:`${a} - ${b} = ?`, answer:a-b, hint:'Count up from '+(b+1)+' to '+a+' → that’s '+(a-b)+' steps'}); } return q; }
@@ -271,9 +407,9 @@ function comboWordProblems() { let all=[...countingWordProblems(),...missingAddW
 // ----------------  start level  ----------------
 function startLevel(lv) {
   state.currentLevel = lv;
-  let main = lv.makeProblems();      // now exactly 13
-  let words = lv.wordProblems();      // exactly 5 word problems
-  state.questions = [...main, ...words];  // 18 total (13+5)
+  let main = lv.makeProblems();      
+  let words = lv.wordProblems();      
+  state.questions = [...main, ...words]; 
   state.qIndex = 0; state.score = 0; state.wrong = 0; state.mistakes = []; state.hintsUsed = 0; state.answered = false;
   document.getElementById('quiz-level-name').innerHTML = lv.icon + ' ' + lv.name;
   showScreen('quiz-screen'); renderQuestion();
@@ -284,18 +420,17 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// ----------------  render question with SUPER clear hints  ----------------
 function renderQuestion() {
   let q = state.questions[state.qIndex];
   let total = state.questions.length;
   document.getElementById('quiz-score-badge').innerHTML = `✅ ${state.score}  ❌ ${state.wrong}`;
+  document.getElementById('quiz-prog-bar').style.width = ((state.qIndex)/total*100)+'%';
   let isWord = q.type === 'word';
   let hintAllowed = state.qIndex < 6 && state.hintsUsed < 2 && !isWord;
 
   let area = document.getElementById('question-area');
   let html = `<div class="question-card"><div class="question-text">${q.q}</div>`;
 
-  // ----- SIMPLE EXPLANATION / MINI LESSON for each type -----
   if (q.type === 'counting_add' || q.type === 'counting_sub') {
     html += `<div class="finger-helper">✋ FINGER COUNTING: ${q.hint || 'count up or down'}</div>`;
   }
@@ -317,7 +452,7 @@ function renderQuestion() {
 
   if (q.type==='carry_add' && q.a) {
     let ones = (q.a%10)+(q.b%10); let carry = Math.floor(ones/10);
-    html += `<div style="font-size:1.8rem;text-align:center;background:#eee;border-radius:30px;margin-top:10px;"> ${q.a} + ${q.b} = ?<br> <span style="color:red;font-size:1rem;">carry: ${carry>0?'¹':''}</span></div>`;
+    html += `<div style="font-size:1.8rem;text-align:center;background:#2f3750;border-radius:30px;margin-top:10px;padding:6px;"> ${q.a} + ${q.b} = ?<br> <span style="color:var(--coral);">carry: ${carry>0?'¹':''}</span></div>`;
   }
 
   if (isWord) {
@@ -332,7 +467,6 @@ function renderQuestion() {
   area.innerHTML = html;
   document.getElementById('answer-input').focus();
 
-  // action row
   let ar = document.getElementById('action-row');
   ar.innerHTML = `<button class="btn-back" onclick="showScreen('home-screen')">🏠 Home</button>`;
   if (hintAllowed) {
@@ -389,7 +523,7 @@ function showResults() {
 
   let mh = '';
   if(state.mistakes.length){
-    mh = '<h3>📋 Mistakes:</h3>';
+    mh = '<h3 style="color:var(--sun);">📋 Mistakes:</h3>';
     state.mistakes.forEach(m=>{ mh+=`<div class="mistake-item">❓ ${m.q} → your:${m.your} ✔️ correct:${m.correct}</div>`; });
   }
   document.getElementById('mistakes-section').innerHTML = mh;
