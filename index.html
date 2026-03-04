@@ -845,12 +845,12 @@ function hintComposeSub(diff) {
   
   return `
     <div class="hint-step"><strong>🔍 Find the Gap — Find two numbers with a difference of ${diff}</strong></div>
-    <div class="hint-step">Here we are trying to find how many different combinations of 2 numbers when we subtract them we get ${diff}.</div>
-    <div class="hint-step">Let's pick a small number, <strong>${small}</strong>. We need to find the big number from which when we subtract ${small}, we get ${diff}. What do we have?</div>
+    <div class="hint-step">Here we are trying to find different pairs of numbers that have a difference of ${diff}.</div>
+    <div class="hint-step">Let's pick a small number, <strong>${small}</strong>. We need to find the big number that gives us ${diff} when we subtract ${small} from it. What do we have?</div>
     <div class="hint-col">  ? - ${small} = ${diff}</div>
-    <div class="hint-step">What do we do to solve this? We add ${small} and ${diff} using the addition rule we learned:</div>
+    <div class="hint-step">To find the missing number, we add ${small} and ${diff} using the addition rule we learned:</div>
     ${addHint}
-    <div class="hint-step">So, now that we have the answer, <strong>${big}</strong>, if we subtract ${small} from ${big} (${big} - ${small}), we get ${diff}:</div>
+    <div class="hint-step">So now we have our answer, <strong>${big}</strong>. When we subtract ${small} from ${big} (${big} - ${small}), we get ${diff}:</div>
     <div class="hint-col">  ${big} - ${small} = ${diff} ✅</div>
     <div class="hint-step">Now fill in the boxes below with <strong>two different pairs</strong> that have a difference of ${diff}.<br>Try starting with a different small number each time!</div>`;
 }
