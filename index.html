@@ -264,81 +264,149 @@
   }
   
   .question-text {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 16px;
-  }
-  
-  /* Format example box */
-  .format-example {
-    background: #3a2e5a;
-    border: 2px solid var(--sun);
-    border-radius: 30px;
-    padding: 12px 16px;
-    margin: 15px 0;
-    color: var(--sun);
+    font-size: 1.5rem;
     font-weight: 800;
+    color: white;
+    margin-bottom: 20px;
     text-align: center;
-    font-size: 1.2rem;
-  }
-  
-  /* Visual column math */
-  .column-math {
-    font-family: 'Fredoka One', cursive;
-    font-size: 2.5rem;
-    text-align: center;
-    background: #2d2447;
-    padding: 20px;
-    border-radius: 16px;
-    margin: 20px auto;
-    width: fit-content;
-    border: 3px solid var(--purple);
-  }
-  
-  .carry-number {
-    color: var(--sun);
-    font-size: 1.8rem;
-    text-align: right;
-    margin-bottom: 5px;
-  }
-  
-  .borrow-number {
-    color: var(--coral);
-    font-size: 1.8rem;
-    text-align: right;
-    margin-bottom: 5px;
   }
 
-  /* Step hints */
-  .step-hint {
-    background: #2d2447;
-    border-left: 8px solid var(--purple);
-    border-radius: 16px;
-    padding: 20px;
-    margin: 16px 0;
-    color: #e5d5ff;
-    line-height: 2;
-    font-size: 1.2rem;
-    white-space: pre-line;
+  /* Three number inputs - EMPTY by default */
+  .triple-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 20px 0;
   }
   
-  .answer-input {
-    width: 100%;
-    padding: 16px;
+  .input-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #2d2447;
+    padding: 15px;
+    border-radius: 50px;
+    border: 2px solid var(--purple);
+  }
+  
+  .pair-number {
+    width: 80px;
+    height: 80px;
+    background: #1f1937;
+    border: 3px solid var(--sun);
+    border-radius: 20px;
+    color: var(--sun);
     font-size: 2rem;
     font-family: 'Fredoka One', cursive;
-    background: #1f1937;
-    border: 3px solid #4e4280;
-    border-radius: 16px;
-    color: var(--sun);
     text-align: center;
-    margin: 12px 0;
+    padding: 0 10px;
   }
   
-  .answer-input::placeholder {
+  .pair-number:focus {
+    outline: none;
+    border-color: var(--purple);
+  }
+  
+  .pair-number::placeholder {
     color: #5f4f8a;
     font-size: 1.2rem;
+  }
+  
+  .pair-symbol {
+    font-size: 2.5rem;
+    color: var(--text-light);
+    font-family: 'Fredoka One', cursive;
+  }
+  
+  .pair-equals {
+    font-size: 2rem;
+    color: var(--text-soft);
+    margin: 0 10px;
+  }
+  
+  .pair-result {
+    font-size: 2rem;
+    color: var(--sun);
+    font-family: 'Fredoka One', cursive;
+    min-width: 60px;
+    text-align: center;
+  }
+  
+  .optional-badge {
+    background: #3a2e5a;
+    color: var(--text-soft);
+    padding: 5px 15px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin-left: 15px;
+  }
+
+  /* Hint box - CLEAN AND ORGANIZED */
+  .hint-box {
+    background: #2d2447;
+    border: 3px solid var(--purple);
+    border-radius: 24px;
+    padding: 20px;
+    margin: 20px 0;
+    display: none;
+  }
+  
+  .hint-box.show {
+    display: block;
+  }
+  
+  .hint-title {
+    color: var(--sun);
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .hint-section {
+    background: #1e1932;
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .hint-subtitle {
+    color: var(--sky);
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  
+  .hint-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .hint-example {
+    background: #2f274a;
+    border-radius: 30px;
+    padding: 10px 15px;
+    color: var(--text-light);
+    font-size: 1.1rem;
+  }
+  
+  .hint-example strong {
+    color: var(--sun);
+    margin-right: 5px;
+  }
+  
+  .hint-note {
+    background: #1e2f47;
+    border: 2px solid var(--sky);
+    border-radius: 30px;
+    padding: 12px 16px;
+    color: #b3e0ff;
+    font-weight: 800;
+    text-align: center;
+    margin-top: 10px;
   }
 
   .feedback {
@@ -485,8 +553,8 @@ const LEVELS = [
   { id: 'borrow_sub', name: 'Level 5 · Borrow Subtraction', icon: '➖', desc: 'Subtract with borrowing (25-8, 52-28)', color: '#ff6b81' },
   { id: 'add_three', name: 'Level 6 · Add Three Numbers', icon: '🔺', desc: 'Add three numbers', color: '#A29BFE' },
   { id: 'sub_three', name: 'Level 7 · Subtract Three Numbers', icon: '🔻', desc: 'Subtract two numbers', color: '#fd79a8' },
-  { id: 'compose_add', name: 'Level 8 · Make a Sum', icon: '🧩', desc: 'Find ways to make 15, 20', color: '#F9CA24' },
-  { id: 'compose_sub', name: 'Level 9 · Make a Difference', icon: '🔍', desc: 'Find ways to subtract to 10, 15', color: '#6BCB77' },
+  { id: 'compose_add', name: 'Level 8 · Make a Sum', icon: '🧩', desc: 'Find ways to make 12, 15, 20', color: '#F9CA24' },
+  { id: 'compose_sub', name: 'Level 9 · Make a Difference', icon: '🔍', desc: 'Find ways to subtract to 8, 10, 12', color: '#6BCB77' },
   { id: 'combo', name: 'Level 10 · Grand Finale', icon: '🏆', desc: 'Mix of everything!', color: '#F9CA24' }
 ];
 
@@ -818,68 +886,67 @@ So ${total} - ${b} - ${c} = ${result}! ✅`,
   return shuffle(problems);
 }
 
-// ==================== LEVEL 8: NUMBER COMPOSITION - ADDITION (CLEAR FORMAT) ====================
+// ==================== LEVEL 8: NUMBER COMPOSITION - ADDITION ====================
 function generateComposeAddProblems() {
   let problems = [];
   let targets = [10, 12, 15, 18, 20, 24, 25, 30];
   for (let i = 0; i < 13; i++) {
     let target = targets[rnd(0, targets.length - 1)];
-    let a = rnd(1, target - 1);
-    let b = target - a;
+    
     problems.push({
       type: 'compose_add',
       question: `Find two numbers that add up to ${target}`,
-      answer: `${a} + ${b}`,
       target: target,
-      format: `Type your answer like this: 8 + 10`,
-      hint: `We need: __ + __ = ${target}
+      hint: `🎯 HOW TO FIND THE NUMBERS:
+• Pick any number you like
+• Subtract it from ${target}
+• The answer is the other number!
 
-📝 HOW TO ANSWER: Type the two numbers with a plus sign between them.
-   For example: 8 + 10
+For example:
+✨ Pick 4: ${target} - 4 = ${target - 4} → 4 + ${target - 4} = ${target}
+✨ Pick 7: ${target} - 7 = ${target - 7} → 7 + ${target - 7} = ${target}
+✨ Pick 9: ${target} - 9 = ${target - 9} → 9 + ${target - 9} = ${target}
 
-Examples:
+📝 You need to find THREE different pairs!
+The third one is optional - you can skip it if you want.
+
+✅ Examples of correct answers:
 1 + ${target-1} = ${target}
 2 + ${target-2} = ${target}
-3 + ${target-3} = ${target}
-
-One correct answer is: ${a} + ${b} = ${target}
-
-Any two numbers that add to ${target} are correct!`,
-      explanation: `${a} + ${b} = ${target}`
+3 + ${target-3} = ${target}`
     });
   }
   return shuffle(problems);
 }
 
-// ==================== LEVEL 9: NUMBER COMPOSITION - SUBTRACTION (CLEAR FORMAT) ====================
+// ==================== LEVEL 9: NUMBER COMPOSITION - SUBTRACTION ====================
 function generateComposeSubProblems() {
   let problems = [];
   let diffs = [5, 6, 7, 8, 9, 10, 12, 15];
   for (let i = 0; i < 13; i++) {
     let diff = diffs[rnd(0, diffs.length - 1)];
-    let b = rnd(5, 20);
-    let a = b + diff;
+    
     problems.push({
       type: 'compose_sub',
       question: `Find two numbers with a difference of ${diff}`,
-      answer: `${a} - ${b}`,
       diff: diff,
-      format: `Type your answer like this: 15 - 7`,
-      hint: `We need: __ - __ = ${diff}
+      hint: `🎯 HOW TO FIND THE NUMBERS:
+• Pick a smaller number
+• Add ${diff} to it
+• That's your bigger number!
 
-📝 HOW TO ANSWER: Type the two numbers with a minus sign between them.
-   For example: 15 - 7
-   (The bigger number comes first!)
+For example:
+✨ Pick 3: 3 + ${diff} = ${diff + 3} → ${diff + 3} - 3 = ${diff}
+✨ Pick 6: 6 + ${diff} = ${diff + 6} → ${diff + 6} - 6 = ${diff}
+✨ Pick 9: 9 + ${diff} = ${diff + 9} → ${diff + 9} - 9 = ${diff}
 
-Examples:
-${diff+1} - 1 = ${diff}
-${diff+2} - 2 = ${diff}
-${diff+3} - 3 = ${diff}
+📝 You need to find THREE different pairs!
+The third one is optional - you can skip it if you want.
 
-One correct answer is: ${a} - ${b} = ${diff}
-
-Any two numbers where the bigger minus the smaller equals ${diff} are correct!`,
-      explanation: `${a} - ${b} = ${diff}`
+✅ Examples of correct answers:
+${diff+5} - 5 = ${diff}
+${diff+8} - 8 = ${diff}
+${diff+12} - 12 = ${diff}`
     });
   }
   return shuffle(problems);
@@ -1006,7 +1073,8 @@ function renderQuestion() {
   document.getElementById('checkButton').style.display = 'inline-flex';
   document.getElementById('nextButton').style.display = 'none';
   
-  const hintAllowed = qIndex < 4 && hintsUsed < 2;
+  // Hint button should show for all questions, including composition ones
+  const hintAllowed = hintsUsed < 2;
   document.getElementById('hintButton').style.display = hintAllowed ? 'inline-flex' : 'none';
   document.getElementById('hintButton').disabled = false;
   
@@ -1021,21 +1089,80 @@ function renderQuestion() {
     'compose_add': '🧩 Make a Sum', 'compose_sub': '🔍 Make a Difference'
   }[q.type] || '🧮 Math';
   
-  let formatHtml = '';
-  if (q.format) {
-    formatHtml = `<div class="format-example">📝 ${q.format}</div>`;
+  let html = '';
+  
+  if (q.type === 'compose_add' || q.type === 'compose_sub') {
+    // For composition problems, show three input pairs - EMPTY fields
+    let symbol = q.type === 'compose_add' ? '+' : '-';
+    let target = q.type === 'compose_add' ? q.target : q.diff;
+    
+    html = `
+      <div class="q-type-badge">${typeLabel}</div>
+      <div class="question-text">${q.question}</div>
+      
+      <div class="triple-inputs">
+        <div class="input-pair">
+          <input class="pair-number" id="num1a" type="number" placeholder="?" value="">
+          <span class="pair-symbol">${symbol}</span>
+          <input class="pair-number" id="num1b" type="number" placeholder="?" value="">
+          <span class="pair-equals">=</span>
+          <span class="pair-result">${target}</span>
+        </div>
+        
+        <div class="input-pair">
+          <input class="pair-number" id="num2a" type="number" placeholder="?" value="">
+          <span class="pair-symbol">${symbol}</span>
+          <input class="pair-number" id="num2b" type="number" placeholder="?" value="">
+          <span class="pair-equals">=</span>
+          <span class="pair-result">${target}</span>
+        </div>
+        
+        <div class="input-pair">
+          <input class="pair-number" id="num3a" type="number" placeholder="?" value="">
+          <span class="pair-symbol">${symbol}</span>
+          <input class="pair-number" id="num3b" type="number" placeholder="?" value="">
+          <span class="pair-equals">=</span>
+          <span class="pair-result">${target}</span>
+          <span class="optional-badge">Optional</span>
+        </div>
+      </div>
+      
+      <div class="hint-box" id="hintDisplay">
+        <div class="hint-title">💡 How to Find the Numbers</div>
+        <div class="hint-section">
+          <div class="hint-subtitle">🎯 Step-by-Step:</div>
+          <div class="hint-examples">
+            ${q.hint.split('\n').map(line => {
+              if (line.trim().startsWith('✨')) {
+                return `<div class="hint-example">${line}</div>`;
+              } else if (line.trim().startsWith('📝') || line.trim().startsWith('✅')) {
+                return `<div class="hint-note">${line}</div>`;
+              } else if (line.trim() && !line.trim().startsWith('•')) {
+                return `<div class="hint-example"><strong>•</strong> ${line}</div>`;
+              } else if (line.trim().startsWith('•')) {
+                return `<div class="hint-example">${line}</div>`;
+              }
+              return '';
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    // For regular problems, show single input
+    html = `
+      <div class="q-type-badge">${typeLabel}</div>
+      <div class="question-text">${q.question}</div>
+      <div class="hint-box" id="hintDisplay">${q.hint}</div>
+      <input class="answer-input" id="answerInput" type="text" placeholder="Type answer..." autocomplete="off">
+    `;
   }
   
-  let html = `
-    <div class="q-type-badge">${typeLabel}</div>
-    <div class="question-text">${q.question}</div>
-    ${formatHtml}
-    <div class="step-hint" id="hintDisplay" style="display:none;">${q.hint}</div>
-    <input class="answer-input" id="answerInput" type="text" placeholder="${q.format || 'Type answer...'}" autocomplete="off">
-  `;
-  
   document.getElementById('questionCard').innerHTML = html;
-  document.getElementById('answerInput')?.focus();
+  
+  if (!q.type.includes('compose')) {
+    document.getElementById('answerInput')?.focus();
+  }
 }
 
 function showHint() {
@@ -1049,53 +1176,102 @@ function checkAnswer() {
   if (answered) return;
   
   const q = questions[qIndex];
-  const input = document.getElementById('answerInput');
-  if (!input) return;
-  
-  const val = input.value.trim();
-  if (val === '') {
-    alert('Please enter an answer!');
-    return;
-  }
   
   answered = true;
   let isCorrect = false;
+  let correctCount = 0;
+  let totalPairs = 0;
   
-  if (q.type === 'compose_add') {
-    // Check format: number + number
-    let parts = val.split('+').map(p => parseInt(p.trim()));
-    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-      isCorrect = (parts[0] + parts[1] === q.target);
+  if (q.type === 'compose_add' || q.type === 'compose_sub') {
+    // Check each pair
+    let symbol = q.type === 'compose_add' ? '+' : '-';
+    let target = q.type === 'compose_add' ? q.target : q.diff;
+    
+    // Get values from inputs
+    let num1a = parseInt(document.getElementById('num1a')?.value);
+    let num1b = parseInt(document.getElementById('num1b')?.value);
+    let num2a = parseInt(document.getElementById('num2a')?.value);
+    let num2b = parseInt(document.getElementById('num2b')?.value);
+    let num3a = parseInt(document.getElementById('num3a')?.value);
+    let num3b = parseInt(document.getElementById('num3b')?.value);
+    
+    // Check first pair (required)
+    if (!isNaN(num1a) && !isNaN(num1b)) {
+      totalPairs++;
+      if (q.type === 'compose_add' && num1a + num1b === target) correctCount++;
+      else if (q.type === 'compose_sub' && num1a - num1b === target) correctCount++;
     }
-  } else if (q.type === 'compose_sub') {
-    // Check format: number - number
-    let parts = val.split('-').map(p => parseInt(p.trim()));
-    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-      isCorrect = (parts[0] - parts[1] === q.diff);
+    
+    // Check second pair (required)
+    if (!isNaN(num2a) && !isNaN(num2b)) {
+      totalPairs++;
+      if (q.type === 'compose_add' && num2a + num2b === target) correctCount++;
+      else if (q.type === 'compose_sub' && num2a - num2b === target) correctCount++;
     }
+    
+    // Check third pair (optional)
+    if (!isNaN(num3a) && !isNaN(num3b)) {
+      totalPairs++;
+      if (q.type === 'compose_add' && num3a + num3b === target) correctCount++;
+      else if (q.type === 'compose_sub' && num3a - num3b === target) correctCount++;
+    }
+    
+    // Need at least first two pairs correct
+    isCorrect = (correctCount >= 2);
+    
+    if (isCorrect) {
+      score++;
+      let message = `✅ Great! You found ${correctCount} correct pairs!`;
+      if (correctCount === 3) message += ' All three pairs are correct! ⭐';
+      document.getElementById('feedback').className = 'feedback show ok';
+      document.getElementById('feedback').innerHTML = message;
+    } else {
+      wrong++;
+      mistakes.push({
+        question: q.question,
+        yourAnswer: `${num1a || '?'} ${symbol} ${num1b || '?'}, ${num2a || '?'} ${symbol} ${num2b || '?'}, ${num3a || '?'} ${symbol} ${num3b || '?'}`,
+        correct: `Need two correct pairs that make ${target}`,
+        explanation: ''
+      });
+      document.getElementById('feedback').className = 'feedback show bad';
+      document.getElementById('feedback').innerHTML = `❌ You got ${correctCount} out of 2 required pairs correct. Keep trying!`;
+    }
+    
   } else {
+    // Regular answer checking
+    const input = document.getElementById('answerInput');
+    if (!input) return;
+    
+    const val = input.value.trim();
+    if (val === '') {
+      answered = false;
+      alert('Please enter an answer!');
+      return;
+    }
+    
     isCorrect = (parseInt(val) === q.answer);
-  }
-  
-  if (isCorrect) {
-    score++;
-    document.getElementById('feedback').className = 'feedback show ok';
-    document.getElementById('feedback').innerHTML = '✅ Correct! ' + (q.explanation || '');
-  } else {
-    wrong++;
-    mistakes.push({
-      question: q.question,
-      yourAnswer: val,
-      correct: q.answer || q.explanation,
-      explanation: q.explanation || ''
-    });
-    document.getElementById('feedback').className = 'feedback show bad';
-    document.getElementById('feedback').innerHTML = `❌ Not quite. ${q.explanation || 'Try again!'}`;
+    
+    if (isCorrect) {
+      score++;
+      document.getElementById('feedback').className = 'feedback show ok';
+      document.getElementById('feedback').innerHTML = '✅ Correct! ' + (q.explanation || '');
+    } else {
+      wrong++;
+      mistakes.push({
+        question: q.question,
+        yourAnswer: val,
+        correct: q.answer,
+        explanation: q.explanation || ''
+      });
+      document.getElementById('feedback').className = 'feedback show bad';
+      document.getElementById('feedback').innerHTML = `❌ Not quite. ${q.explanation || 'Try again!'}`;
+    }
   }
   
   document.getElementById('scoreCorrect').innerHTML = score;
   document.getElementById('scoreWrong').innerHTML = wrong;
-  document.getElementById('scorePercent').innerHTML = att ? Math.round((score / (score + wrong)) * 100) + '%' : '—';
+  const att = score + wrong;
+  document.getElementById('scorePercent').innerHTML = att ? Math.round((score / att) * 100) + '%' : '—';
   
   document.getElementById('checkButton').style.display = 'none';
   document.getElementById('nextButton').style.display = 'inline-flex';
