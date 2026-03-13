@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>🌟 Safia's Math + SOAR (95 activities)</title>
+<title>🌟 Safia's Math + SOAR</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,21 +63,7 @@
   .level-name { font-weight:800; font-size:0.85rem; color:#f0ebff; }
   .level-stars { color:#FFD93D; font-size:0.8rem; min-height:1.2em; }
 
-  /* Age group headers */
-  .age-group-header {
-    grid-column: span 2;
-    background: linear-gradient(90deg, #3a3260, #1f1937);
-    color: #FFD93D;
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.2rem;
-    padding: 10px;
-    border-radius: 30px;
-    margin: 10px 0 5px 0;
-    text-align: center;
-    border: 2px solid #FF9FCF;
-  }
-
-  .menu-grid { display:grid; grid-template-columns:1fr; gap:10px; margin:20px 0; }
+  .menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0; }
   .menu-card { background:#1f1937; border:2px solid #41386b; border-radius:24px; padding:20px 10px; text-align:center; cursor:pointer; transition:border-color 0.2s,transform 0.1s; }
   .menu-card:hover { border-color:#FF9FCF; transform:scale(1.02); }
   .mc-icon { font-size:2.5rem; }
@@ -92,10 +78,61 @@
   .soar-title { font-weight:800; color:#FFD93D; font-size:0.9rem; margin:4px 0 2px; }
   .soar-desc { font-size:0.7rem; color:#b1a5d9; }
 
+  .age-group-header {
+    grid-column: span 2;
+    background: linear-gradient(90deg, #3a3260, #1f1937);
+    color: #FFD93D;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    padding: 10px;
+    border-radius: 30px;
+    margin: 8px 0 2px 0;
+    text-align: center;
+    border: 2px solid #FF9FCF;
+  }
+  .nrich-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #FF9FCF, #C77DFF);
+    color: white !important; -webkit-text-fill-color: white !important;
+    border: none; border-radius: 30px; padding: 10px 18px;
+    font-weight: 800; font-size: 0.85rem; cursor: pointer;
+    margin: 8px 4px; text-decoration: none;
+    transition: transform 0.2s; box-shadow: 0 3px 10px rgba(199,125,255,0.3);
+  }
+  .nrich-btn:hover { transform: scale(1.05); }
+
   .nav-btn { background:#4a3a6e; border:none; border-radius:30px; padding:10px 20px; color:white; font-weight:800; cursor:pointer; margin:10px 0; width:100%; text-align:center; }
   .nav-btn.home-btn { background:#FF9FCF; color:#1a0f2a; }
 
-  .video-btn, .nrich-btn {
+  .quick-nav {
+    display: flex;
+    gap: 8px;
+    background: #1a1530;
+    border-top: 2px solid #41386b;
+    padding: 8px 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    margin: 12px -10px 0;
+  }
+  .qn-btn {
+    flex: 1;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 6px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.78rem;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s;
+  }
+  .qn-btn:hover { transform: scale(1.05); }
+  .qn-home  { background: #FF9FCF; color: #1a0f2a; }
+  .qn-soar  { background: #6BCB77; color: #1a0f2a; }
+  .qn-math  { background: #C77DFF; color: #fff; }
+
+  .video-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -113,8 +150,7 @@
     transition: transform 0.2s, box-shadow 0.2s;
     box-shadow: 0 3px 10px rgba(255,0,0,0.3);
   }
-  .nrich-btn { background: linear-gradient(135deg, #FF9FCF, #C77DFF); box-shadow: 0 3px 10px rgba(199,125,255,0.3); }
-  .video-btn:hover, .nrich-btn:hover { transform: scale(1.05); }
+  .video-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255,0,0,0.5); }
   .video-btn-icon { font-size: 1.2rem; }
 
   .video-note { font-size:0.7rem; color:#b1a5d9; text-align:center; margin-top:8px; }
@@ -134,7 +170,6 @@
   .btn-row { display:flex; gap:8px; margin:15px 0; flex-wrap:wrap; }
   .soar-btn { flex:1; background:#6BCB77; border:none; border-radius:40px; padding:12px; font-weight:800; color:#1a0f2a; cursor:pointer; min-width:100px; }
   .soar-btn.secondary { background:#FF9FCF; }
-  .soar-btn.nrich { background: linear-gradient(135deg, #FF9FCF, #C77DFF); }
 
   .quiz-head { background:#1e1932; border-radius:20px; padding:12px; margin-bottom:12px; }
   .quiz-meta { display:flex; justify-content:space-between; color:#b7a9e6; font-size:0.75rem; margin-bottom:8px; }
@@ -175,6 +210,85 @@
   .compose-input { width:56px; padding:10px 4px; font-size:1.3rem; font-family:'Fredoka One',cursive; background:#1f1937; border:2px solid #4e4280; border-radius:16px; color:#FFD93D!important; text-align:center; outline:none; }
   .compose-sym { font-family:'Fredoka One',cursive; font-size:1.4rem; color:#FF9FCF!important; min-width:20px; text-align:center; }
   .compose-eq  { font-family:'Fredoka One',cursive; font-size:1rem; color:#b1a5d9!important; white-space:nowrap; }
+
+  @media (min-width: 600px) {
+    .wrap { max-width: 700px; }
+    .home-hero h1 { font-size: 2.2rem; }
+    .home-hero p  { font-size: 1rem; }
+    .levels-grid  { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .soar-levels-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .menu-card    { padding: 24px 14px; }
+    .mc-icon      { font-size: 3rem; }
+    .mc-name      { font-size: 1.1rem; }
+    .quiz-head    { padding: 16px; }
+    .qs-val       { font-size: 1.5rem; }
+    .question-text { font-size: 1.25rem; }
+    .answer-input { font-size: 1.8rem; padding: 14px; }
+    .btn-home, .btn-hint, .btn-check, .btn-next, .btn-retry { font-size: 1.1rem; padding: 16px 0; }
+    .activity-title { font-size: 1.8rem; }
+    .activity-icon  { font-size: 3.5rem; }
+    .soar-btn       { padding: 14px; font-size: 1rem; }
+    .qn-btn         { font-size: 0.9rem; padding: 12px 8px; }
+    .age-group-header { font-size: 1.3rem; }
+    .topbar-title   { font-size: 1.3rem; }
+    .tb-btn         { font-size: 0.85rem; padding: 8px 16px; }
+    .badge          { width: 60px; height: 60px; font-size: 1.8rem; }
+    .fact-input, .compose-input { width: 64px; font-size: 1.4rem; }
+  }
+
+  @media (min-width: 1024px) {
+    body { padding: 20px 40px; }
+    .wrap { max-width: 960px; }
+    .home-hero h1 { font-size: 2.6rem; }
+    .levels-grid  { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .soar-levels-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .menu-card    { padding: 30px 18px; }
+    .mc-icon      { font-size: 3.5rem; }
+    .topbar       { padding: 12px 24px; }
+    .topbar-title { font-size: 1.4rem; }
+    .quiz-head    { padding: 20px; }
+    .question-text { font-size: 1.4rem; }
+    .answer-input { font-size: 2rem; }
+    .activity-card { padding: 28px; }
+    .activity-title { font-size: 2rem; }
+    .q-card       { padding: 24px; }
+    .result-card  { padding: 36px; max-width: 600px; margin: 0 auto; }
+    .result-emoji { font-size: 4.5rem; }
+    .result-title { font-size: 2.5rem; }
+    .qn-btn       { font-size: 1rem; padding: 14px 12px; }
+    .btn-hint, .btn-check, .btn-next, .btn-retry, .btn-home { font-size: 1.15rem; }
+    .quick-nav    { padding: 12px 20px; gap: 12px; }
+    .quick-nav    { margin: 0; border-radius: 0 0 12px 12px; }
+  }
+
+  @media (min-width: 1400px) {
+    .wrap { max-width: 1100px; }
+    .levels-grid  { grid-template-columns: repeat(4, 1fr); }
+    .soar-levels-grid { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  @media (max-width: 380px) {
+    body { padding: 6px; }
+    .home-hero h1 { font-size: 1.5rem; }
+    .level-name   { font-size: 0.75rem; }
+    .level-icon   { font-size: 1.6rem; }
+    .topbar       { padding: 8px 10px; }
+    .topbar-title { font-size: 0.95rem; }
+    .tb-btn       { font-size: 0.7rem; padding: 5px 8px; }
+    .badge        { width: 40px; height: 40px; font-size: 1.2rem; }
+    .btn-home, .btn-hint, .btn-check, .btn-next, .btn-retry { font-size: 0.85rem; padding: 11px 0; min-width: 70px; }
+    .qn-btn       { font-size: 0.7rem; padding: 8px 4px; }
+    .answer-input { font-size: 1.2rem; }
+    .question-text { font-size: 0.95rem; }
+  }
+
+  @media (max-height: 500px) and (orientation: landscape) {
+    .quiz-head    { padding: 8px; }
+    .q-card       { padding: 12px; }
+    .btn-row      { margin: 8px 0; }
+    .quick-nav    { padding: 6px 10px; }
+    .qn-btn       { padding: 8px 6px; }
+  }
 </style>
 </head>
 <body class="theme-default">
@@ -187,7 +301,7 @@
       <button class="tb-btn tb-load" onclick="loadProgress()">📂 Load</button>
       <input type="file" id="loadFile" accept=".json" style="display:none" onchange="handleLoadFile(event)">
     </div>
-    <div class="tb-lbl" id="progressLabel">0/12 mastered · 95 SOAR</div>
+    <div class="tb-lbl" id="progressLabel">0/12 mastered · 56 SOAR</div>
   </div>
 
   <div class="theme-selector">
@@ -212,7 +326,7 @@
   <div id="homeScreen" class="screen active">
     <div class="home-hero">
       <h1>Safia's Math Adventure!</h1>
-      <p>12 levels · 95 SOAR activities</p>
+      <p>12 levels · 56 SOAR activities</p>
     </div>
     <div id="patternSummary" class="pattern-section" style="display:none;">
       <div class="pattern-title">📊 Practice These:</div>
@@ -222,33 +336,81 @@
       <div class="menu-card" onclick="showSoarMenu()">
         <div class="mc-icon">🦅✨</div>
         <div class="mc-name">SOAR Adventures</div>
-        <div class="mc-desc">95 NRICH hands-on activities</div>
+        <div class="mc-desc">56 NRICH hands-on activities</div>
         <div class="soar-badge">EXPLORE</div>
       </div>
+      <div class="menu-card" onclick="showPracticeMenu()">
+        <div class="mc-icon">🧮✏️</div>
+        <div class="mc-name">Practice Math</div>
+        <div class="mc-desc">12 levels of problems</div>
+        <div class="soar-badge" style="background:#C77DFF;">PRACTISE</div>
+      </div>
     </div>
-    <div class="levels-grid" id="levelsGrid"></div>
     <div class="progress-chart">
       <h3 style="color:#d4c2ff;margin-bottom:8px;">📊 Safia's Progress</h3>
       <div id="progressStats" style="color:#b1a5d9;font-size:0.85rem;"></div>
       <div class="progress-bar-cont"><div class="progress-bar-fill" id="progressBarFill"></div></div>
     </div>
+    <div class="quick-nav">
+      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
+      <button class="qn-btn qn-math" onclick="showPracticeMenu()">🧮 Maths</button>
+    </div>
+  </div>
+
+  <!-- PRACTICE MENU -->
+  <div id="practiceMenuScreen" class="screen">
+    <div style="display:flex;gap:8px;margin-bottom:6px;">
+      <button class="nav-btn home-btn" style="margin:0;" onclick="showHome()">🏠 Home</button>
+      <button class="nav-btn" style="margin:0;background:#6BCB77;color:#1a0f2a;" onclick="showSoarMenu()">🦅 SOAR</button>
+    </div>
+    <div style="text-align:center;padding:10px 0 5px;">
+      <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#C77DFF;">🧮 Practice Math Problems</div>
+      <div style="color:#b1a5d9;font-size:0.85rem;margin-top:4px;">Choose a level to practise</div>
+    </div>
+    <div class="levels-grid" id="levelsGrid"></div>
+    <div class="quick-nav">
+      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
+      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
+      <button class="qn-btn qn-math" onclick="showPracticeMenu()">🧮 Maths</button>
+    </div>
   </div>
 
   <!-- SOAR MENU -->
   <div id="soarMenuScreen" class="screen">
-    <button class="nav-btn home-btn" onclick="showHome()">🏠 Back to Home</button>
+    <div style="display:flex;gap:8px;margin-bottom:6px;">
+      <button class="nav-btn home-btn" style="margin:0;" onclick="showHome()">🏠 Home</button>
+      <button class="nav-btn" style="margin:0;background:#C77DFF;color:#fff;" onclick="showPracticeMenu()">🧮 Maths</button>
+    </div>
     <div class="soar-levels-grid" id="soarLevelsGrid"></div>
+    <div class="quick-nav">
+      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
+      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
+      <button class="qn-btn qn-math" onclick="showPracticeMenu()">🧮 Maths</button>
+    </div>
   </div>
 
   <!-- SOAR ACTIVITY -->
   <div id="soarActivityScreen" class="screen">
-    <button class="nav-btn home-btn" onclick="showHome()">🏠 Back to Home</button>
-    <button class="nav-btn" onclick="showSoarMenu()">← Back to SOAR menu</button>
+    <div style="display:flex;gap:8px;margin-bottom:6px;">
+      <button class="nav-btn home-btn" style="margin:0;" onclick="showHome()">🏠 Home</button>
+      <button class="nav-btn" style="margin:0;" onclick="showSoarMenu()">← SOAR Menu</button>
+      <button class="nav-btn" style="margin:0;background:#C77DFF;color:#fff;" onclick="showPracticeMenu()">🧮 Maths</button>
+    </div>
     <div id="soarActivityContent"></div>
+    <div class="quick-nav">
+      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
+      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
+      <button class="qn-btn qn-math" onclick="showPracticeMenu()">🧮 Maths</button>
+    </div>
   </div>
 
   <!-- QUIZ -->
   <div id="quizScreen" class="screen">
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button class="nav-btn home-btn" style="margin:0;flex:1;" onclick="showHome()">🏠 Home</button>
+      <button class="nav-btn" style="margin:0;flex:1;" onclick="goHome()">← Levels</button>
+      <button class="nav-btn" style="margin:0;flex:1;background:#6BCB77;color:#1a0f2a;" onclick="showSoarMenu()">🦅 SOAR</button>
+    </div>
     <div class="quiz-head">
       <div class="quiz-meta">
         <span id="quizLevelLabel">Level</span>
@@ -261,20 +423,29 @@
       </div>
       <div class="prog-bar"><div class="prog-fill" id="quizProgressBar" style="width:0%"></div></div>
     </div>
-    <!-- VIDEO BUTTON INJECTED HERE BY JS -->
     <div id="quizVideoArea" style="text-align:center; margin-bottom:8px;"></div>
     <div class="q-card" id="questionCard"></div>
     <div class="feedback" id="feedback"></div>
     <div class="btn-row">
-      <button class="btn-home" onclick="goHome()">🏠 Home</button>
+      <button class="btn-home" onclick="goHome()">← Levels</button>
       <button class="btn-hint" id="hintButton" onclick="showHint()">💡 Hint</button>
       <button class="btn-check" id="checkButton" onclick="checkAnswer()">✅ Check</button>
       <button class="btn-next" id="nextButton" onclick="nextQuestion()">▶ Next</button>
+    </div>
+    <div class="quick-nav">
+      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
+      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
+      <button class="qn-btn qn-math" onclick="goHome()">🧮 Levels</button>
     </div>
   </div>
 
   <!-- RESULT -->
   <div id="resultScreen" class="screen">
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button class="nav-btn home-btn" style="margin:0;flex:1;" onclick="showHome()">🏠 Home</button>
+      <button class="nav-btn" style="margin:0;flex:1;" onclick="goHome()">← Levels</button>
+      <button class="nav-btn" style="margin:0;flex:1;background:#6BCB77;color:#1a0f2a;" onclick="showSoarMenu()">🦅 SOAR</button>
+    </div>
     <div class="result-card">
       <div class="result-emoji" id="resultEmoji">🏆</div>
       <div class="result-title" id="resultTitle">Great job!</div>
@@ -283,9 +454,14 @@
       <div id="mistakePatternsDetail" class="pattern-section"></div>
       <div class="btn-row" style="margin-top:16px;">
         <button class="btn-retry" id="retryButton">🔁 Retry</button>
-        <button class="btn-check" onclick="goHome()">🏠 Home</button>
+        <button class="btn-check" onclick="goHome()">🧮 Levels</button>
         <button class="btn-next" id="nextLevelButton" style="display:none">➡️ Next</button>
       </div>
+    </div>
+    <div class="quick-nav">
+      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
+      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
+      <button class="qn-btn qn-math" onclick="goHome()">🧮 Levels</button>
     </div>
   </div>
 </div>
@@ -307,127 +483,130 @@ const LEVEL_VIDEOS = {
   combo:       { url: 'https://www.youtube.com/results?search_query=mixed+math+practice+kids+addition+subtraction', title: '🏆 Mixed Maths Practice' }
 };
 
-// ===== NRICH ACTIVITY LINKS =====
-// All 95 links in order matching the sorted soarActivities array
-const NRICH_LINKS = [
-  // AGE 3-5 (13 activities)
-  'https://nrich.maths.org/eyfs-activities/beat-clock',
-  'https://nrich.maths.org/eyfs-activities/can-you-build',
-  'https://nrich.maths.org/eyfs-activities/dice',
-  'https://nrich.maths.org/eyfs-activities/how-long-are-you',
-  'https://nrich.maths.org/eyfs-activities/long-creatures',
-  'https://nrich.maths.org/eyfs-activities/making-footprints',
-  'https://nrich.maths.org/eyfs-activities/mud-kitchen',
-  'https://nrich.maths.org/eyfs-activities/number-book',
-  'https://nrich.maths.org/eyfs-activities/packing',
-  'https://nrich.maths.org/eyfs-activities/pattern-making',
-  'https://nrich.maths.org/eyfs-activities/small-world-play',
-  'https://nrich.maths.org/eyfs-activities/cooking-children',
-  'https://nrich.maths.org/eyfs-activities/tubes-and-tunnels',
-
-  // AGE 5-7 (30 activities)
-  'https://nrich.maths.org/problems/always-sometimes-or-never-ks1',
-  'https://nrich.maths.org/games/board-block-two',
-  'https://nrich.maths.org/problems/board-block-challenge-two',
-  'https://nrich.maths.org/problems/break-it-up',
-  'https://nrich.maths.org/problems/butterfly-flowers',
-  'https://nrich.maths.org/problems/100-square-jigsaw',
-  'https://nrich.maths.org/problems/cuisenaire-counting',
-  'https://nrich.maths.org/games/dotty-six-two',
-  'https://nrich.maths.org/problems/eightness-of-eight',
-  'https://nrich.maths.org/games/en-counters-two',
-  'https://nrich.maths.org/problems/four-triangles-puzzle',
-  'https://nrich.maths.org/games/guess-the-dominoes-two',
-  'https://nrich.maths.org/games/guess-the-houses-two',
-  'https://nrich.maths.org/games/incey-wincey-spider-two',
-  'https://nrich.maths.org/problems/ladybird-box',
-  'https://nrich.maths.org/problems/less-more',
-  'https://nrich.maths.org/problems/making-sticks',
-  'https://nrich.maths.org/games/matching-numbers-two',
-  'https://nrich.maths.org/problems/noah',
-  'https://nrich.maths.org/problems/one-big-triangle',
-  'https://nrich.maths.org/problems/paper-patchwork-1',
-  'https://nrich.maths.org/problems/play-37',
-  'https://nrich.maths.org/problems/poly-plug-rectangles',
-  'https://nrich.maths.org/problems/robot-monsters',
-  'https://nrich.maths.org/problems/same-length-trains',
-  'https://nrich.maths.org/games/seeing-squares-two',
-  'https://nrich.maths.org/problems/sort-the-street',
-  'https://nrich.maths.org/problems/starfish-spotting',
-  'https://nrich.maths.org/games/stop-the-clock-two',
-  'https://nrich.maths.org/games/totality-two',
-  'https://nrich.maths.org/problems/wallpaper',
-
-  // AGE 7-11 (52 activities)
-  'https://nrich.maths.org/games/board-block-two', // duplicate but kept for age grouping
-  'https://nrich.maths.org/problems/calendar-sorting',
-  'https://nrich.maths.org/problems/coded-hundred-square',
-  'https://nrich.maths.org/problems/consecutive-numbers',
-  'https://nrich.maths.org/games/countdown',
-  'https://nrich.maths.org/games/dicey-operations-line-two',
-  'https://nrich.maths.org/games/dotty-six-two', // duplicate
-  'https://nrich.maths.org/problems/doughnut-percents',
-  'https://nrich.maths.org/games/ducking-and-dividing',
-  'https://nrich.maths.org/problems/factor-lines',
-  'https://nrich.maths.org/games/factors-and-multiples-game-two',
-  'https://nrich.maths.org/games/first-connect-three-two',
-  'https://nrich.maths.org/problems/folding-flowers-1',
-  'https://nrich.maths.org/games/four-go-two',
-  'https://nrich.maths.org/games/got-it-two',
-  'https://nrich.maths.org/games/guess-the-dominoes-two', // duplicate
-  'https://nrich.maths.org/problems/how-many',
-  'https://nrich.maths.org/games/incey-wincey-spider-two', // duplicate
-  'https://nrich.maths.org/problems/magic-vs',
-  'https://nrich.maths.org/problems/maze-100',
-  'https://nrich.maths.org/problems/missing-multipliers',
-  'https://nrich.maths.org/problems/neighbourly-addition',
-  'https://nrich.maths.org/games/nice-or-nasty-two',
-  'https://nrich.maths.org/games/nim-7-two',
-  'https://nrich.maths.org/problems/number-jumbler',
-  'https://nrich.maths.org/problems/number-lines-in-disguise',
-  'https://nrich.maths.org/problems/number-sandwiches',
-  'https://nrich.maths.org/problems/reach-100',
-  'https://nrich.maths.org/problems/rod-fractions',
-  'https://nrich.maths.org/games/seeing-squares-two', // duplicate
-  'https://nrich.maths.org/problems/shape-times-shape',
-  'https://nrich.maths.org/problems/spiralling-decimals-two',
-  'https://nrich.maths.org/problems/square-corners',
-  'https://nrich.maths.org/games/stop-the-clock-two', // duplicate
-  'https://nrich.maths.org/games/strike-it-out-two',
-  'https://nrich.maths.org/problems/tables-teaser',
-  'https://nrich.maths.org/games/totality-two', // duplicate
-  'https://nrich.maths.org/games/train-tactics-two',
-  'https://nrich.maths.org/problems/treasure-hunt',
-  'https://nrich.maths.org/problems/two-primes-make-one-square',
-  'https://nrich.maths.org/games/what-shape-two',
-  'https://nrich.maths.org/problems/which-scripts',
-  'https://nrich.maths.org/problems/zios-and-zepts',
-  'https://nrich.maths.org/games/board-block-challenge-two', // duplicate
-  'https://nrich.maths.org/games/ducking-and-dividing', // duplicate
-  'https://nrich.maths.org/games/factor-lines', // duplicate
-  'https://nrich.maths.org/games/got-it-two', // duplicate
-  'https://nrich.maths.org/games/nim-7-two', // duplicate
-  'https://nrich.maths.org/games/shut-box-two',
-  'https://nrich.maths.org/games/spiralling-decimals-two', // duplicate
-  'https://nrich.maths.org/games/strike-it-out-two', // duplicate
-  'https://nrich.maths.org/games/train-tactics-two' // duplicate
+const SOAR_VIDEOS = [
+  { url: 'https://www.youtube.com/results?search_query=counting+fast+kids+how+many+timer', title: '⏰ Counting – Beat the Clock' },
+  { url: 'https://www.youtube.com/results?search_query=3d+shapes+building+blocks+kids', title: '🏗️ 3D Shapes & Building' },
+  { url: 'https://www.youtube.com/results?search_query=measuring+length+kids+non+standard+units', title: '📏 Measuring Length for Kids' },
+  { url: 'https://www.youtube.com/results?search_query=3d+shapes+faces+edges+vertices+kids', title: '🦶 3D Shapes – Faces & Edges' },
+  { url: 'https://www.youtube.com/results?search_query=comparing+lengths+longer+shorter+kids', title: '🐛 Comparing Lengths' },
+  { url: 'https://www.youtube.com/results?search_query=sorting+and+classifying+objects+kids+math', title: '📦 Sorting & Classifying' },
+  { url: 'https://www.youtube.com/results?search_query=size+length+big+small+kids+learning', title: '🧻 Length & Size Concepts' },
+  { url: 'https://www.youtube.com/results?search_query=counting+dice+numbers+kids+song', title: '🎲 Counting with Dice' },
+  { url: 'https://www.youtube.com/results?search_query=capacity+full+empty+kids+math+learning', title: '🍲 Capacity & Measurement' },
+  { url: 'https://www.youtube.com/results?search_query=patterns+for+kids+abab+repeating+pattern+song', title: '🎨 Pattern Making Song' },
+  { url: 'https://www.youtube.com/results?search_query=counting+cooking+with+kids+math+recipe', title: '🥄 Counting in Cooking' },
+  { url: 'https://www.youtube.com/results?search_query=counting+numbers+1+to+10+kids+song', title: '📘 Numbers & Counting Song' },
+  { url: 'https://www.youtube.com/results?search_query=sorting+animals+positional+language+kids', title: '🐏 Sorting & Position Words' },
+  { url: 'https://www.youtube.com/results?search_query=shut+the+box+game+kids+dice+math', title: '🎲 Shut the Box – Dice Game' },
+  { url: 'https://www.youtube.com/results?search_query=strike+it+out+number+line+addition+subtraction+kids', title: '✏️ Strike It Out – Number Line' },
+  { url: 'https://www.youtube.com/results?search_query=seeing+squares+dots+grid+game+kids', title: '🟦 Seeing Squares – Strategy Game' },
+  { url: 'https://www.youtube.com/results?search_query=triangles+pegboard+shapes+game+kids', title: '🔺 Board Block – Triangle Game' },
+  { url: 'https://www.youtube.com/results?search_query=cuisenaire+rods+same+length+trains+kids', title: '🚂 Same Length Trains – Cuisenaire' },
+  { url: 'https://www.youtube.com/results?search_query=sort+classify+houses+properties+kids+math', title: '🏠 Sort the Street' },
+  { url: 'https://www.youtube.com/results?search_query=100+square+number+grid+jigsaw+kids', title: '🧩 100 Square Jigsaw' },
+  { url: 'https://www.youtube.com/results?search_query=rectangles+arrays+multiplication+kids+math', title: '🟣 Poly Plug Rectangles' },
+  { url: 'https://www.youtube.com/results?search_query=number+matching+pairs+memory+game+kids', title: '🃏 Matching Numbers Memory Game' },
+  { url: 'https://www.youtube.com/results?search_query=multiplication+square+times+table+kids', title: '📊 Tables Teaser – Multiplication' },
+  { url: 'https://www.youtube.com/results?search_query=stop+the+clock+telling+time+kids+game', title: '🕐 Stop the Clock – Time Game' },
+  { url: 'https://www.youtube.com/results?search_query=four+triangles+shapes+puzzle+kids', title: '🔺 Four Triangles Puzzle' },
+  { url: 'https://www.youtube.com/results?search_query=number+bonds+add+to+ten+puzzle+kids', title: '🔟 One Big Triangle – Number Bonds' },
+  { url: 'https://www.youtube.com/results?search_query=cuisenaire+rods+counting+combinations+kids', title: '🟥 Cuisenaire Counting' },
+  { url: 'https://www.youtube.com/results?search_query=always+sometimes+never+math+statements+kids', title: '🤔 Always Sometimes or Never?' },
+  { url: 'https://www.youtube.com/results?search_query=incey+wincey+spider+number+line+game+kids', title: '🕷️ Incey Wincey Spider Game' },
+  { url: 'https://www.youtube.com/results?search_query=butterfly+number+bonds+addition+kids+activity', title: '🦋 Butterfly Flowers – Number Bonds' },
+  { url: 'https://www.youtube.com/results?search_query=measuring+height+adding+numbers+kids+math', title: '🤖 Robot Monsters – Height & Adding' },
+  { url: 'https://www.youtube.com/results?search_query=guess+the+rule+sorting+game+kids+logic', title: '🏡 Guess the Houses – Logic Game' },
+  { url: 'https://youtu.be/Gvb10ahRRB0', title: '🎯 Totality – Adding Game (Video)' },
+  { url: 'https://www.youtube.com/results?search_query=ordering+area+size+smallest+largest+kids', title: '🖼️ Wallpaper – Ordering by Size' },
+  { url: 'https://youtu.be/A86TGIdPeO8', title: '🔢 Nim-7 – Strategy Game (Video)' },
+  { url: 'https://www.youtube.com/results?search_query=interlocking+cubes+breaking+splitting+patterns+kids', title: '🧱 Break It Up! – Cube Patterns' },
+  { url: 'https://www.youtube.com/results?search_query=describing+position+colour+counting+game+kids', title: '⭕ En-Counters – Describing Position' },
+  { url: 'https://www.youtube.com/results?search_query=paper+folding+shapes+patterns+kids+origami', title: '📄 Paper Patchwork – Folding Shapes' },
+  { url: 'https://youtu.be/FX4me1Ffrn0', title: '🔴 Eightness of Eight (Video)' },
+  { url: 'https://www.youtube.com/results?search_query=ladybird+grid+puzzle+rows+columns+kids', title: '🐞 Ladybird Box – Grid Puzzle' },
+  { url: 'https://www.youtube.com/results?search_query=nice+nasty+dice+place+value+game+kids', title: '😈 Nice or Nasty – Place Value Dice' },
+  { url: 'https://www.youtube.com/results?search_query=factors+multiples+game+math+kids', title: '🔢 Factors and Multiples Game' },
+  { url: 'https://www.youtube.com/results?search_query=train+number+line+strategy+game+kids', title: '🚂 Train Tactics – Number Line' },
+  { url: 'https://www.youtube.com/results?search_query=dotty+six+dice+addition+game+kids', title: '🎲 Dotty Six – Dice Addition' },
+  { url: 'https://www.youtube.com/results?search_query=dicey+operations+addition+subtraction+strategy+kids', title: '🎰 Dicey Operations in Line' },
+  { url: 'https://www.youtube.com/results?search_query=four+go+multiplication+number+line+game', title: '4️⃣ Four Go – Multiplication Game' },
+  { url: 'https://www.youtube.com/results?search_query=connect+three+coordinates+game+kids+math', title: '🔗 First Connect Three' },
+  { url: 'https://www.youtube.com/results?search_query=guess+my+shape+properties+kids+math', title: '🔷 What Shape – Shape Guessing' },
+  { url: 'https://www.youtube.com/results?search_query=dominoes+game+kids+number+matching', title: '🁣 Guess Dominoes – Number Bonds' },
+  { url: 'https://www.youtube.com/results?search_query=decimals+number+line+kids+math', title: '🌀 Spiralling Decimals' },
+  { url: 'https://youtu.be/WXSr9_WPZ0o', title: '🎯 Got It – Running Total Game' },
+  { url: 'https://www.youtube.com/results?search_query=board+block+challenge+triangles+quadrilaterals+game', title: '🔺 Board Block Challenge' },
+  { url: 'https://www.youtube.com/results?search_query=making+sticks+cuisenaire+triangle+math', title: '📏 Making Sticks – Triangle Sides' },
+  { url: 'https://www.youtube.com/results?search_query=percentages+fractions+decimals+kids+circle', title: '🍩 Doughnut Percents' },
+  { url: 'https://www.youtube.com/results?search_query=greater+less+than+comparing+numbers+kids', title: '⚖️ Less or More – Comparing Numbers' },
+  { url: 'https://www.youtube.com/results?search_query=addition+subtraction+strategy+game+kids+37', title: '3️⃣7️⃣ Play 37 – Number Strategy' }
 ];
 
 function makeVideoBtn(url, title) {
-  const safe = url.replace(/'/g, "\\'");
-  const safeTitle = title.replace(/'/g, "\\'");
-  return `<a class="video-btn" href="${url}" target="_blank" rel="noopener">
-    <span class="video-btn-icon">▶️</span> ${title}
-  </a>`;
+  return `<a class="video-btn" href="${url}" target="_blank" rel="noopener"><span class="video-btn-icon">▶️</span> ${title}</a>`;
+}
+function makeNrichBtn(url) {
+  return `<a class="nrich-btn" href="${url}" target="_blank" rel="noopener">📘 Open on NRICH</a>`;
 }
 
-function makeNrichBtn(url, title) {
-  const safe = url.replace(/'/g, "\\'");
-  const safeTitle = title.replace(/'/g, "\\'");
-  return `<a class="video-btn nrich-btn" href="${url}" target="_blank" rel="noopener">
-    <span class="video-btn-icon">📘</span> NRICH Activity Page
-  </a>`;
-}
+const NRICH_LINKS = [
+  'https://nrich.maths.org/eyfs-activities/beat-clock',
+  'https://nrich.maths.org/eyfs-activities/can-you-build',
+  'https://nrich.maths.org/eyfs-activities/how-long-are-you',
+  'https://nrich.maths.org/eyfs-activities/making-footprints',
+  'https://nrich.maths.org/eyfs-activities/long-creatures',
+  'https://nrich.maths.org/eyfs-activities/packing',
+  'https://nrich.maths.org/eyfs-activities/tubes-and-tunnels',
+  'https://nrich.maths.org/eyfs-activities/dice',
+  'https://nrich.maths.org/eyfs-activities/mud-kitchen',
+  'https://nrich.maths.org/eyfs-activities/pattern-making',
+  'https://nrich.maths.org/eyfs-activities/cooking-children',
+  'https://nrich.maths.org/eyfs-activities/number-book',
+  'https://nrich.maths.org/eyfs-activities/small-world-play',
+  'https://nrich.maths.org/games/shut-the-box-two',
+  'https://nrich.maths.org/games/strike-it-out-two',
+  'https://nrich.maths.org/games/seeing-squares-two',
+  'https://nrich.maths.org/games/board-block-two',
+  'https://nrich.maths.org/problems/same-length-trains',
+  'https://nrich.maths.org/problems/sort-the-street',
+  'https://nrich.maths.org/problems/100-square-jigsaw',
+  'https://nrich.maths.org/problems/poly-plug-rectangles',
+  'https://nrich.maths.org/games/matching-numbers-two',
+  'https://nrich.maths.org/problems/tables-teaser',
+  'https://nrich.maths.org/games/stop-the-clock-two',
+  'https://nrich.maths.org/problems/four-triangles-puzzle',
+  'https://nrich.maths.org/problems/one-big-triangle',
+  'https://nrich.maths.org/problems/cuisenaire-counting',
+  'https://nrich.maths.org/problems/always-sometimes-or-never-ks1',
+  'https://nrich.maths.org/games/incey-wincey-spider-two',
+  'https://nrich.maths.org/problems/butterfly-flowers',
+  'https://nrich.maths.org/problems/robot-monsters',
+  'https://nrich.maths.org/games/guess-the-houses-two',
+  'https://nrich.maths.org/games/totality-two',
+  'https://nrich.maths.org/problems/wallpaper',
+  'https://nrich.maths.org/games/nim-7-two',
+  'https://nrich.maths.org/problems/break-it-up',
+  'https://nrich.maths.org/games/en-counters-two',
+  'https://nrich.maths.org/problems/paper-patchwork-1',
+  'https://nrich.maths.org/problems/eightness-of-eight',
+  'https://nrich.maths.org/problems/ladybird-box',
+  'https://nrich.maths.org/games/nice-or-nasty-two',
+  'https://nrich.maths.org/games/factors-and-multiples-game-two',
+  'https://nrich.maths.org/games/train-tactics-two',
+  'https://nrich.maths.org/games/dotty-six-two',
+  'https://nrich.maths.org/games/dicey-operations-line-two',
+  'https://nrich.maths.org/games/four-go-two',
+  'https://nrich.maths.org/games/first-connect-three-two',
+  'https://nrich.maths.org/problems/what-shape-two',
+  'https://nrich.maths.org/problems/guess-dominoes-two',
+  'https://nrich.maths.org/problems/spiralling-decimals-two',
+  'https://nrich.maths.org/games/got-it-two',
+  'https://nrich.maths.org/problems/board-block-challenge-two',
+  'https://nrich.maths.org/problems/making-sticks',
+  'https://nrich.maths.org/problems/doughnut-percents',
+  'https://nrich.maths.org/problems/less-more',
+  'https://nrich.maths.org/problems/play-37'
+];
 
 // ===== AUDIO =====
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -437,19 +616,6 @@ function playCorrectSound() {
 function playWrongSound() {
   try { const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(261.63,audioCtx.currentTime); o.frequency.setValueAtTime(246.94,audioCtx.currentTime+0.1); g.gain.setValueAtTime(0.1,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.2); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.2); } catch(e) {}
 }
-function playStarSound() {
-  try { const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(783.99,audioCtx.currentTime); o.frequency.setValueAtTime(987.77,audioCtx.currentTime+0.1); o.frequency.setValueAtTime(1174.66,audioCtx.currentTime+0.2); g.gain.setValueAtTime(0.1,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.3); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.3); } catch(e) {}
-}
-function createStarAnimation() {
-  const star = document.createElement('div');
-  star.className = 'star-animation';
-  star.innerHTML = '⭐';
-  star.style.left = Math.random() * window.innerWidth + 'px';
-  star.style.top = window.innerHeight - 50 + 'px';
-  star.style.fontSize = (20 + Math.random() * 20) + 'px';
-  document.body.appendChild(star);
-  setTimeout(() => { star.remove(); }, 1000);
-}
 
 // ===== THEME =====
 function setTheme(t) { document.body.className='theme-'+t; localStorage.setItem('safia-theme',t); }
@@ -458,27 +624,20 @@ function loadTheme() { setTheme(localStorage.getItem('safia-theme')||'default');
 // ===== MISTAKES =====
 let mistakePatterns = {};
 try { const s=localStorage.getItem('safia-mistakes'); if(s) mistakePatterns=JSON.parse(s); } catch(e){}
-function trackMistake(questionType, questionText) {
-  if (!mistakePatterns[questionType]) mistakePatterns[questionType] = { count: 0, examples: [] };
-  mistakePatterns[questionType].count++;
-  mistakePatterns[questionType].examples.push(questionText);
-  if (mistakePatterns[questionType].examples.length > 5) mistakePatterns[questionType].examples.shift();
-  localStorage.setItem('safia-mistakes', JSON.stringify(mistakePatterns));
-  updateMistakePatternsDisplay();
-}
+
 function updateMistakePatternsDisplay() {
-  const ps=document.getElementById('patternSummary'), pt=document.getElementById('patternTags'), md=document.getElementById('mistakePatternsDetail');
+  const ps=document.getElementById('patternSummary'), pt=document.getElementById('patternTags');
   if(!pt) return;
   const p=Object.entries(mistakePatterns).sort((a,b)=>b[1].count-a[1].count).slice(0,3);
   if(!p.length){if(ps)ps.style.display='none';return;}
   if(ps)ps.style.display='block';
   pt.innerHTML=p.map(([t,d])=>`<span class="pattern-tag ${d.count>5?'high':''}">${t} (${d.count})</span>`).join('');
-  if(md) md.innerHTML='<div class="pattern-title">📊 Practice These Skills:</div>'+p.map(([t,d])=>`<div><span class="pattern-tag ${d.count>5?'high':''}">${t}</span> <span style="color:#9e8fc9;">${d.count} mistakes</span><div style="font-size:0.75rem;color:#b1a5d9;">${d.examples.slice(0,2).map(ex=>`"${ex}"`).join(', ')}</div></div>`).join('');
 }
 
 // ===== BADGES =====
 let badges={counting:false,addition:false,subtraction:false,borrow:false,carry:false,logic:false};
 try{const s=localStorage.getItem('safia-badges');if(s)badges=JSON.parse(s);}catch(e){}
+
 function checkBadges(){
   if(progress.counting?.completed) badges.counting=true;
   if(progress.missing_add?.completed&&progress.add_three?.completed) badges.addition=true;
@@ -509,6 +668,7 @@ const LEVELS=[
 let progress={};
 LEVELS.forEach(l=>{progress[l.id]={completed:false,score:0};});
 try{const s=localStorage.getItem('safia-progress');if(s)progress=JSON.parse(s);}catch(e){}
+
 let currentLevel=null,questions=[],qIndex=0,score=0,wrong=0,answered=false;
 
 // ===== HELPERS =====
@@ -524,24 +684,569 @@ function buildLevel(eqFn,pool){
          ...words.slice(2,5).map(p=>({...p,category:'word',hasHint:false}))];
 }
 
-// ===== HINT FUNCTIONS (shortened for space) =====
-function hintAdd(a,b){const big=Math.max(a,b),small=Math.min(a,b),total=a+b,steps=Array.from({length:small},(_,i)=>big+i+1);return`<div style="background:linear-gradient(135deg,#2a1f3a,#1f1730);border-radius:24px;padding:20px;border:3px solid #6BCB77;"><div style="text-align:center;"><div style="color:#6BCB77;">🔢 COUNTING ADDITION</div><div style="display:flex;justify-content:center;gap:8px;margin-top:8px;"><div style="background:#FF9FCF;color:#1a0f2a;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;">${a}</div><div style="color:#FFD93D;font-size:2rem;">+</div><div style="background:#FF9FCF;color:#1a0f2a;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;">${b}</div></div></div><div style="background:#2f274a;border-radius:12px;padding:12px;margin-bottom:8px;"><div style="color:#b1a5d9;">Start at <strong style="color:#FFD93D;">${big}</strong> and count up <strong style="color:#FFD93D;">${small}</strong>:</div><div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">${steps.map((n,i)=>`<div style="background:${i===steps.length-1?'#6BCB77':'#FF9FCF'};color:#1a0f2a;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">${n}</div>`).join('')}</div></div><div style="background:#2f274a;border-radius:12px;padding:12px;"><div style="display:flex;align-items:center;justify-content:center;gap:8px;"><span style="background:#FF9FCF;color:#1a0f2a;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">${a}</span><span style="color:#FFD93D;">+</span><span style="background:#FF9FCF;color:#1a0f2a;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">${b}</span><span style="color:#fff;">=</span><span style="background:#6BCB77;color:#1a0f2a;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">${total}</span></div></div></div>`;}
-function hintSub(a,b){const diff=a-b,steps=Array.from({length:diff},(_,i)=>b+i+1);return`<div style="background:linear-gradient(135deg,#2a1f3a,#1f1730);border-radius:24px;padding:20px;border:3px solid #FF6B6B;"><div style="text-align:center;"><div style="color:#FF6B6B;">🔢 COUNTING SUBTRACTION</div><div style="display:flex;justify-content:center;gap:8px;"><div style="background:#FFD93D;color:#1a0f2a;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;">${a}</div><div style="color:#FF6B6B;">−</div><div style="background:#FF9FCF;color:#1a0f2a;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;">${b}</div></div></div><div style="background:#2f274a;border-radius:12px;padding:12px;"><div style="color:#b1a5d9;">Count from <strong style="color:#FFD93D;">${b}</strong> up to <strong style="color:#FFD93D;">${a}</strong>:</div><div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">${steps.map((n,i)=>`<div style="background:${i===steps.length-1?'#6BCB77':'#FF9FCF'};color:#1a0f2a;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">${n}</div>`).join('')}</div><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;"><span style="background:#FFD93D;color:#1a0f2a;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">${a}</span><span style="color:#FF6B6B;">−</span><span style="background:#FF9FCF;color:#1a0f2a;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">${b}</span><span style="color:#fff;">=</span><span style="background:#6BCB77;color:#1a0f2a;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">${diff}</span></div></div></div>`;}
-function hintCarryAdd(a,b){const oA=a%10,oB=b%10,tA=Math.floor(a/10),tB=Math.floor(b/10),onesTotal=oA+oB,onesWrite=onesTotal%10,carry=Math.floor(onesTotal/10);return`<div style="background:linear-gradient(135deg,#2a1f3a,#1f1730);border-radius:24px;padding:20px;border:3px solid #6BCB77;"><div style="color:#6BCB77;text-align:center;">➕ CARRY ADDITION</div><div style="background:#2f274a;border-radius:12px;padding:12px;"><div>Step 1 – Ones: <strong>${oA}+${oB}=${onesTotal}</strong></div>${onesTotal>9?`<div style="color:#FF9FCF;">Write ${onesWrite}, carry ${carry}</div>`:''}<div>Step 2 – Tens: <strong>${tA}+${tB}${carry>0?`+${carry}`:''}=${tA+tB+carry}</strong></div></div><div style="background:#2f274a;border-radius:12px;padding:12px;text-align:center;font-size:1.5rem;"><div>${a}</div><div>+ ${b}</div><div>———</div><div style="color:#6BCB77;">${a+b}</div></div></div>`;}
-function hintBorrowSub(a,b){const oA=a%10,oB=b%10,tA=Math.floor(a/10),tB=Math.floor(b/10),needBorrow=oA<oB,onesUsed=needBorrow?oA+10:oA,tenUsed=needBorrow?tA-1:tA;return`<div style="background:linear-gradient(135deg,#2a1f3a,#1f1730);border-radius:24px;padding:20px;border:3px solid #FF6B6B;"><div style="color:#FF6B6B;text-align:center;">➖ BORROW SUBTRACTION</div>${needBorrow?`<div style="background:#5a2e36;border-radius:12px;padding:8px;">Borrow! ${tA}→${tA-1}, ${oA}→${oA+10}</div>`:''}<div style="background:#2f274a;border-radius:12px;padding:12px;"><div>Ones: <strong>${onesUsed} − ${oB} = ${onesUsed-oB}</strong></div><div>Tens: <strong>${tenUsed} − ${tB} = ${tenUsed-tB}</strong></div></div><div style="background:#2f274a;border-radius:12px;padding:12px;text-align:center;font-size:1.5rem;"><div>${a}</div><div>− ${b}</div><div>———</div><div style="color:#6BCB77;">${a-b}</div></div></div>`;}
+// ===== HELPER FUNCTIONS FOR HINTS =====
+function bubble(text) {
+  return `<div style="background:#2f274a;border-radius:14px;padding:12px 16px;margin:8px 0;color:#e4d2ff;line-height:1.7;">${text}</div>`;
+}
+function wrap(borderColor, icon, title, body) {
+  return `<div style="background:linear-gradient(135deg,#2a1f3a,#1f1730);border-radius:22px;padding:18px;border:3px solid ${borderColor};font-size:0.95rem;">`
+    + `<div style="color:${borderColor};font-weight:800;font-size:1.05rem;text-align:center;margin-bottom:12px;">${icon} ${title}</div>`
+    + body + `</div>`;
+}
+function numChip(n, bg) {
+  return `<span style="display:inline-flex;align-items:center;justify-content:center;background:${bg||'#FF9FCF'};color:#1a0f2a;min-width:38px;height:38px;border-radius:9px;font-size:1.2rem;font-weight:bold;padding:0 5px;margin:2px;">${n}</span>`;
+}
+function colBox(rows) {
+  const lines = rows.map(r =>
+    `<div style="font-family:'Courier New';font-size:1.5rem;color:${r.color||'#FF9FCF'};text-align:right;padding:1px 0;">${r.text}</div>`
+  ).join('');
+  return `<div style="background:#1a1530;border-radius:12px;padding:12px 22px;display:inline-block;min-width:110px;">${lines}</div>`;
+}
+
+// ===== SUBTRACTION HINT =====
+function subtractColumn(big, small) {
+  const oB = big % 10, oS = small % 10;
+  const tB = Math.floor(big / 10), tS = Math.floor(small / 10);
+  const needBorrow = oB < oS;
+  const ans = big - small;
+  const pad = String(big).length;
+
+  if (!needBorrow) {
+    const oneAns = oB - oS;
+    const tenAns = tB - tS;
+    return wrap('#6BCB77', '➖', `${big} − ${small}`,
+      bubble(`<strong style="color:#FFD93D;">Right side (ones):</strong> Is ${oB} bigger than or equal to ${oS}? <strong style="color:#6BCB77;">YES ✅</strong><br>${oB} − ${oS} = <strong>${oneAns}</strong>`)
+      + bubble(`<strong style="color:#FFD93D;">Left side (tens):</strong> ${tB} − ${tS} = <strong>${tenAns}</strong>`)
+      + `<div style="text-align:center;margin:10px 0;">${colBox([
+          {text:'  '+big},
+          {text:'− '+String(small).padStart(pad,' ')},
+          {text:'─────',color:'#9e8fc9'},
+          {text:'  '+ans,color:'#6BCB77'}
+        ])}</div>`
+      + bubble(`<strong style="color:#6BCB77;">✅ ${big} − ${small} = ${ans}, Safia! ⭐</strong>`)
+    );
+  } else {
+    const borrowedOnes = oB + 10;
+    const newTens = tB - 1;
+    const oneAns = borrowedOnes - oS;
+    const tenAns = newTens - tS;
+    const oSteps = Array.from({length: oneAns}, (_, i) => oS + i + 1);
+    return wrap('#FF6B6B', '➖', `${big} − ${small} (with borrowing)`,
+      bubble(`<strong style="color:#FFD93D;">Right side (ones):</strong> Is ${oB} bigger than or equal to ${oS}? <strong style="color:#FF6B6B;">NO ❌</strong><br>${oB} is less than ${oS} — we need to <strong>borrow</strong>.`)
+      + bubble(`<strong style="color:#FFD93D;">Borrowing:</strong><br>
+        Take 1 ten from the left: <strong>${tB} → ${newTens}</strong><br>
+        Add that 10 to the right: <strong>${oB} → ${borrowedOnes}</strong> (because 10 + ${oB} = ${borrowedOnes})<br><br>
+        <div style="text-align:center;">${colBox([
+          {text:'  '+newTens,color:'#FFD93D'},
+          {text:'̸ '+tB+'|'+oB+' → '+newTens+'|'+borrowedOnes,color:'#b1a5d9'},
+          {text:'− '+tS+'|'+oS},
+          {text:'──────',color:'#9e8fc9'}
+        ])}</div>`)
+      + bubble(`<strong style="color:#FFD93D;">Right side (ones): ${borrowedOnes} − ${oS}</strong><br>
+        Count from ${oS} up to ${borrowedOnes}:<br>
+        ${numChip(oS,'#C77DFF')} → ${oSteps.map((n,i)=>numChip(n,i===oSteps.length-1?'#6BCB77':'#FF9FCF')).join(' ')}<br>
+        <em>${oSteps.join(', ')}</em> → <strong style="color:#6BCB77;">${oneAns}</strong>`)
+      + bubble(`<strong style="color:#FFD93D;">Left side (tens): ${newTens} − ${tS} = ${tenAns}</strong>`)
+      + `<div style="text-align:center;margin:10px 0;">${colBox([
+          {text:'  '+big},
+          {text:'− '+String(small).padStart(pad,' ')},
+          {text:'─────',color:'#9e8fc9'},
+          {text:'  '+ans,color:'#6BCB77'}
+        ])}</div>`
+      + bubble(`<strong style="color:#6BCB77;">✅ ${big} − ${small} = ${ans}, Safia! ⭐</strong>`)
+    );
+  }
+}
+
+// ===== ADDITION HINT =====
+function addColumn(a, b) {
+  const oA = a % 10, oB = b % 10;
+  const tA = Math.floor(a / 10), tB = Math.floor(b / 10);
+  const onesSum = oA + oB;
+  const needCarry = onesSum > 9;
+  const onesWrite = onesSum % 10;
+  const carry = Math.floor(onesSum / 10);
+  const ans = a + b;
+  const bigO = Math.max(oA, oB), smallO = Math.min(oA, oB);
+  const oSteps = Array.from({length: smallO}, (_, i) => bigO + i + 1);
+  const pad = String(a).length;
+
+  if (!needCarry) {
+    return wrap('#6BCB77', '+', `${a} + ${b}`,
+      bubble(`<strong style="color:#FFD93D;">Right side (ones): ${oA} + ${oB}</strong><br>
+        Count from <strong>${bigO}</strong> up <strong>${smallO}</strong> step${smallO!==1?'s':''}:<br>
+        ${numChip(bigO,'#C77DFF')} → ${oSteps.map((n,i)=>numChip(n,i===oSteps.length-1?'#6BCB77':'#FF9FCF')).join(' ')}<br>
+        ${oSteps.length ? '<em>'+oSteps.join(', ')+'</em> → ' : ''}<strong style="color:#6BCB77;">${onesSum}</strong><br>
+        ${onesSum} is 9 or less — <strong>no carrying needed</strong>.`)
+      + bubble(`<strong style="color:#FFD93D;">Left side (tens): ${tA} + ${tB} = ${tA+tB}</strong>`)
+      + `<div style="text-align:center;margin:10px 0;">${colBox([
+          {text:'  '+a},
+          {text:'+ '+String(b).padStart(pad,' ')},
+          {text:'─────',color:'#9e8fc9'},
+          {text:'  '+ans,color:'#6BCB77'}
+        ])}</div>`
+      + bubble(`<strong style="color:#6BCB77;">✅ ${a} + ${b} = ${ans}, Safia! ⭐</strong>`)
+    );
+  } else {
+    return wrap('#6BCB77', '+', `${a} + ${b} (with carrying)`,
+      bubble(`<strong style="color:#FFD93D;">Right side (ones): ${oA} + ${oB}</strong><br>
+        Count from <strong>${bigO}</strong> up <strong>${smallO}</strong> step${smallO!==1?'s':''}:<br>
+        ${numChip(bigO,'#C77DFF')} → ${oSteps.map((n)=>numChip(n,'#FF9FCF')).join(' ')}<br>
+        Total = <strong>${onesSum}</strong><br>
+        <strong style="color:#FF9FCF;">⚠️ ${onesSum} is bigger than 9!</strong> The biggest we can write on the right is 9.<br>
+        So we write <strong style="color:#6BCB77;">${onesWrite}</strong> on the right and carry <strong style="color:#FFD93D;">${carry}</strong> to the left.`)
+      + bubble(`<strong style="color:#FFD93D;">Left side (tens): ${tA} + ${tB} + ${carry} (carried) = ${tA+tB+carry}</strong>`)
+      + `<div style="text-align:center;margin:10px 0;">${colBox([
+          {text:'  '+carry,color:'#FFD93D'},
+          {text:'  '+a},
+          {text:'+ '+String(b).padStart(pad,' ')},
+          {text:'─────',color:'#9e8fc9'},
+          {text:'  '+ans,color:'#6BCB77'}
+        ])}</div>`
+      + bubble(`<strong style="color:#6BCB77;">✅ ${a} + ${b} = ${ans}, Safia! ⭐</strong>`)
+    );
+  }
+}
+
+function hintAdd(a, b)       { return addColumn(a, b); }
+function hintSub(a, b)       { return subtractColumn(a, b); }
+function hintCarryAdd(a, b)  { return addColumn(a, b); }
+function hintBorrowSub(a, b) { return subtractColumn(a, b); }
+
+function hintMissingAddSimple(total, a) {
+  const ans = total - a;
+  return wrap('#6BCB77', '❓', 'MISSING NUMBER — ADDITION',
+    bubble(`<strong style="color:#FFD93D;">We have: ${a} + ? = ${total}</strong><br>
+      We have <strong>${a}</strong> and a number we don't know. Together they make <strong>${total}</strong>.<br>
+      To find the missing number, we subtract <strong>${a}</strong> from <strong>${total}</strong>.`)
+    + subtractColumn(total, a)
+    + bubble(`<strong style="color:#6BCB77;">✅ The missing number is ${ans}, Safia! ⭐</strong><br>Check: ${a} + ${ans} = ${total} ✓`)
+  );
+}
+
+function hintMissingSubSmall(total, result) {
+  const ans = total - result;
+  return wrap('#FF6B6B', '❓', 'MISSING NUMBER — SUBTRACTION',
+    bubble(`<strong style="color:#FFD93D;">We have: ${total} − ? = ${result}</strong><br>
+      We subtract a number we don't know from <strong>${total}</strong> to get <strong>${result}</strong>.<br>
+      To find the missing number, we subtract <strong>${result}</strong> from <strong>${total}</strong>.`)
+    + subtractColumn(total, result)
+    + bubble(`<strong style="color:#6BCB77;">✅ The missing number is ${ans}, Safia! ⭐</strong><br>Check: ${total} − ${ans} = ${result} ✓`)
+  );
+}
+
+function hintMissingThreeAdd(total, a, b) {
+  const known = a + b;
+  const ans = total - known;
+  return wrap('#6BCB77', '❓', 'MISSING NUMBER — THREE ADDENDS',
+    bubble(`<strong style="color:#FFD93D;">We have: ${total} = ${a} + ${b} + ?</strong><br>
+      We know two numbers (${a} and ${b}) and the total (${total}). Let's find the third.`)
+    + bubble(`<strong style="color:#FFD93D;">Step 1 — Add the numbers we know: ${a} + ${b}</strong>`)
+    + addColumn(a, b)
+    + bubble(`<strong style="color:#FFD93D;">Step 2 — Subtract from the total: ${total} − ${known}</strong>`)
+    + subtractColumn(total, known)
+    + bubble(`<strong style="color:#6BCB77;">✅ The missing number is ${ans}, Safia! ⭐</strong><br>Check: ${a} + ${b} + ${ans} = ${total} ✓`)
+  );
+}
+
+function hintAddThree(a, b, c) {
+  const step1 = a + b;
+  const step2 = step1 + c;
+  return wrap('#6BCB77', '🔺', `${a} + ${b} + ${c}`,
+    bubble(`<strong style="color:#FFD93D;">We have three numbers to add: ${a} + ${b} + ${c}</strong><br>
+      We add them <strong>two at a time</strong>. First add ${a} + ${b}, then add ${c} to the result.`)
+    + bubble(`<strong style="color:#FFD93D;">Step 1 — Add ${a} + ${b}:</strong>`)
+    + addColumn(a, b)
+    + bubble(`<strong style="color:#FFD93D;">Step 2 — Add ${c} to the result (${step1} + ${c}):</strong>`)
+    + addColumn(step1, c)
+    + bubble(`<strong style="color:#6BCB77;">✅ ${a} + ${b} + ${c} = ${step2}, Safia! ⭐</strong>`)
+  );
+}
+
+function hintSubThree(total, b, c) {
+  const step1 = total - b;
+  const step2 = step1 - c;
+  return wrap('#FF6B6B', '🔻', `${total} − ${b} − ${c}`,
+    bubble(`<strong style="color:#FFD93D;">We have to subtract two numbers from ${total}.</strong><br>
+      We subtract them <strong>one at a time</strong>. First subtract ${b}, then subtract ${c} from the result.`)
+    + bubble(`<strong style="color:#FFD93D;">Step 1 — Subtract ${b} from ${total}:</strong>`)
+    + subtractColumn(total, b)
+    + bubble(`<strong style="color:#FFD93D;">Step 2 — Subtract ${c} from the result (${step1} − ${c}):</strong>`)
+    + subtractColumn(step1, c)
+    + bubble(`<strong style="color:#6BCB77;">✅ ${total} − ${b} − ${c} = ${step2}, Safia! ⭐</strong>`)
+  );
+}
+
+function hintComposeAdd(target) {
+  const e = target > 10 ? 7 : 3;
+  const ans = target - e;
+  const e2 = e + 3;
+  const ans2 = target - e2;
+  return wrap('#6BCB77', '🧩', `Make a Sum — two pairs that add to ${target}`,
+    bubble(`<strong style="color:#FFD93D;">We need TWO different pairs of numbers that add up to ${target}.</strong><br>
+      Think of it like this: what two numbers fit together to make ${target}?`)
+    + bubble(`<strong style="color:#FFD93D;">Let's find the first pair.</strong><br>
+      Pick any number less than ${target}. Let's use <strong>${e}</strong>.<br>
+      So now we have: <strong>${e} + ? = ${target}</strong><br>
+      To find the missing number, we subtract ${e} from ${target}:`)
+    + subtractColumn(target, e)
+    + bubble(`So our first pair is: ${numChip(e,'#FF9FCF')} + ${numChip(ans,'#6BCB77')} = ${numChip(target,'#FFD93D')} ✅`)
+    + bubble(`<strong style="color:#FFD93D;">Now let's find the second pair.</strong><br>
+      Pick a different number — not ${e} and not ${target}. Let's use <strong>${e2}</strong>.<br>
+      So now we have: <strong>${e2} + ? = ${target}</strong><br>
+      Subtract ${e2} from ${target}:`)
+    + subtractColumn(target, e2)
+    + bubble(`So our second pair is: ${numChip(e2,'#FF9FCF')} + ${numChip(ans2,'#6BCB77')} = ${numChip(target,'#FFD93D')} ✅<br><br>
+      <strong style="color:#6BCB77;">Now it's your turn, Safia! Choose your own two numbers and find their pairs. ⭐</strong>`)
+  );
+}
+
+function hintComposeSub(diff) {
+  const big = diff + 2;
+  const small = big - diff;
+  const small2 = 3;
+  const big2 = small2 + diff;
+
+  return wrap('#FF6B6B', '🔍', `Find the Gap — two pairs with a difference of ${diff}`,
+    bubble(`<strong style="color:#FFD93D;">We need TWO different pairs where the bigger number minus the smaller equals ${diff}.</strong><br>
+      The <strong>gap</strong> between the two numbers must always be ${diff}.`)
+    + bubble(`<strong style="color:#FFD93D;">🍪 Cookie Story:</strong><br>
+      In a minus problem, the <strong>first number is always the Boss</strong> (the whole tray). The other numbers are the parts.`)
+    + bubble(`<strong style="color:#FFD93D;">Case 1 — We know the Boss: ${big} − ? = ${diff}</strong><br><br>
+      "Safia, you have <strong>${big}</strong> cookies. You eat some, and <strong>${diff}</strong> are left. How many did you eat?"<br><br>
+      Since we know the Boss is <strong>${big}</strong>, we <strong>subtract</strong> the ${diff} we still have:<br>
+      <strong>${big} − ${diff} = ?</strong>`)
+    + subtractColumn(big, diff)
+    + bubble(`✅ <strong>${big} − ${small} = ${diff}</strong><br>
+      Check: ${big} − ${small} = ${diff} ✓<br><br>
+      <em>Rule: If we know the Big Boss, we subtract to find the missing friend.</em>`)
+    + bubble(`<strong style="color:#FFD93D;">Case 2 — The Boss is hiding: ? − ${small2} = ${diff}</strong><br><br>
+      "Safia, there is a Mystery Bag of cookies. You take out <strong>${small2}</strong> and eat them. <strong>${diff}</strong> are still left. How many were in the bag at the start?"<br><br>
+      To find the bag's starting amount, we put back the <strong>${small2}</strong> we took out.<br>
+      We <strong>add</strong>: <strong>${diff} + ${small2} = ?</strong>`)
+    + addColumn(diff, small2)
+    + bubble(`✅ <strong>${big2} − ${small2} = ${diff}</strong><br>
+      Check: ${big2} − ${small2} = ${diff} ✓<br><br>
+      <em>Rule: If the Big Boss is hiding, we add the friends together to find him!</em>`)
+    + bubble(`<strong style="color:#6BCB77;">Summary for Safia:</strong><br>
+      ${numChip(big,'#FFD93D')} − <strong style="color:#FF9FCF;">?</strong> = ${numChip(diff,'#6BCB77')} &nbsp;→&nbsp; Boss is here → <strong>subtract</strong> (${big} − ${diff} = ${small})<br>
+      <strong style="color:#FF9FCF;">?</strong> − ${numChip(small2,'#FF9FCF')} = ${numChip(diff,'#6BCB77')} &nbsp;→&nbsp; Boss is hiding → <strong>add</strong> (${diff} + ${small2} = ${big2})<br><br>
+      <strong style="color:#6BCB77;">Now pick your own two pairs, Safia! ⭐</strong>`)
+  );
+}
+
+function hintFactFamily(a, b, total) {
+  return wrap('#C77DFF', '👪', `Fact Family — Math Family for ${a}, ${b}, and ${total}`,
+    bubble(`<strong style="color:#FFD93D;">Every Fact Family has a "Math Family" with special roles:</strong><br><br>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:8px 0;">
+        <div style="text-align:center;">
+          <div style="background:#FFD93D;color:#1a0f2a;border-radius:50%;width:60px;height:60px;display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:bold;">${total}</div>
+          <div style="color:#FFD93D;font-size:0.85rem;margin-top:4px;font-weight:800;">👑 BIG BOSS</div>
+        </div>
+        <div style="color:#b1a5d9;font-size:1.5rem;">↕</div>
+        <div style="text-align:center;">
+          <div style="background:#FF9FCF;color:#1a0f2a;border-radius:50%;width:50px;height:50px;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:bold;">${a}</div>
+          <div style="color:#FF9FCF;font-size:0.85rem;margin-top:4px;font-weight:800;">🤝 FRIEND</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="background:#FF9FCF;color:#1a0f2a;border-radius:50%;width:50px;height:50px;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:bold;">${b}</div>
+          <div style="color:#FF9FCF;font-size:0.85rem;margin-top:4px;font-weight:800;">🤝 FRIEND</div>
+        </div>
+      </div>`)
+    + bubble(`<strong style="color:#FFD93D;">➕ The PLUS rule — Friends join to make the Boss:</strong><br>
+      <em>"The two Small Friends join together. It doesn't matter who stands first — they always equal the Big Boss."</em><br><br>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap;">
+        ${numChip(a,'#FF9FCF')} <span style="color:#FFD93D;font-size:1.3rem;">+</span> ${numChip(b,'#FF9FCF')} <span style="color:#fff;font-size:1.3rem;">=</span> ${numChip(total,'#FFD93D')} <span style="color:#6BCB77;">✅ Friend + Friend = Big Boss</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap;">
+        ${numChip(b,'#FF9FCF')} <span style="color:#FFD93D;font-size:1.3rem;">+</span> ${numChip(a,'#FF9FCF')} <span style="color:#fff;font-size:1.3rem;">=</span> ${numChip(total,'#FFD93D')} <span style="color:#6BCB77;">✅ Friend + Friend = Big Boss</span>
+      </div>`)
+    + bubble(`<strong style="color:#FFD93D;">➖ The MINUS rule — Boss gives to find a Friend:</strong><br>
+      <em>"We ALWAYS start with the Big Boss. We take away one Small Friend to find the other Small Friend."</em><br><br>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap;">
+        ${numChip(total,'#FFD93D')} <span style="color:#FF6B6B;font-size:1.3rem;">−</span> ${numChip(a,'#FF9FCF')} <span style="color:#fff;font-size:1.3rem;">=</span> ${numChip(b,'#6BCB77')} <span style="color:#6BCB77;">✅ Big Boss − Friend = Friend</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap;">
+        ${numChip(total,'#FFD93D')} <span style="color:#FF6B6B;font-size:1.3rem;">−</span> ${numChip(b,'#FF9FCF')} <span style="color:#fff;font-size:1.3rem;">=</span> ${numChip(a,'#6BCB77')} <span style="color:#6BCB77;">✅ Big Boss − Friend = Friend</span>
+      </div>`)
+    + bubble(`<strong style="color:#FF6B6B;">🍪 Why can't we write ${b} − ${a} = ${total}?</strong><br>
+      "Safia, imagine you only have <strong>${b}</strong> cookies on your plate. Can someone eat <strong>${a}</strong> cookies from your plate? ${a > b ? 'No! You don\'t have enough!' : 'And even if they could, you\'d never end up with MORE cookies than you started with!'} The Big Boss <strong>${total}</strong> must always be the <strong>first</strong> number in a minus fact."`)
+    + bubble(`<strong style="color:#FFD93D;">🔎 Safia's Quick Check:</strong><br>
+      <span style="color:#6BCB77;">✅ Plus fact?</span> The Big Boss <strong>(${total})</strong> must be <strong>at the END</strong> (after =)<br>
+      <span style="color:#6BCB77;">✅ Minus fact?</span> The Big Boss <strong>(${total})</strong> must be <strong>at the FRONT</strong> (before −)<br>
+      <span style="color:#FF6B6B;">❌ If you see ${total} in the middle of a plus, or a small number at the start of a minus — it's a "silly" equation that needs fixing!</span>`)
+    + bubble(`<strong style="color:#6BCB77;">✅ All four facts for ${a}, ${b}, ${total}:</strong><br>
+      ${numChip(a,'#FF9FCF')} + ${numChip(b,'#FF9FCF')} = ${numChip(total,'#FFD93D')} &nbsp;|&nbsp; ${numChip(b,'#FF9FCF')} + ${numChip(a,'#FF9FCF')} = ${numChip(total,'#FFD93D')}<br>
+      ${numChip(total,'#FFD93D')} − ${numChip(a,'#FF9FCF')} = ${numChip(b,'#6BCB77')} &nbsp;|&nbsp; ${numChip(total,'#FFD93D')} − ${numChip(b,'#FF9FCF')} = ${numChip(a,'#6BCB77')}`)
+  );
+}
+
+// ===== LOGIC PUZZLE HINTS =====
+function hintPattern(p) {
+  const pattern = p.pattern.split(' ');
+  return wrap('#C77DFF', '🧩', 'Pattern Puzzle',
+    bubble(`<strong style="color:#FFD93D;">Look at this pattern:</strong> ${p.pattern}`) +
+    bubble(`<strong style="color:#FFD93D;">Can you see what repeats?</strong><br>
+      The pattern goes: ${pattern.map(s => `"${s}"`).join(', ')}<br>
+      After that, what comes next?<br>
+      <span style="color:#6BCB77;">✨ The next one should be: <strong>${p.next}</strong></span>`)
+  );
+}
+
+function hintIfThen(data) {
+  return wrap('#C77DFF', '🤔', 'If-Then Puzzle',
+    bubble(`<strong style="color:#FFD93D;">Rule:</strong> ${data.statement1}`) +
+    bubble(`<strong style="color:#FFD93D;">Fact:</strong> ${data.statement2}`) +
+    bubble(`<strong style="color:#6BCB77;">So, ${data.conclusion}</strong>`)
+  );
+}
+
+function hintSorting(data) {
+  const items = data.items.split(', ');
+  const oddIndex = items.findIndex(item => item.includes(data.oddOneOut.split(' ')[0]));
+  return wrap('#C77DFF', '🔍', 'Sorting Puzzle',
+    bubble(`<strong style="color:#FFD93D;">Which one doesn't belong?</strong><br>
+      ${items.map((item, i) => i === oddIndex ? `<span style="color:#FF6B6B;">✗ ${item}</span>` : `<span style="color:#6BCB77;">✓ ${item}</span>`).join('<br>')}`) +
+    bubble(`<strong style="color:#FFD93D;">Reason:</strong> ${data.reason}<br>
+      <span style="color:#6BCB77;">So <strong>${data.oddOneOut}</strong> is the odd one out!</span>`)
+  );
+}
+
+function hintSequence(data) {
+  return wrap('#C77DFF', '🔢', 'Number Sequence',
+    bubble(`<strong style="color:#FFD93D;">Look at how the numbers change:</strong><br>
+      ${data.explanation}`) +
+    bubble(`<strong style="color:#FFD93D;">The rule is:</strong> ${data.rule}<br>
+      <span style="color:#6BCB77;">So the next number is <strong>${data.next}</strong>!</span>`)
+  );
+}
+
+function hintAnalogy(data) {
+  return wrap('#C77DFF', '🔄', 'Analogy Puzzle',
+    bubble(`<strong style="color:#FFD93D;">${data.pair1.split(' is ')[0]} is to ${data.pair2}</strong>`) +
+    bubble(`<strong style="color:#FFD93D;">The relationship is:</strong> ${data.relationship}<br>
+      <span style="color:#6BCB77;">So day is to <strong>${data.answer}</strong>!</span>`)
+  );
+}
 
 // ===== LEVEL GENERATORS =====
 function eqCounting(){if(rnd(0,1)===0){const a=rnd(2,14),b=rnd(1,6);return{type:'counting_add',question:`${a} + ${b} = ?`,answer:a+b,hint:hintAdd(a,b)};}else{const a=rnd(6,18),b=rnd(1,5);return{type:'counting_sub',question:`${a} − ${b} = ?`,answer:a-b,hint:hintSub(a,b)};}}
 function eqGrouping(){const t=rnd(0,1);if(t===0){const tens=rnd(1,7),ones=rnd(0,9),total=tens*10+ones;return{type:'grouping',question:`${tens} tens and ${ones} ones = ?`,answer:total};}else{const n=rnd(11,79),ones=n%10;return{type:'grouping',question:`${n} = ___ tens and ___ ones.\nHow many ones?`,answer:ones};}}
-function eqMissingAdd(){const t=rnd(0,3);if(t===0){const a=rnd(2,9),total=rnd(a+3,18);return{type:'missing_add',question:`? + ${a} = ${total}`,answer:total-a};}if(t===1){const a=rnd(2,9),total=rnd(a+3,18);return{type:'missing_add',question:`${a} + ? = ${total}`,answer:total-a};}if(t===2){const total=rnd(12,25),result=rnd(5,total-3);return{type:'missing_add',question:`${total} − ? = ${result}`,answer:total-result};}const a=rnd(3,8),b=rnd(3,8),total=rnd(a+b+3,30);return{type:'missing_add',question:`${total} = ${a} + ${b} + ?`,answer:total-a-b};}
-function eqCarryAdd(){let a,b,g=0;do{a=rnd(14,67);b=rnd(13,55);g++;}while(((a%10)+(b%10)<10||a+b>99)&&g<200);return{type:'carry_add',question:`${a} + ${b} = ?`,answer:a+b,hint:hintCarryAdd(a,b)};}
-function eqBorrowSub(){let a,b,g=0;do{a=rnd(22,91);b=rnd(13,a-5);g++;}while(((a%10)>=(b%10)||a-b<5)&&g<200);return{type:'borrow_sub',question:`${a} − ${b} = ?`,answer:a-b,hint:hintBorrowSub(a,b)};}
-function eqAddThree(){let a,b,c,g=0;do{a=rnd(10,33);b=rnd(10,33);c=rnd(10,33);g++;}while((a+b+c>95||a+b+c<38)&&g<200);return{type:'add_three',question:`${a} + ${b} + ${c} = ?`,answer:a+b+c};}
-function eqSubThree(){let total,b,c,g=0;do{total=rnd(45,85);b=rnd(12,total-15);c=rnd(8,total-b-5);g++;}while((total-b-c<10||total-b-c>40)&&g<200);return{type:'sub_three',question:`${total} − ${b} − ${c} = ?`,answer:total-b-c};}
-function eqComposeAdd(){const targets=[10,12,14,15,16,18,20,22,24,25];const target=targets[rnd(0,targets.length-1)];return{type:'compose_add',question:`Find TWO ways to make <strong>${target}</strong> by adding two numbers.`,target};}
-function eqComposeSub(){const diffs=[4,5,6,7,8,9,10,11,12];const diff=diffs[rnd(0,diffs.length-1)];return{type:'compose_sub',question:`Find TWO pairs with a difference of <strong>${diff}</strong>.`,target:diff};}
-function eqFactFamily(){const a=rnd(3,12),b=rnd(3,12),total=a+b;return{type:'fact_family',question:`Using ${a}, ${b}, and ${total}, fill in all four facts:`,a,b,total};}
-function eqLogic(){const t=rnd(0,3);if(t===0){const p=[{pattern:"🔴 🔵 🔴 🔵",next:"🔴"},{pattern:"🟡 🟢 🟡 🟢",next:"🟡"},{pattern:"🐶 🐱 🐶 🐱",next:"🐶"}][rnd(0,2)];return{type:'logic',question:`What comes next?\n${p.pattern} __?`,answer:p.next};}if(t===1){const p=[{q:"If it's raining, we use an umbrella.\nIt is raining today. What do we use?",answer:"umbrella"},{q:"Finish your vegetables → get dessert.\nSafia finished her vegetables. Dessert?",answer:"yes"}][rnd(0,1)];return{type:'logic',question:p.q,answer:p.answer};}if(t===2){const p=[{q:"Which doesn't belong?\n🍎 🍌 🐶 🍊",answer:"🐶"},{q:"Which doesn't belong?\n🔴 🟡 🔵 🟢 ⭐",answer:"⭐"}][rnd(0,1)];return{type:'logic',question:p.q,answer:p.answer};}const p=[{q:"What comes next?\n2, 4, 6, 8, __?",answer:"10"},{q:"What comes next?\n5, 10, 15, 20, __?",answer:"25"}][rnd(0,1)];return{type:'logic',question:p.q,answer:p.answer};}
+function eqMissingAdd(){
+  const t=rnd(0,3);
+  if(t===0){
+    const a=rnd(2,9),total=rnd(a+3,18),ans=total-a;
+    return{type:'missing_add',category:'equation',hasHint:true,question:`? + ${a} = ${total}`,answer:ans,hint:hintMissingAddSimple(total,a)};
+  }
+  if(t===1){
+    const a=rnd(2,9),total=rnd(a+3,18),ans=total-a;
+    return{type:'missing_add',category:'equation',hasHint:true,question:`${a} + ? = ${total}`,answer:ans,hint:hintMissingAddSimple(total,a)};
+  }
+  if(t===2){
+    const total=rnd(12,25),result=rnd(5,total-3),ans=total-result;
+    return{type:'missing_add',category:'equation',hasHint:true,question:`${total} − ? = ${result}`,answer:ans,hint:hintMissingSubSmall(total,result)};
+  }
+  const a=rnd(3,8),b=rnd(3,8),total=rnd(a+b+3,30),ans=total-a-b;
+  return{type:'missing_add',category:'equation',hasHint:true,question:`${total} = ${a} + ${b} + ?`,answer:ans,hint:hintMissingThreeAdd(total,a,b)};
+}
+function eqCarryAdd(){let a,b,g=0;do{a=rnd(14,67);b=rnd(13,55);g++;}while(((a%10)+(b%10)<10||a+b>99)&&g<200);return{type:'carry_add',category:'equation',hasHint:true,question:`${a} + ${b} = ?`,answer:a+b,hint:hintCarryAdd(a,b)};}
+function eqBorrowSub(){let a,b,g=0;do{a=rnd(22,91);b=rnd(13,a-5);g++;}while(((a%10)>=(b%10)||a-b<5)&&g<200);return{type:'borrow_sub',category:'equation',hasHint:true,question:`${a} − ${b} = ?`,answer:a-b,hint:hintBorrowSub(a,b)};}
+function eqAddThree(){let a,b,c,g=0;do{a=rnd(10,33);b=rnd(10,33);c=rnd(10,33);g++;}while((a+b+c>95||a+b+c<38)&&g<200);return{type:'add_three',category:'equation',hasHint:true,question:`${a} + ${b} + ${c} = ?`,answer:a+b+c,hint:hintAddThree(a,b,c)};}
+function eqSubThree(){let total,b,c,g=0;do{total=rnd(45,85);b=rnd(12,total-15);c=rnd(8,total-b-5);g++;}while((total-b-c<10||total-b-c>40)&&g<200);return{type:'sub_three',category:'equation',hasHint:true,question:`${total} − ${b} − ${c} = ?`,answer:total-b-c,hint:hintSubThree(total,b,c)};}
+function eqComposeAdd(){const targets=[10,12,14,15,16,18,20,22,24,25];const target=targets[rnd(0,targets.length-1)];return{type:'compose_add',category:'equation',hasHint:true,question:`Find TWO ways to make <strong>${target}</strong> by adding two numbers.`,target,hint:hintComposeAdd(target)};}
+function eqComposeSub(){const diffs=[4,5,6,7,8,9,10,11,12];const diff=diffs[rnd(0,diffs.length-1)];return{type:'compose_sub',category:'equation',hasHint:true,question:`Find TWO pairs with a difference of <strong>${diff}</strong>.`,target:diff,hint:hintComposeSub(diff)};}
+function eqFactFamily(){const a=rnd(3,12),b=rnd(3,12),total=a+b;return{type:'fact_family',category:'equation',hasHint:true,question:`Using ${a}, ${b}, and ${total}, fill in all four facts:`,a,b,total,hint:hintFactFamily(a,b,total)};}
+
+function eqLogic() {
+  const t = rnd(0, 4);
+  if (t === 0) {
+    const patterns = [
+      { pattern: "🔴 🔵 🔴 🔵", next: "🔴", repeat: 2, last: "🔵", answer: "🔴" },
+      { pattern: "🟡 🟢 🟡 🟢", next: "🟡", repeat: 2, last: "🟢", answer: "🟡" },
+      { pattern: "🐶 🐱 🐶 🐱", next: "🐶", repeat: 2, last: "🐱", answer: "🐶" },
+      { pattern: "⭐ 🌙 ⭐ 🌙", next: "⭐", repeat: 2, last: "🌙", answer: "⭐" },
+      { pattern: "🍎 🍌 🍎 🍌", next: "🍎", repeat: 2, last: "🍌", answer: "🍎" },
+      { pattern: "1 2 1 2", next: "1", repeat: 2, last: "2", answer: "1" }
+    ];
+    const p = patterns[rnd(0, patterns.length-1)];
+    return {
+      type: 'logic',
+      category: 'logic',
+      hasHint: true,
+      question: `What comes next in the pattern?\n${p.pattern} __?`,
+      answer: p.next,
+      hint: hintPattern(p)
+    };
+  }
+  
+  if (t === 1) {
+    const puzzles = [
+      {
+        q: "If it's raining, then we use an umbrella.\nIt is raining today.\nWhat do we use?",
+        answer: "umbrella",
+        data: {
+          statement1: "If it's raining, then we use an umbrella.",
+          statement2: "It is raining today.",
+          conclusion: "We use an umbrella."
+        }
+      },
+      {
+        q: "If you finish your vegetables, you get dessert.\nSafia finished her vegetables.\nDoes she get dessert?",
+        answer: "yes",
+        data: {
+          statement1: "If you finish vegetables, you get dessert.",
+          statement2: "Safia finished her vegetables.",
+          conclusion: "Yes, she gets dessert!"
+        }
+      },
+      {
+        q: "If an animal has fur and says 'meow', it's a cat.\nFluffy has fur and says 'meow'.\nWhat is Fluffy?",
+        answer: "cat",
+        data: {
+          statement1: "If an animal has fur and says 'meow', it's a cat.",
+          statement2: "Fluffy has fur and says 'meow'.",
+          conclusion: "Fluffy is a cat."
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic',
+      category: 'logic',
+      hasHint: true,
+      question: p.q,
+      answer: p.answer,
+      hint: hintIfThen(p.data)
+    };
+  }
+  
+  if (t === 2) {
+    const puzzles = [
+      {
+        q: "Which one doesn't belong?\n🍎 🍌 🐶 🍊",
+        answer: "🐶",
+        data: {
+          items: "🍎 (apple), 🍌 (banana), 🐶 (dog), 🍊 (orange)",
+          reason: "Apple, banana, and orange are all fruits. Dog is an animal.",
+          oddOneOut: "🐶 (dog)"
+        }
+      },
+      {
+        q: "Which one doesn't belong?\n🔴 🟡 🔵 🟢 ⭐",
+        answer: "⭐",
+        data: {
+          items: "🔴 (red), 🟡 (yellow), 🔵 (blue), 🟢 (green), ⭐ (star)",
+          reason: "Red, yellow, blue, and green are all colors. Star is a shape.",
+          oddOneOut: "⭐ (star)"
+        }
+      },
+      {
+        q: "Which one doesn't belong?\n🐱 🐶 🐭 🚗",
+        answer: "🚗",
+        data: {
+          items: "🐱 (cat), 🐶 (dog), 🐭 (mouse), 🚗 (car)",
+          reason: "Cat, dog, and mouse are all animals. Car is a vehicle.",
+          oddOneOut: "🚗 (car)"
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic',
+      category: 'logic',
+      hasHint: true,
+      question: p.q,
+      answer: p.answer,
+      hint: hintSorting(p.data)
+    };
+  }
+  
+  if (t === 3) {
+    const puzzles = [
+      {
+        q: "What comes next?\n2, 4, 6, 8, __?",
+        answer: "10",
+        data: {
+          explanation: "Start at 2, then add 2 each time.",
+          rule: "Add 2",
+          next: "10"
+        }
+      },
+      {
+        q: "What comes next?\n5, 10, 15, 20, __?",
+        answer: "25",
+        data: {
+          explanation: "Start at 5, then add 5 each time.",
+          rule: "Add 5",
+          next: "25"
+        }
+      },
+      {
+        q: "What comes next?\n10, 9, 8, 7, __?",
+        answer: "6",
+        data: {
+          explanation: "Start at 10, then subtract 1 each time.",
+          rule: "Subtract 1",
+          next: "6"
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic',
+      category: 'logic',
+      hasHint: true,
+      question: p.q,
+      answer: p.answer,
+      hint: hintSequence(p.data)
+    };
+  }
+  
+  if (t === 4) {
+    const puzzles = [
+      {
+        q: "Hot is to cold as day is to ___?",
+        answer: "night",
+        data: {
+          relationship: "Hot and cold are opposites.",
+          pair1: "hot is opposite of cold",
+          pair2: "day is opposite of night",
+          answer: "night"
+        }
+      },
+      {
+        q: "Bird is to sky as fish is to ___?",
+        answer: "water",
+        data: {
+          relationship: "A bird lives in the sky.",
+          pair1: "bird lives in sky",
+          pair2: "fish lives in water",
+          answer: "water"
+        }
+      },
+      {
+        q: "Puppy is to dog as kitten is to ___?",
+        answer: "cat",
+        data: {
+          relationship: "A puppy grows up to be a dog.",
+          pair1: "puppy grows to dog",
+          pair2: "kitten grows to cat",
+          answer: "cat"
+        }
+      }
+    ];
+    const p = puzzles[rnd(0, puzzles.length-1)];
+    return {
+      type: 'logic',
+      category: 'logic',
+      hasHint: true,
+      question: p.q,
+      answer: p.answer,
+      hint: hintAnalogy(p.data)
+    };
+  }
+}
+
 const wordsCounting=[{type:'word',question:"Sara has 8 apples. Her mum gives 5 more. How many now?",answer:13},{type:'word',question:"14 birds on a tree. 6 fly away. How many left?",answer:8}];
 const wordsGrouping=[{type:'word',question:"3 bundles of 10 pencils + 4 loose. How many total?",answer:34}];
 const wordsMissingAdd=[{type:'word',question:"Safia has some stickers. Gets 5 more → now 13. How many did she start with?",answer:8}];
@@ -553,41 +1258,58 @@ const wordsComposeAdd=[{type:'word',question:"Find two ways to make 15 with two 
 const wordsComposeSub=[{type:'word',question:"Find two pairs with difference 8.",target:8}];
 const wordsFactFamily=[{type:'word',question:"Fact family for 5, 7, 12",a:5,b:7,total:12}];
 const wordsLogic=[{type:'word',question:"3 red apples + 2 green apples. Total?",answer:"5"}];
-function generateLevel(id){if(id==='combo')return[];const map={counting:{eqFn:eqCounting,pool:wordsCounting},grouping:{eqFn:eqGrouping,pool:wordsGrouping},missing_add:{eqFn:eqMissingAdd,pool:wordsMissingAdd},carry_add:{eqFn:eqCarryAdd,pool:wordsCarryAdd},borrow_sub:{eqFn:eqBorrowSub,pool:wordsBorrowSub},add_three:{eqFn:eqAddThree,pool:wordsAddThree},sub_three:{eqFn:eqSubThree,pool:wordsSubThree},compose_add:{eqFn:eqComposeAdd,pool:wordsComposeAdd},compose_sub:{eqFn:eqComposeSub,pool:wordsComposeSub},fact_family:{eqFn:eqFactFamily,pool:wordsFactFamily},logic:{eqFn:eqLogic,pool:wordsLogic}};const d=map[id];return d?buildLevel(d.eqFn,d.pool):[];}
+
+function generateLevel(id){
+  if(id==='combo')return[];
+  const map={counting:{eqFn:eqCounting,pool:wordsCounting},grouping:{eqFn:eqGrouping,pool:wordsGrouping},missing_add:{eqFn:eqMissingAdd,pool:wordsMissingAdd},carry_add:{eqFn:eqCarryAdd,pool:wordsCarryAdd},borrow_sub:{eqFn:eqBorrowSub,pool:wordsBorrowSub},add_three:{eqFn:eqAddThree,pool:wordsAddThree},sub_three:{eqFn:eqSubThree,pool:wordsSubThree},compose_add:{eqFn:eqComposeAdd,pool:wordsComposeAdd},compose_sub:{eqFn:eqComposeSub,pool:wordsComposeSub},fact_family:{eqFn:eqFactFamily,pool:wordsFactFamily},logic:{eqFn:eqLogic,pool:wordsLogic}};
+  const d=map[id];return d?buildLevel(d.eqFn,d.pool):[];
+}
 
 // ===== RENDERING =====
 function renderHome(){
   const grid=document.getElementById('levelsGrid');
-  grid.innerHTML='';
-  LEVELS.forEach(level=>{
-    const p=progress[level.id];
-    const stars=p.completed?(p.score>=90?'⭐⭐⭐':p.score>=70?'⭐⭐':'⭐'):'';
-    const btn=document.createElement('div');
-    btn.className='level-btn';
-    btn.innerHTML=`<div class="level-icon">${level.icon}</div><div class="level-name">${level.name}</div><div class="level-stars">${stars||'&nbsp;'}</div>`;
-    btn.onclick=()=>startLevel(level);
-    grid.appendChild(btn);
-  });
+  if(grid){
+    grid.innerHTML='';
+    LEVELS.forEach(level=>{
+      const p=progress[level.id];
+      const stars=p.completed?(p.score>=90?'⭐⭐⭐':p.score>=70?'⭐⭐':'⭐'):'';
+      const btn=document.createElement('div');
+      btn.className='level-btn';
+      btn.innerHTML=`<div class="level-icon">${level.icon}</div><div class="level-name">${level.name}</div><div class="level-stars">${stars||'&nbsp;'}</div>`;
+      btn.onclick=()=>startLevel(level);
+      grid.appendChild(btn);
+    });
+  }
   updateProgressStats();
   checkBadges();
 }
+window.showPracticeMenu=function(){
+  renderHome();
+  showScreen('practiceMenuScreen');
+};
+
 function updateProgressStats(){
   const m=LEVELS.filter(l=>progress[l.id]?.completed).length;
   const pct=Math.round(m/LEVELS.length*100)||0;
   document.getElementById('progressStats').textContent=`${m} of ${LEVELS.length} levels mastered (${pct}%)`;
   document.getElementById('progressBarFill').style.width=pct+'%';
-  document.getElementById('progressLabel').textContent=`${m}/${LEVELS.length} mastered · 95 SOAR`;
+  document.getElementById('progressLabel').textContent=`${m}/${LEVELS.length} mastered · 56 SOAR`;
 }
+
 function startLevel(level){
   currentLevel=level;
   questions=generateLevel(level.id);
   qIndex=0;score=0;wrong=0;answered=false;
   document.getElementById('quizLevelLabel').textContent=`${level.icon} ${level.name}`;
-  const vd=LEVEL_VIDEOS[level.id],va=document.getElementById('quizVideoArea');
-  if(vd&&va) va.innerHTML=makeVideoBtn(vd.url,vd.title);
+  const vd=LEVEL_VIDEOS[level.id];
+  const va=document.getElementById('quizVideoArea');
+  if(vd&&va){
+    va.innerHTML=makeVideoBtn(vd.url,vd.title);
+  }
   showScreen('quizScreen');
   renderQuestion();
 }
+
 function renderQuestion(){
   const q=questions[qIndex],total=questions.length;
   document.getElementById('quizQCounter').textContent=`Q${qIndex+1}/${total}`;
@@ -602,126 +1324,160 @@ function renderQuestion(){
   const hb=document.getElementById('hintButton');
   hb.style.display=q.hasHint?'block':'none';
   hb.disabled=false;
+
   const labels={counting_add:'🔢 Counting',counting_sub:'🔢 Counting',grouping:'📦 Tens & Ones',missing_add:'❓ Missing Number',carry_add:'➕ Carry Addition',borrow_sub:'➖ Borrow Sub',add_three:'🔺 Add Three',sub_three:'🔻 Subtract Three',compose_add:'🧩 Make a Sum',compose_sub:'🔍 Find the Gap',fact_family:'👪 Fact Family',logic:'🧠 Logic',word:'📖 Word Problem'};
   const badge=labels[q.type]||'🧮 Math';
-  const isFF=q.type==='fact_family', isCA=q.type==='compose_add', isCS=q.type==='compose_sub', isC=isCA||isCS, sym=isCA?'+':'−';
+  const isFF=q.type==='fact_family', isCA=q.type==='compose_add', isCS=q.type==='compose_sub', isC=isCA||isCS;
+  const sym=isCA?'+':'−';
   const card=document.getElementById('questionCard');
   card.className='q-card'+(q.category==='word'?' word-card':'');
+
   let inputHtml='';
   if(isFF){inputHtml=`<div class="fact-rows">${[1,2,3,4].map(i=>`<div class="fact-row"><span style="color:#b1a5d9;">${i}.</span><input class="fact-input" id="f${i}a" type="number" placeholder="?"><span style="color:#FF9FCF;font-size:1.2rem;">${i<=2?'+':'−'}</span><input class="fact-input" id="f${i}b" type="number" placeholder="?"><span style="color:#FF9FCF;font-size:1.2rem;">=</span><input class="fact-input" id="f${i}c" type="number" placeholder="?"></div>`).join('')}</div>`;}
   else if(isC){const t=q.target;inputHtml=`<div class="compose-rows">${[1,2].map(i=>`<div class="compose-row"><input class="compose-input" id="c${i}a" type="number" placeholder="?"><span class="compose-sym">${sym}</span><input class="compose-input" id="c${i}b" type="number" placeholder="?"><span class="compose-eq">= ${t}</span></div>`).join('')}</div>`;}
   else{inputHtml=`<input class="answer-input" id="answerInput" type="number" placeholder="Type your answer…">`;}
+
   card.innerHTML=`<div class="q-type-badge">${badge}</div><div class="question-text">${q.question.replace(/\n/g,'<br>')}</div>${inputHtml}<div class="hint-box" id="hintDisplay">${q.hint||''}</div>`;
+
   if(isFF){['f1a','f1b','f1c','f2a','f2b','f2c','f3a','f3b','f3c','f4a','f4b','f4c'].forEach(id=>document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();}));}
   else if(isC){['c1a','c1b','c2a','c2b'].forEach(id=>document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();}));}
   else{document.getElementById('answerInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});}
 }
+
 function showHint(){document.getElementById('hintDisplay').classList.add('show');document.getElementById('hintButton').disabled=true;}
-function friendlyAnswer(q){if(q.type==='compose_add')return'e.g. 7+8 and 6+9';if(q.type==='compose_sub')return'e.g. 12−4 and 13−5';if(q.type==='fact_family')return`${q.a}+${q.b}=${q.total}, ${q.b}+${q.a}=${q.total}, ${q.total}−${q.a}=${q.b}, ${q.total}−${q.b}=${q.a}`;return String(q.answer);}
-function checkAnswer(){if(answered)return;const q=questions[qIndex],isFF=q.type==='fact_family',isC=q.type==='compose_add'||q.type==='compose_sub';if(isFF){const gv=id=>{const v=document.getElementById(id)?.value;return v&&v.trim()!==''?parseInt(v):NaN;};const facts=[1,2,3,4].map(i=>({a:gv(`f${i}a`),b:gv(`f${i}b`),c:gv(`f${i}c`)}));if(facts.some(f=>isNaN(f.a)||isNaN(f.b)||isNaN(f.c))){alert('Please fill all four facts! ✏️');return;}const cf=[{a:q.a,b:q.b,c:q.total},{a:q.b,b:q.a,c:q.total},{a:q.total,b:q.a,c:q.b},{a:q.total,b:q.b,c:q.a}];const used=new Set();let allOk=true;facts.forEach((fact,idx)=>{let ok=false;for(let i=0;i<cf.length;i++){if(used.has(i))continue;const c=cf[i];if(idx<2){if((fact.a===c.a&&fact.b===c.b&&fact.c===c.c)||(fact.a===c.b&&fact.b===c.a&&fact.c===c.c)){ok=true;used.add(i);break;}}else{if(fact.a===c.a&&fact.b===c.b&&fact.c===c.c){ok=true;used.add(i);break;}}}const rowIds=[['f1a','f1b','f1c'],['f2a','f2b','f2c'],['f3a','f3b','f3c'],['f4a','f4b','f4c']][idx];rowIds.forEach(id=>document.getElementById(id).style.borderColor=ok?'#6BCB77':'#ff6b6b');if(!ok)allOk=false;});answered=true;if(allOk&&used.size===4){score++;playCorrectSound();document.getElementById('feedback').className='feedback show ok';document.getElementById('feedback').textContent='✅ All four facts correct!';}else{wrong++;playWrongSound();document.getElementById('feedback').className='feedback show bad';document.getElementById('feedback').textContent=`❌ Correct facts: ${friendlyAnswer(q)}`;}} else if(isC){const gv=id=>{const v=document.getElementById(id)?.value;return v&&v.trim()!==''?parseInt(v):NaN;};const rows=[{a:gv('c1a'),b:gv('c1b')},{a:gv('c2a'),b:gv('c2b')}];if(rows.some(r=>isNaN(r.a)||isNaN(r.b))){alert('Fill both rows!');return;}const ok=q.type==='compose_add'?rows.every(r=>r.a>0&&r.b>0&&r.a+r.b===q.target)&&!(rows[0].a===rows[1].a&&rows[0].b===rows[1].b):rows.every(r=>r.a>r.b&&r.a-r.b===q.target)&&!(rows[0].a===rows[1].a&&rows[0].b===rows[1].b);answered=true;if(ok){score++;playCorrectSound();document.getElementById('feedback').className='feedback show ok';document.getElementById('feedback').textContent='✅ Great! Both pairs work!';}else{wrong++;playWrongSound();document.getElementById('feedback').className='feedback show bad';document.getElementById('feedback').textContent='❌ Try different pairs.';}} else {const raw=document.getElementById('answerInput')?.value;if(!raw){alert('Type your answer!');return;}answered=true;const ok=parseInt(raw)===q.answer;if(ok){score++;playCorrectSound();document.getElementById('feedback').className='feedback show ok';document.getElementById('feedback').textContent='✅ Correct!';}else{wrong++;playWrongSound();document.getElementById('feedback').className='feedback show bad';document.getElementById('feedback').textContent=`❌ Answer: ${friendlyAnswer(q)}`;}}document.getElementById('scoreCorrect').textContent=score;document.getElementById('scoreWrong').textContent=wrong;document.getElementById('scorePercent').textContent=Math.round(score/(score+wrong)*100)+'%';document.getElementById('checkButton').style.display='none';document.getElementById('nextButton').style.display='block';}
+
+function friendlyAnswer(q){
+  if(q.type==='compose_add')return'e.g. 7+8 and 6+9';
+  if(q.type==='compose_sub')return'e.g. 12−4 and 13−5';
+  if(q.type==='fact_family')return`${q.a}+${q.b}=${q.total}, ${q.b}+${q.a}=${q.total}, ${q.total}−${q.a}=${q.b}, ${q.total}−${q.b}=${q.a}`;
+  return String(q.answer);
+}
+
+function checkAnswer(){
+  if(answered)return;
+  const q=questions[qIndex],isFF=q.type==='fact_family',isC=q.type==='compose_add'||q.type==='compose_sub';
+  if(isFF){
+    const gv=id=>{const v=document.getElementById(id)?.value;return v&&v.trim()!==''?parseInt(v):NaN;};
+    const facts=[1,2,3,4].map(i=>({a:gv(`f${i}a`),b:gv(`f${i}b`),c:gv(`f${i}c`)}));
+    if(facts.some(f=>isNaN(f.a)||isNaN(f.b)||isNaN(f.c))){alert('Please fill all four facts! ✏️');return;}
+    const cf=[{a:q.a,b:q.b,c:q.total},{a:q.b,b:q.a,c:q.total},{a:q.total,b:q.a,c:q.b},{a:q.total,b:q.b,c:q.a}];
+    const used=new Set();let allOk=true;
+    facts.forEach((fact,idx)=>{
+      let ok=false;
+      for(let i=0;i<cf.length;i++){if(used.has(i))continue;const c=cf[i];if(idx<2){if((fact.a===c.a&&fact.b===c.b&&fact.c===c.c)||(fact.a===c.b&&fact.b===c.a&&fact.c===c.c)){ok=true;used.add(i);break;}}else{if(fact.a===c.a&&fact.b===c.b&&fact.c===c.c){ok=true;used.add(i);break;}}}
+      const rowIds=[['f1a','f1b','f1c'],['f2a','f2b','f2c'],['f3a','f3b','f3c'],['f4a','f4b','f4c']][idx];
+      rowIds.forEach(id=>document.getElementById(id).style.borderColor=ok?'#6BCB77':'#ff6b6b');
+      if(!ok)allOk=false;
+    });
+    answered=true;
+    if(allOk&&used.size===4){score++;playCorrectSound();document.getElementById('feedback').className='feedback show ok';document.getElementById('feedback').textContent='✅ All four facts correct!';}
+    else{wrong++;playWrongSound();document.getElementById('feedback').className='feedback show bad';document.getElementById('feedback').textContent=`❌ Correct facts: ${friendlyAnswer(q)}`;}
+  } else if(isC){
+    const gv=id=>{const v=document.getElementById(id)?.value;return v&&v.trim()!==''?parseInt(v):NaN;};
+    const rows=[{a:gv('c1a'),b:gv('c1b')},{a:gv('c2a'),b:gv('c2b')}];
+    if(rows.some(r=>isNaN(r.a)||isNaN(r.b))){alert('Fill both rows!');return;}
+    const ok=q.type==='compose_add'?rows.every(r=>r.a>0&&r.b>0&&r.a+r.b===q.target)&&!(rows[0].a===rows[1].a&&rows[0].b===rows[1].b):rows.every(r=>r.a>r.b&&r.a-r.b===q.target)&&!(rows[0].a===rows[1].a&&rows[0].b===rows[1].b);
+    answered=true;
+    if(ok){score++;playCorrectSound();document.getElementById('feedback').className='feedback show ok';document.getElementById('feedback').textContent='✅ Great! Both pairs work!';}
+    else{wrong++;playWrongSound();document.getElementById('feedback').className='feedback show bad';document.getElementById('feedback').textContent='❌ Try different pairs.';}
+  } else {
+    const raw=document.getElementById('answerInput')?.value;
+    if(!raw){alert('Type your answer!');return;}
+    answered=true;
+    const ok=parseInt(raw)===q.answer;
+    if(ok){score++;playCorrectSound();document.getElementById('feedback').className='feedback show ok';document.getElementById('feedback').textContent='✅ Correct!';}
+    else{wrong++;playWrongSound();document.getElementById('feedback').className='feedback show bad';document.getElementById('feedback').textContent=`❌ Answer: ${friendlyAnswer(q)}`;}
+  }
+  document.getElementById('scoreCorrect').textContent=score;
+  document.getElementById('scoreWrong').textContent=wrong;
+  document.getElementById('scorePercent').textContent=Math.round(score/(score+wrong)*100)+'%';
+  document.getElementById('checkButton').style.display='none';
+  document.getElementById('nextButton').style.display='block';
+}
+
 function nextQuestion(){qIndex++;if(qIndex>=questions.length)showResults();else renderQuestion();}
-function showResults(){const total=questions.length,pct=Math.round(score/total*100),passed=pct>=70;if(passed)progress[currentLevel.id]={completed:true,score:pct};localStorage.setItem('safia-progress',JSON.stringify(progress));checkBadges();document.getElementById('resultEmoji').textContent=pct>=90?'🏆':pct>=70?'🌟':'💪';document.getElementById('resultTitle').textContent=pct>=90?'Amazing!':pct>=70?'Good job!':'Keep practising!';document.getElementById('resultStars').textContent=pct>=90?'⭐⭐⭐':pct>=70?'⭐⭐':'⭐';document.getElementById('resultMessage').textContent=`You got ${score}/${total} correct (${pct}%)`;const idx=LEVELS.findIndex(l=>l.id===currentLevel.id);const nb=document.getElementById('nextLevelButton');if(passed&&idx<LEVELS.length-1){nb.style.display='block';nb.onclick=()=>startLevel(LEVELS[idx+1]);}else nb.style.display='none';renderHome();showScreen('resultScreen');}
-function goHome(){showScreen('homeScreen');renderHome();}
+
+function showResults(){
+  const total=questions.length,pct=Math.round(score/total*100),passed=pct>=70;
+  if(passed)progress[currentLevel.id]={completed:true,score:pct};
+  localStorage.setItem('safia-progress',JSON.stringify(progress));
+  checkBadges();
+  document.getElementById('resultEmoji').textContent=pct>=90?'🏆':pct>=70?'🌟':'💪';
+  document.getElementById('resultTitle').textContent=pct>=90?'Amazing!':pct>=70?'Good job!':'Keep practising!';
+  document.getElementById('resultStars').textContent=pct>=90?'⭐⭐⭐':pct>=70?'⭐⭐':'⭐';
+  document.getElementById('resultMessage').textContent=`You got ${score}/${total} correct (${pct}%)`;
+  const idx=LEVELS.findIndex(l=>l.id===currentLevel.id);
+  const nb=document.getElementById('nextLevelButton');
+  if(passed&&idx<LEVELS.length-1){nb.style.display='block';nb.onclick=()=>startLevel(LEVELS[idx+1]);}
+  else nb.style.display='none';
+  renderHome();showScreen('resultScreen');
+}
+
+function goHome(){renderHome();showScreen('practiceMenuScreen');}
+function showHome(){showScreen('homeScreen');renderHome();}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function saveProgress(){const b=new Blob([JSON.stringify(progress)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='safia-progress.json';a.click();}
 function loadProgress(){document.getElementById('loadFile').click();}
 function handleLoadFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{Object.assign(progress,JSON.parse(ev.target.result));renderHome();alert('Progress loaded! ✅');}catch{alert('Could not read that file.');}};r.readAsText(f);}
 
-// ===== SOAR ACTIVITIES (sorted by age then alphabetically) =====
-const soarActivities = [
-  // ===== AGE 3-5 ===== (13 activities)
+// ===== SOAR =====
+const soarActivities=[
   {id:'beatClock',icon:'⏰',title:'Beat the Clock',age:'3-5',desc:'How many jumps in one minute?',aim:'Compare quantities and talk about time',instructions:['Set a timer for 1 minute.','Do star jumps, hops, or write your name as many times as you can!','Count how many you did.','Try again – can you do more?'],illustration:'🕐⭐ ➔ 🏃‍♀️ 1️⃣2️⃣3️⃣',hint:'If an action is quick (like clapping), you can do lots! If it takes longer (like twirling), you do fewer.',questions:['What can you do more of in a minute – star jumps or twirls?','Can you put your coat on in less than a minute?']},
   {id:'canYouBuild',icon:'🏗️',title:'Can You Build This?',age:'3-5',desc:'Copy a model with blocks',aim:'Explore shapes and positions',instructions:['An adult builds a simple model with 4-5 blocks.','Look closely! Can you make yours exactly the same?','Use the same pieces and put them in the same place.','Check – is your model the same?'],illustration:'🟦🟥 ➔ 🏠 (copy the tower!)',hint:'Look at where each block goes – on top, next to, behind.',questions:['Which block is on top? Which is underneath?','How do you need to turn that brick to match?']},
-  {id:'cooking',icon:'🥄',title:'Cooking With Children',age:'3-5',desc:'Follow a simple recipe',aim:'Measure and count ingredients',instructions:['Find a simple recipe – like playdough or cookies.','Count the cups of flour, spoonfuls of sugar.','Mix it all together!','Talk about what you\'re doing – "I need one more cup."'],illustration:'🥣 1 cup flour, 2 spoons sugar',hint:'Read the recipe together. Count the spoonfuls carefully.',questions:['How many cups of flour do we need?','What if we add too much water?']},
-  {id:'dice',icon:'🎲',title:'Dice',age:'3-5',desc:'Roll and count',aim:'Match numerals to amounts',instructions:['Get a big dice and some toys.','Roll the dice. Count the dots.','Take that many toys!','Roll again – more or fewer toys?'],illustration:'🎲⚀ ➔ 🧸🧸🧸 (3 teddies)',hint:'The dots tell you how many. Count carefully!',questions:['What number did you roll? Can you write it?','Have we got enough teddies for a tea party?']},
   {id:'howLongAreYou',icon:'📏',title:'How Long Are You?',age:'3-5',desc:'Measure yourself with everyday things',aim:'Compare length using non-standard units',instructions:['Lie down and have an adult mark where your head and feet go.','Measure with pens – place them end to end, no gaps!','Count how many pens tall you are.','Try with paper rolls, spoons, or LEGO bricks.'],illustration:'🧍‍♀️ ➔ ✏️✏️✏️✏️ (20 pens tall!)',hint:'If things are shorter, you need more of them.',questions:['How many LEGO bricks tall are you? Why more than pens?','Are you taller than a metre?']},
-  {id:'longCreatures',icon:'🐛',title:'Long Creatures',age:'3-5',desc:'Make worms, snakes, caterpillars',aim:'Compare lengths',instructions:['Use thin card, playdough, or linking cubes.','Make a long creature – a snake, worm, or lizard!','Now make another one – longer or shorter?','Compare with a friend\'s creature.'],illustration:'🐍📏 ➔ longer · shorter · longest',hint:'Fold paper like an accordion to make it stretch!',questions:['How can you make it longer? Shorter?','Whose creature is longest? How do you know?']},
   {id:'makingFootprints',icon:'🦶',title:'Making Footprints',age:'3-5',desc:'Press shapes into soft dough',aim:'Explore faces of 3D shapes',instructions:['Get some soft dough or playdough.','Press different wooden blocks into it to make "footprints".','Run your finger around the edge.','Can you find another block that makes the same footprint?'],illustration:'🧊🔺 ➔ ⏺️⏸️ (cube makes a square!)',hint:'The flat side of the block makes the print.',questions:['What shape is the footprint of a cube? A sphere?','Can you guess which block made a footprint?']},
-  {id:'mudKitchen',icon:'🍲',title:'Mud Kitchen',age:'3-5',desc:'Cook with mud and water',aim:'Explore size, capacity, weight',instructions:['Get pots, pans, spoons, and mud (or sand).','Make mud pies, soups, and cakes!','Fill different containers – which holds more?','Use big spoons and little spoons.'],illustration:'🥘🌊 (fill the pot!)',hint:'Bigger containers hold more mud.',questions:['Which pan is biggest? Which holds the most?','Is the pot full? How do you know?']},
-  {id:'numberBook',icon:'📘',title:'Number Book',age:'3-5',desc:'Make a book of 4',aim:'Collect groups and count',instructions:['Choose a number – like 4!','Go on a hunt – find 4 leaves, 4 stones, 4 toys.','Stick them in a book or take photos.','Write the number 4 on each page.'],illustration:'4 leaves 🍁🍁🍁🍁 · 4 stones',hint:'Count each thing carefully. Touch and say the number.',questions:['Do you have 4 of everything?','Which group is your favourite?']},
+  {id:'longCreatures',icon:'🐛',title:'Long Creatures',age:'3-5',desc:'Make worms, snakes, caterpillars',aim:'Compare lengths',instructions:['Use thin card, playdough, or linking cubes.','Make a long creature – a snake, worm, or lizard!','Now make another one – longer or shorter?','Compare with a friend\'s creature.'],illustration:'🐍📏 ➔ longer · shorter · longest',hint:'Fold paper like an accordion to make it stretch!',questions:['How can you make it longer? Shorter?','Whose creature is longest? How do you know?']},
   {id:'packing',icon:'📦',title:'Packing',age:'3-5',desc:'Sort toys into boxes',aim:'Sort and classify',instructions:['Get some boxes or trays.','Choose a group of toys – animals, cars, or blocks.','Put them into boxes by type.','How many in each box? Which has most?'],illustration:'🐶🐱 | 🚗🚕 | 🧊🧊 (sorted!)',hint:'Look for things that are the same kind.',questions:['Are there more farm animals or zoo animals?','Could you sort them by colour instead?']},
-  {id:'patternMaking',icon:'🎨',title:'Pattern Making',age:'3-5',desc:'Make and describe patterns',aim:'Recognise and extend patterns',instructions:['Use coloured cubes, beads, or toys.','Make a pattern: red, blue, red, blue…','Say the pattern out loud.','Can you make it longer? A different pattern?'],illustration:'🔴🔵🔴🔵 ➔ next is 🔴',hint:'Patterns repeat. What comes next?',questions:['What is the rule of your pattern?','Can you make a sound pattern – clap, stomp, clap, stomp?']},
-  {id:'smallWorld',icon:'🐏',title:'Small World Play',age:'3-5',desc:'Build a farm or zoo',aim:'Use language of position and size',instructions:['Get farm animals, fences, and boxes.','Build fields and pens.','Put the cows in one field, sheep in another.','Talk about it – "The pig is next to the trough."'],illustration:'🐄🐑 | 🐖 (fields with fences)',hint:'Bigger animals might need bigger fields.',questions:['How many cows fit in this field?','Which animal has the biggest field? Why?']},
   {id:'tubesTunnels',icon:'🧻',title:'Tubes and Tunnels',age:'3-5',desc:'Play with cardboard tubes',aim:'Explore size, length, position',instructions:['Find different tubes – paper towel rolls, wrapping paper tubes, straws.','Roll them? Blow through them?','Make a tunnel for toy cars.','Can you stack them? Make a telescope?'],illustration:'📦🧻🚗 (car goes through tunnel)',hint:'Wider tubes let bigger things through.',questions:['Which tube is longest? Widest?','Can you make a tunnel that turns a corner?']},
-
-  // ===== AGE 5-7 ===== (30 activities)
-  {id:'alwaysSometimesNever',icon:'🤔',title:'Always, Sometimes or Never? KS1',age:'5-7',desc:'Are these maths statements always, sometimes or never true?',aim:'Reason about number and shape properties',instructions:['Read each statement aloud.','Decide: is it ALWAYS true, SOMETIMES true, or NEVER true?','Find an example that proves it (or a counter-example that disproves it!).'],illustration:'✅ ALWAYS | 🟡 SOMETIMES | ❌ NEVER',hint:'For "sometimes" — can you say WHEN it is true and when it isn\'t?',questions:['Can you rewrite a "sometimes" statement to make it ALWAYS true?','Which statements surprised you?']},
-  {id:'boardBlock',icon:'🔺',title:'Board Block for Two',age:'5-7',desc:'Place triangle bands on a pegboard – block your partner!',aim:'Explore properties of triangles',instructions:['Use a circular pegboard with 6 pegs (or draw one on paper).','Take turns adding a rubber band around 3 pegs to make a triangle.','Triangles must NOT overlap (edges and pegs can touch).','A player loses when they cannot make a triangle on their turn.'],illustration:'⬡ peg board → △ △ △ (no overlaps!)',hint:'Think about which pegs are still free — plan ahead!',questions:['What are winning strategies?','How does it change when you play to lose?']},
-  {id:'boardBlockChallenge',icon:'🧩',title:'Board Block Challenge',age:'7-11',desc:'Place triangles on a pegboard without overlapping',aim:'Explore spatial reasoning and strategy',instructions:['Use a triangular pegboard (or draw one).','Take turns placing rubber bands around 3 pegs to make triangles.','Triangles cannot overlap (but can touch).','Last player to place a triangle wins!'],illustration:'△ on pegs 1-2-3, next player tries pegs 2-4-5',hint:'Think about which pegs are still free – try to block your opponent.',questions:['What\'s the best first move?','Can you find a winning strategy?']},
-  {id:'breakItUp',icon:'🧱',title:'Break It Up!',age:'5-11',desc:'How many ways can you break a stick of 7 cubes into 2 pieces?',aim:'Explore patterns and systematic working',instructions:['Get 7 interlocking cubes (or draw a row of 7 squares).','Break the stick into exactly 2 pieces. Count how many ways you can do this.','Now try with 8 cubes, then 6 cubes.','What pattern do you notice?','Predict how many ways for 5 cubes, then check!'],illustration:'■■■■■■■ → ■|■■■■■■ or ■■|■■■■■ etc.',hint:'Each "break point" gives a different way — count the gaps between cubes!',questions:['What do you notice about the number of ways vs the number of cubes?','How many ways with 20 cubes?']},
-  {id:'butterflyFlowers',icon:'🦋',title:'Butterfly Flowers',age:'5-7',desc:'Match butterfly pairs that add to the flower number',aim:'Practise number bonds',instructions:['Print (or draw) the 16 butterfly cards and 8 flower cards from NRICH "Butterfly Flowers".','Each flower has a number. Find TWO butterflies whose numbers ADD to the flower\'s number.','Place the pair of butterflies on their matching flower.','Which pair of butterflies has NO flower? Which flower gets NO butterflies?'],illustration:'Flower 🌸8: butterflies 3️⃣ + 5️⃣ 🦋🦋',hint:'Add each pair of butterflies systematically until you find a match for each flower.',questions:['Which pair of butterflies has no flower? Why?','Which flower can\'t have a pair of butterflies? Why?']},
-  {id:'hundredSquareJigsaw',icon:'🧩',title:'100 Square Jigsaw',age:'5-7',desc:'Put the 100 square back together!',aim:'Explore number patterns and place value',instructions:['Print puzzle pieces from the NRICH website (search "100 Square Jigsaw NRICH").','Cut them out and mix them up.','Put the 100 square back together like a jigsaw.','Use number patterns to help: tens in each column, units in each row.'],illustration:'1  2  3 … 10\n11 12 13 … 20\n… (reassemble!)  🧩',hint:'Look at the last digit in each column — it\'s always the same!',questions:['How are you going about it? What patterns do you look for?','What\'s the hardest piece to place? Why?']},
-  {id:'cuisenaireCounting',icon:'🟥',title:'Cuisenaire Counting',age:'5-7',desc:'How many ways can you make a yellow rod with white and red?',aim:'Explore combinations and systematic working',instructions:['Yellow rod = 5 units long. White rod = 1 unit. Red rod = 2 units.','Make all the ways to fill a yellow rod using ONLY white and red rods.','Record each way. How do you know you\'ve found them ALL?','Then try the same for a dark green rod (6 units).'],illustration:'Yellow (5):\nW W W W W\nR W W W\nW R W W\nW W R W\nW W W R\nR R W\n... etc.',hint:'Work systematically: start with all whites, then swap one white for a red, then two...',questions:['How many ways are there for yellow? For dark green?','Can you see a pattern?']},
-  {id:'dottySix',icon:'⚫',title:'Dotty Six',age:'3-5',desc:'Roll a dice and add dots to reach 6',aim:'Practice counting and addition',instructions:['Draw a 3x2 grid of dots.','Roll a dice, cover that many dots with counters.','If you roll more than the remaining dots, you lose.','First to cover all 6 dots wins!','Try with different grid sizes.'],illustration:'●●●●●● → roll 4 → cover 4 dots (●●●● left: ●●)',hint:'Think about how many dots are left – can you plan ahead?',questions:['What\'s the best strategy?','How does the game change with a 4x3 grid?']},
-  {id:'eightnessOfEight',icon:'🔴',title:'Eightness of Eight',age:'5-7',desc:'Watch counters move and describe what stays the same!',aim:'Understand that a number stays the same however it is arranged',instructions:['Watch the NRICH "Eightness of Eight" video (link below).','8 counters are rearranged in different ways — each time it\'s still 8!','Describe what you notice: what is the same? What is different?','Now imagine 12 counters. How many different ways could you show "12"?','Make or photograph your own arrangements of 12!'],illustration:'●●●●●●●● → arrange differently → still 8! ✨',hint:'The NUMBER doesn\'t change — only the arrangement does.',questions:['What is always the same when you move the counters?','Can you make a video or photos showing the "twelve-ness of twelve"?']},
-  {id:'enCounters',icon:'⭕',title:'En-Counters for Two',age:'5-7',desc:'Recreate a secret counter pattern by asking questions!',aim:'Use language of colour, position and order',instructions:['Both players have matching sets of up to 12 counters.','Adult secretly arranges their counters and describes them aloud as they place them.','You try to copy the pattern from the description — ask questions if you need to!','When done, compare — are they the same?','Then swap roles.'],illustration:'Adult: "One red counter. One blue counter below it." → copy it!',hint:'Ask about colour, position (above, below, left, right), and distance.',questions:['Which questions helped most?','What language makes the descriptions clearest?']},
-  {id:'fourTriangles',icon:'🔺',title:'Four Triangles Puzzle',age:'5-11',desc:'Cut a square into 4 triangles and rearrange them!',aim:'Explore shapes by systematic trial',instructions:['Cut a square of paper diagonally corner to corner in BOTH directions — you get 4 right-angled triangles.','Rearrange the 4 triangles to make different shapes.','Long sides must touch long sides; short sides must touch short sides.','How many DIFFERENT shapes can you make?','Record each one by drawing it.'],illustration:'◼ → cut diagonally → △△△△ → rearrange!',hint:'Flip and rotate triangles. Two shapes are the "same" if one is just a rotation/flip of the other.',questions:['How do you know two shapes are different and not just rotations?','How many shapes can you find altogether?']},
-  {id:'guessDominoes',icon:'🁢',title:'Guess the Dominoes',age:'5-7',desc:'Arrange dominoes to match a pattern',aim:'Practice matching and logical thinking',instructions:['Use a set of dominoes (or make paper ones).','One player secretly arranges 4 dominoes in a square.','They give clues about the arrangement (totals, matching ends).','Other player tries to recreate it!'],illustration:'Domino [3|4] next to [4|2] (4s touch)',hint:'Look at where numbers match – that tells you which dominoes are connected.',questions:['What clues are most helpful?','Can you make it harder with more dominoes?']},
-  {id:'guessTheHouses',icon:'🏡',title:'Guess the Houses for Two',age:'5-7',desc:'Ask questions to guess the secret rule!',aim:'Develop logical questioning and reasoning',instructions:['Print NRICH "Guess the Houses" rule cards and house cards.','Adult secretly picks a rule card (e.g. "houses with orange roofs").','Show the adult house cards one at a time: "Does this card fit your rule?" YES → into the Box. NO → outside.','Keep going until you can say what the rule is!','Try to find the rule in as FEW questions as possible.'],illustration:'🏠 → "Yes" 🟩 / "No" 🟥 → figure out the rule!',hint:'Pick house cards that differ in only ONE property — this helps narrow down the rule fastest.',questions:['What\'s the least number of cards you needed?','What types of questions are most helpful?']},
-  {id:'inceyWincey',icon:'🕷️',title:'Incey Wincey Spider for Two',age:'5-7',desc:'Move the spider up or down the drainpipe with dice!',aim:'Explore numbers on a vertical track — great for negative numbers prep',instructions:['Draw or print a drainpipe track (numbers from bottom to top).','You are SUNSHINE (spider moves UP). Adult is RAIN (spider moves DOWN).','Take turns rolling one die and moving the spider that many spaces.','Sunshine wins if spider reaches the top. Rain wins if it reaches the bottom.'],illustration:'☀️ roll → spider climbs ⬆️\n🌧️ roll → spider slides ⬇️',hint:'The spider can go up AND down from the middle — it\'s like a number line stood on its end!',questions:['How long does it take to reach one end?','Try with two dice and CHOOSE which number to use — does strategy help?']},
-  {id:'ladybirdBox',icon:'🐞',title:'Ladybird Box',age:'5-11',desc:'Place 6 ladybirds so every row and column has exactly 2!',aim:'Work systematically to solve a logic puzzle',instructions:['Draw a 3×3 grid (9 squares).','Place 6 ladybirds into the grid so that EVERY row has exactly 2 ladybirds AND every column has exactly 2 ladybirds.','Try it on paper first, then use the NRICH interactivity.','How many different solutions can you find?'],illustration:'🐞 _ 🐞\n_ 🐞 🐞  ← does this work?\n🐞 🐞 _',hint:'Start with the first row — there are 3 ways to place 2 ladybirds in it. Try each and see what follows.',questions:['How many different solutions are there?','How do you know you\'ve found them all?']},
-  {id:'lessMore',icon:'⚖️',title:'Less or More?',age:'5-7',desc:'Guess a secret number with "less/more" clues',aim:'Practice number comparison and logical thinking',instructions:['Think of a secret number between 1-100.','Other player guesses a number.','You say "less" or "more".','How many guesses to find it?','Swap roles and try again!'],illustration:'Secret: 42. Guess 50 → "less". Guess 30 → "more".',hint:'Always guess the middle of the remaining range – that eliminates most numbers.',questions:['What\'s the best first guess?','Can you always find it in 7 guesses?']},
-  {id:'makingSticks',icon:'🥢',title:'Making Sticks',age:'5-7',desc:'Break a stick into pieces and compare lengths',aim:'Compare lengths and practice subtraction',instructions:['Give each player a strip of paper (the "stick").','Players secretly cut their stick into 2-4 pieces.','They arrange pieces in order and compare with opponent.','Who has the longest piece? Shortest? Most pieces?'],illustration:'My stick: 10cm → cut into 3,3,4 → longest 4cm',hint:'Try different cuts – how can you make the longest piece?',questions:['How many different ways can you cut the stick?','What\'s the longest piece you can make?']},
-  {id:'matchingNumbers',icon:'🃏',title:'Matching Numbers for Two',age:'5-7',desc:'Memory game – match different ways to show the same number',aim:'See numbers represented in many ways',instructions:['Print the NRICH Matching Numbers cards (or make your own: dice faces, tally marks, numerals, dot patterns, finger pictures).','Shuffle and place face-down in a grid.','Take turns flipping two cards. If they show the SAME number, keep them!','The player with most pairs at the end wins.'],illustration:'🎴 flip → ⚃ and 4 → Match! 🎉',hint:'Remember where cards are — use your memory!',questions:['How many ways can you show the number 5?','Can you make your OWN extra cards with a new way to show numbers?']},
-  {id:'noah',icon:'🚢',title:'Noah',age:'5-7',desc:'Noah saw 12 legs walk by. How many creatures could there be?',aim:'Solve problems with multiple possibilities',instructions:['Noah saw 12 legs walk into the ark.','Animals have different numbers of legs (e.g., humans have 2, dogs have 4, birds have 2, spiders have 8).','Find different combinations of creatures that could make 12 legs total.','How many different answers can you find?','Record your answers and explain how you found them.'],illustration:'🐕+🐕 (4+4=8) + 🐦 (2) + 🐦 (2) = 12 legs',hint:'Start with one animal and see what\'s left. Work systematically – try all animals with 2 legs first, then add 4-legged animals.',questions:['How many different combinations did you find?','How do you know you\'ve found them all?']},
-  {id:'oneBigTriangle',icon:'🔟',title:'One Big Triangle',age:'5-7',desc:'Arrange 9 small triangles so touching numbers add to 10!',aim:'Practise number bonds to 10',instructions:['Print the 9 small triangles from NRICH "One Big Triangle" (or draw them).','Each triangle has 3 numbers on its edges.','Arrange them to form ONE big triangle.','Numbers that TOUCH each other across edges must add to 10.'],illustration:'△ △ △ → fit together so 3+7, 4+6, 5+5 at each join = 10',hint:'Find pairs that make 10: 1+9, 2+8, 3+7, 4+6, 5+5. Match those edges!',questions:['How did you get started?','Is there more than one solution?']},
-  {id:'paperPatchwork',icon:'📄',title:'Paper Patchwork 1',age:'5-7',desc:'Fold paper and make patchwork patterns!',aim:'Explore shapes through folding and patterns',instructions:['Take a sheet of A4 paper. Fold it in half along the crease shown in the NRICH picture.','What shape do you get?','Make the same shape from A4, A5 and A6 paper in two different colours.','Lay shapes on top of each other (you must see at least part of each) so all three fit inside the largest.','Arrange your patterns on the floor to make a Paper Patchwork!'],illustration:'A4 folded → new shape → repeat in 3 sizes → 🎨 patchwork!',hint:'Fold carefully along the crease line — precision matters for the shapes to fit.',questions:['What shape do you get when you fold?','Can each new pattern be a different design from the others?']},
-  {id:'play37',icon:'🎮',title:'Play 37',age:'7-11',desc:'Choose numbers to add to 37 – but don\'t go over!',aim:'Practice addition and strategic thinking',instructions:['Start at 0.','Take turns adding 1, 3, 5, or 7 to the total.','If you make the total EXACTLY 37, you win!','If you go over 37, you lose.'],illustration:'0 → +7=7 → +5=12 → ... → 37 WIN!',hint:'Work backwards – what numbers are "winning positions"?',questions:['Can you always win if you go first?','What numbers are safe to land on?']},
-  {id:'polyPlugRectangles',icon:'🟣',title:'Poly Plug Rectangles',age:'5-11',desc:'Find the secret rectangle by testing spots!',aim:'Understand multiplication as arrays',instructions:['Draw a 5×5 grid of dots (or use the NRICH interactivity).','One player secretly colours a rectangle (rows × columns) on the grid.','Other player picks spots to test — are they in the rectangle?','The guesser tries to find the rectangle with as FEW tests as possible.','Once found, count total spots = length × width.'],illustration:'? ? ? ?\n? ■ ■ ?\n? ■ ■ ?\n? ? ? ? ← find me!',hint:'Test a spot near the middle first — it gives the most information.',questions:['Which total numbers of spots are easiest? Why?','How few test spots do you really need?']},
-  {id:'robotMonsters',icon:'🤖',title:'Robot Monsters',age:'5-7',desc:'Build robot monsters and measure their heights!',aim:'Add measurements, work systematically',instructions:['Print robot head, body and leg pieces from NRICH "Robot Monsters".','Each piece has a height in cm written on it.','Build a robot using ONE head + ONE body + ONE legs.','How tall is your robot? (Add the three numbers.)','Find the TALLEST and SHORTEST possible robots.'],illustration:'Head (3cm) + Body (5cm) + Legs (4cm) = 12cm 🤖',hint:'To find the tallest, pick the biggest piece from each category. Smallest → pick the smallest.',questions:['Can you find ALL the possible heights?','How do you know you haven\'t missed any?']},
+  {id:'dice',icon:'🎲',title:'Dice',age:'3-5',desc:'Roll and count',aim:'Match numerals to amounts',instructions:['Get a big dice and some toys.','Roll the dice. Count the dots.','Take that many toys!','Roll again – more or fewer toys?'],illustration:'🎲⚀ ➔ 🧸🧸🧸 (3 teddies)',hint:'The dots tell you how many. Count carefully!',questions:['What number did you roll? Can you write it?','Have we got enough teddies for a tea party?']},
+  {id:'mudKitchen',icon:'🍲',title:'Mud Kitchen',age:'3-5',desc:'Cook with mud and water',aim:'Explore size, capacity, weight',instructions:['Get pots, pans, spoons, and mud (or sand).','Make mud pies, soups, and cakes!','Fill different containers – which holds more?','Use big spoons and little spoons.'],illustration:'🥘🌊 (fill the pot!)',hint:'Bigger containers hold more mud.',questions:['Which pan is biggest? Which holds the most?','Is the pot full? How do you know?']},
+  {id:'patternMaking',icon:'🎨',title:'Pattern Making',age:'3-5',desc:'Make and describe patterns',aim:'Recognise and extend patterns',instructions:['Use coloured cubes, beads, or toys.','Make a pattern: red, blue, red, blue…','Say the pattern out loud.','Can you make it longer? A different pattern?'],illustration:'🔴🔵🔴🔵 ➔ next is 🔴',hint:'Patterns repeat. What comes next?',questions:['What is the rule of your pattern?','Can you make a sound pattern – clap, stomp, clap, stomp?']},
+  {id:'cooking',icon:'🥄',title:'Cooking With Children',age:'3-5',desc:'Follow a simple recipe',aim:'Measure and count ingredients',instructions:['Find a simple recipe – like playdough or cookies.','Count the cups of flour, spoonfuls of sugar.','Mix it all together!','Talk about what you\'re doing – "I need one more cup."'],illustration:'🥣 1 cup flour, 2 spoons sugar',hint:'Read the recipe together. Count the spoonfuls carefully.',questions:['How many cups of flour do we need?','What if we add too much water?']},
+  {id:'numberBook',icon:'📘',title:'Number Book',age:'3-5',desc:'Make a book of 4',aim:'Collect groups and count',instructions:['Choose a number – like 4!','Go on a hunt – find 4 leaves, 4 stones, 4 toys.','Stick them in a book or take photos.','Write the number 4 on each page.'],illustration:'4 leaves 🍁🍁🍁🍁 · 4 stones',hint:'Count each thing carefully. Touch and say the number.',questions:['Do you have 4 of everything?','Which group is your favourite?']},
+  {id:'smallWorld',icon:'🐏',title:'Small World Play',age:'3-5',desc:'Build a farm or zoo',aim:'Use language of position and size',instructions:['Get farm animals, fences, and boxes.','Build fields and pens.','Put the cows in one field, sheep in another.','Talk about it – "The pig is next to the trough."'],illustration:'🐄🐑 | 🐖 (fields with fences)',hint:'Bigger animals might need bigger fields.',questions:['How many cows fit in this field?','Which animal has the biggest field? Why?']},
+  {id:'shutTheBox',icon:'🎲',title:'Shut the Box for Two',age:'5-7',desc:'Turn over cards matching numbers on two dice',aim:'Use number knowledge with dice sums',instructions:['Make cards numbered 1–12 (or print them). Place them all face up.','Adult rolls two dice first. Turn over cards matching the numbers rolled (e.g. roll 4 & 5 → flip over 4 and 5).','If a double is thrown, your turn ends. Keep rolling until you can\'t flip any more cards.','Add the remaining showing cards — that\'s your score. Lower score wins!','Swap and play again!'],illustration:'🎲🎲 ➔ 4+5 → flip 4️⃣ and 5️⃣',hint:'Try to flip cards that give you the most options for future rolls.',questions:['Which cards are hardest to flip? Why?','What is the best score you can get?'],adultNotes:'Easier: use cards 1–6 only. Harder: use addition or multiplication of the two dice to find the number to flip.'},
+  {id:'strikeItOut',icon:'✏️',title:'Strike It Out for Two',age:'5-11',desc:'Cross out numbers on a number line – stop your partner!',aim:'Practise addition and subtraction strategically',instructions:['Draw a number line from 0 to 20.','Adult crosses out one number, then another, then circles their sum or difference.','You MUST start with the circled number. Cross it out, cross out another, circle their sum or difference.','Take turns. You can\'t circle a number already circled.','Winner: the player who stops their opponent from being able to go!'],illustration:'0─1─2─3…20  ✂️ cross out · ⭕ circle sum/diff',hint:'Think ahead — can you trap your opponent so they have no valid moves?',questions:['Can you cross out ALL numbers in one game?','What\'s the biggest number of numbers you can cross out?'],videoUrl:'https://youtu.be/G7baaNCYCpY'},
+  {id:'seeingSquares',icon:'🟦',title:'Seeing Squares for Two',age:'5-11',desc:'Place dots to make squares on a grid – any size, any tilt!',aim:'Visualise and identify squares including tilted ones',instructions:['Print blank grid paper or use dotty paper.','Choose a colour each. Take turns drawing a dot on the grid.','First player to place 4 dots that form a square wins!','Squares can be ANY size and can be tilted at any angle.','Think about your strategy — block your partner!'],illustration:'· · · ·\n· ● · ●\n· · · ·\n· ● · ● ← square!',hint:'A tilted square still has 4 equal sides and 4 right angles. Look for diagonals!',questions:['How do you know you\'ve made a square?','Can you work out a strategy to always win?']},
+  {id:'boardBlock',icon:'🔺',title:'Board Block for Two',age:'5-7',desc:'Place triangle bands on a pegboard – block your partner!',aim:'Explore properties of triangles',instructions:['Use a circular pegboard with 6 pegs (or draw one on paper).','Take turns adding a rubber band around 3 pegs to make a triangle.','Triangles must NOT overlap (edges and pegs can touch).','A player loses when they cannot make a triangle on their turn.','Once you\'ve mastered it, try playing to LOSE!'],illustration:'⬡ peg board → △ △ △ (no overlaps!)',hint:'Think about which pegs are still free — plan ahead!',questions:['What are winning strategies?','How does it change when you play to lose?']},
   {id:'sameLengthTrains',icon:'🚂',title:'Same Length Trains',age:'5-7',desc:'Make trains the same length using one colour of rod',aim:'Explore equal lengths and number relationships',instructions:['Get Cuisenaire rods (or use strips of paper cut to sizes 1–10 cm).','Make a "train" that is 20 cm long using mixed colours.','Now make trains the SAME length using ONLY one colour of rod.','For example: all white (1cm each) needs 20 rods. All red (2cm) needs 10.','How many different single-colour trains can you make?'],illustration:'Light green + Black + Pink + Dark green = 20\n⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ (20 whites)',hint:'Which colours divide evenly into the total length? Those are your answers!',questions:['How do you know you\'ve found ALL possible trains?','What if the total length were 12 instead of 20?']},
-  {id:'seeingSquares',icon:'🟦',title:'Seeing Squares',age:'5-11',desc:'Place dots to make squares on a grid – any size, any tilt!',aim:'Visualise and identify squares including tilted ones',instructions:['Print blank grid paper or use the NRICH interactivity.','Choose a colour each. Take turns drawing a dot on the grid.','First player to place 4 dots that form a square wins!','Squares can be ANY size and can be tilted at any angle.','Think about your strategy — block your partner!'],illustration:'· · · ·\n· ● · ●\n· · · ·\n· ● · ● ← square!',hint:'A tilted square still has 4 equal sides and 4 right angles. Look for diagonals!',questions:['How do you know you\'ve made a square?','Can you work out a strategy to always win?']},
   {id:'sortTheStreet',icon:'🏠',title:'Sort the Street',age:'5-7',desc:'Sort houses by colour, roof, floors and more!',aim:'Sort and classify using multiple properties',instructions:['Look at the 9 houses (draw them or use the NRICH interactivity).','Each house has: door colour, roof colour, number of floors, chimney side, window type.','Sort the houses into two groups. Tell a grown-up your rule.','Now sort them a DIFFERENT way. How many ways can you find?'],illustration:'🏠🟢 🏠⬛ 🏠🔵 → sort by door colour!',hint:'Try sorting by roof colour, then by floors, then by chimney side.',questions:['Which way of sorting makes the most equal groups?','Can you sort into 3 groups?']},
-  {id:'starfishSpotting',icon:'⭐',title:'Starfish Spotting',age:'5-7',desc:'I can see 28 arms on the beach. How many children and starfish?',aim:'Solve problems with two variables',instructions:['Imagine you see 28 arms on the beach.','Children have 2 arms. Starfish have 5 arms.','How many children and how many starfish could there be?','Find as many different solutions as you can.','Use counters or draw pictures to help.'],illustration:'4 starfish (20 arms) + 4 children (8 arms) = 28 arms',hint:'Starfish have 5 arms, so the number of starfish arms must be a multiple of 5 (0, 5, 10, 15, 20, 25). Then the remaining arms must be an even number for children.',questions:['How many solutions did you find?','Why must starfish be in even numbers?','What if starfish had 4 arms instead?']},
-  {id:'stopTheClock',icon:'🕐',title:'Stop the Clock for Two',age:'5-7',desc:'Move clock hands to hit 12 o\'clock exactly!',aim:'Tell time and calculate time intervals',instructions:['Set a paper or toy clock to 6 o\'clock.','Take turns moving the clock forward by HALF an hour or 1 HOUR.','The winner is the player who lands the hands EXACTLY on 12 o\'clock.','Play several times. Does it matter who goes first?'],illustration:'🕕 → ½hr or 1hr each turn → 🕛 WIN!',hint:'Work backwards from 12. What time would you need to land on before your last move?',questions:['What happens if you\'re at 10:30? Can you still win?','Can you always win if you go first?']},
-  {id:'totality',icon:'🎯',title:'Totality for Two',age:'5-11',desc:'Slide a counter along numbers — be the one to hit the target!',aim:'Practise addition and strategic thinking',instructions:['Print the NRICH Totality game board (a connected web of numbers).','Choose a target total (e.g. 20).','Adult places counter on any number. Slide it to a neighbour, adding as you go.','Take turns sliding the shared counter. Running total must reach EXACTLY the target.','Go ABOVE the target = you lose!'],illustration:'web of numbers → slide → add → 🎯 hit target!',hint:'Work backwards from the target — what running total do you need to FORCE your opponent over?',questions:['Can you work out a winning strategy?','What if you choose a different starting target?']},
-  {id:'wallpaper',icon:'🖼️',title:'Wallpaper',age:'5-7',desc:'Order wallpaper pieces from smallest to largest area',aim:'Compare and estimate area',instructions:['Print the NRICH "Wallpaper" pieces (different sizes of patterned rectangles).','Arrange them in order from SMALLEST to LARGEST.','How are you comparing them? Overlap? Counting squares? Estimate?','Can you explain your method?'],illustration:'🖼️ tiny → 🖼️ small → 🖼️ medium → 🖼️ large',hint:'If you can\'t measure directly, try overlapping pieces or counting the pattern repeats.',questions:['How did you order them?','Were any pieces tricky to compare? Why?']},
-
-  // ===== AGE 7-11 ===== (52 activities)
-  {id:'boardBlockChallenge2',icon:'🧩',title:'Board Block Challenge',age:'7-11',desc:'Place triangles on a pegboard without overlapping',aim:'Explore spatial reasoning and strategy',instructions:['Use a triangular pegboard (or draw one).','Take turns placing rubber bands around 3 pegs to make triangles.','Triangles cannot overlap (but can touch).','Last player to place a triangle wins!'],illustration:'△ on pegs 1-2-3, next player tries pegs 2-4-5',hint:'Think about which pegs are still free – try to block your opponent.',questions:['What\'s the best first move?','Can you find a winning strategy?']},
-  {id:'calendarSorting',icon:'📅',title:'Calendar Sorting',age:'7-11',desc:'Sort mixed-up calendar pages into the correct order',aim:'Understand patterns in days, weeks, and months',instructions:['You have calendar pages for different months, but they\'re all mixed up.','Each page shows the days of the month.','Sort them into the correct order.','How can you tell which month comes next?'],illustration:'January has 31 days, starts on a certain day. February has 28 or 29...',hint:'Look at the number of days and the day of the week the 1st falls on.',questions:['What clues helped you sort them?','How does leap year affect things?']},
-  {id:'codedHundredSquare',icon:'🧩',title:'Coded Hundred Square',age:'7-11',desc:'Rebuild a 100 square that\'s written in secret code',aim:'Understand number patterns and place value',instructions:['Look at the coded 100 square – numbers 1-100 are written using symbols.','Each symbol stands for a digit.','Work out what each symbol means.','Then rebuild the full 100 square!'],illustration:'If ☆ = 3, then ☆☆ = 33, ☆★ = 3?',hint:'Look at the last column – all numbers end with the same digit, so those symbols must be the same.',questions:['What was the first symbol you figured out?','How did you check your solution?']},
-  {id:'consecutiveNumbers',icon:'➕',title:'Consecutive Numbers',age:'7-11',desc:'Investigate adding and subtracting sets of consecutive numbers',aim:'Explore patterns in number sequences',instructions:['Choose a set of consecutive numbers (like 3,4,5).','Add them together.','What do you notice about the total?','Try with different lengths and starting points.','Can you find a formula?'],illustration:'3+4+5=12, 4+5+6=15, 5+6+7=18 – all multiples of 3',hint:'The total = middle number × how many numbers.',questions:['What patterns did you find?','Does it work for even numbers of consecutive numbers too?']},
-  {id:'countdown',icon:'⏱️',title:'Countdown',age:'7-11',desc:'Play a version of the classic Countdown numbers game',aim:'Practice mental arithmetic with all four operations',instructions:['Choose 6 numbers (some large, some small).','A target number is generated.','Use addition, subtraction, multiplication, and division to reach the target.','You don\'t have to use all numbers.','First to reach the target wins!'],illustration:'Numbers: 75, 4, 7, 2, 8, 5. Target: 465 → 75×6? But 6 not available... 75×7=525, - (8×5+4)=525-44=481...',hint:'Try multiplying the largest numbers first to get close, then adjust.',questions:['What\'s the best strategy?','Can you always reach the target?']},
-  {id:'diceyOperations',icon:'🎲➕',title:'Dicey Operations',age:'7-11',desc:'Place digits to get closest to a target',aim:'Practice addition, subtraction, multiplication',instructions:['Draw an addition grid: _ _ _ + _ _ _ = ?','Roll 0-9 dice six times, place digits in your grid.','Whoever gets closest to 1000 wins!','Try subtraction, multiplication, or division versions.'],illustration:'_ _ _ + _ _ _ = closest to 1000',hint:'Big numbers go in the hundreds place – they matter most!',questions:['What target is best?','How does strategy change with subtraction?']},
-  {id:'dottySix2',icon:'⚫',title:'Dotty Six',age:'3-5',desc:'Roll a dice and add dots to reach 6',aim:'Practice counting and addition',instructions:['Draw a 3x2 grid of dots.','Roll a dice, cover that many dots with counters.','If you roll more than the remaining dots, you lose.','First to cover all 6 dots wins!','Try with different grid sizes.'],illustration:'●●●●●● → roll 4 → cover 4 dots (●●●● left: ●●)',hint:'Think about how many dots are left – can you plan ahead?',questions:['What\'s the best strategy?','How does the game change with a 4x3 grid?']},
-  {id:'doughnutPercents',icon:'🍩',title:'Doughnut Percents',age:'9-14',desc:'Estimate percentages of doughnut pictures',aim:'Practice estimating percentages',instructions:['Show a picture with coloured and plain doughnuts.','Quickly estimate what percent are coloured.','Write your estimate, then calculate exactly.','Closest estimate wins!','Try with different arrangements.'],illustration:'10 doughnuts, 3 pink → 30%',hint:'Think in fractions – "about 1/3" means about 33%.',questions:['Are you getting better with practice?','What strategies help you estimate quickly?']},
-  {id:'duckingAndDividing',icon:'🚀',title:'Ducking and Dividing',age:'7-11',desc:'Use times tables knowledge and quick reflexes to survive',aim:'Practice division facts under pressure',instructions:['Your spaceship is damaged! Numbers are falling.','You must type the correct division fact before they hit you.','Quick – 42 ÷ 6 = ?','Survive as long as you can!'],illustration:'⬇️ 56 ÷ 8 = 7 (type 7!)',hint:'Practise your times tables – they help with division too.',questions:['Which division facts are hardest?','Can you get faster with practice?']},
-  {id:'factorLines',icon:'📐',title:'Factor Lines',age:'7-11',desc:'Arrange number cards on a grid to make factor lines',aim:'Understand factors and multiples',instructions:['You have four number cards (e.g., 6, 12, 18, 24).','Arrange them on a 4×4 grid.','Make lines (horizontal, vertical, or diagonal) where each number is a factor or multiple of the next.','Score points for each line!'],illustration:'6 → 12 → 24 (all factors/multiples) scores!',hint:'Think about the relationships between numbers before placing them.',questions:['What\'s the highest score you can get?','Can you create your own set of cards?']},
-  {id:'factorsMultiples',icon:'🔢',title:'Factors and Multiples Game',age:'7-11',desc:'Choose numbers and block your opponent',aim:'Identify factors and multiples',instructions:['Use numbers 1-30 grid.','Choose a number, cross it out.','Next player must choose a factor or multiple of that number.','If you can\'t move, you lose!','Try different grid sizes.'],illustration:'Choose 12 → opponent can pick 6 (factor) or 24 (multiple)',hint:'Think ahead – try to leave your opponent with no moves!',questions:['What numbers are best to start with?','Can you always win if you go first?']},
-  {id:'firstConnectThree',icon:'🔷',title:'First Connect Three',age:'7-11',desc:'Roll two dice, add or subtract to get numbers on a board',aim:'Practice addition/subtraction and strategy',instructions:['Use a 3x3 board with numbers 1-9 (arranged randomly).','Roll two dice, add or subtract them.','Cover that number on the board with your counter.','First to get three in a row wins!'],illustration:'Roll 5 and 3 → 5+3=8 or 5-3=2',hint:'Some numbers are easier to make than others – aim for those!',questions:['Which numbers are hardest to get?','Can you design a better board?']},
-  {id:'foldingFlowers1',icon:'🌸',title:'Folding Flowers 1',age:'7-11',desc:'Visualise what shape folded paper will make',aim:'Develop spatial visualisation skills',instructions:['Look at the crease pattern on a square of paper.','Imagine folding the paper along the creases.','What shape will the folded paper make?','Draw your prediction, then try it with real paper!'],illustration:'Fold corners to centre → flower shape!',hint:'Think about symmetry – fold one section at a time.',questions:['What shape did you predict?','Was your prediction correct?']},
-  {id:'fourGo',icon:'4️⃣',title:'Four Go',age:'7-11',desc:'Multiply or divide to get numbers on a line',aim:'Practice multiplication, division, and strategy',instructions:['Use a 1-20 number line.','Choose two numbers from a 4x4 grid, multiply or divide them.','Mark the answer on the number line.','First to get four in a row (no opponent marks between) wins!'],illustration:'8×2=16 → mark 16',hint:'Try to block your opponent while creating your own line.',questions:['What numbers are most useful?','Can you find a winning strategy?']},
-  {id:'gotIt',icon:'🎯',title:'Got It',age:'7-11',desc:'Add numbers to reach a target exactly',aim:'Practice addition and find winning strategies',instructions:['Start at 0, target is 23.','Take turns adding 1, 2, 3, or 4 to the total.','Whoever reaches exactly 23 wins!','Try different targets and number ranges.'],illustration:'0 → +3=3 → +4=7 ... → 23 WIN!',hint:'Work backwards – which numbers force a win?',questions:['Can you always win if you go first?','What\'s the winning strategy?']},
-  {id:'guessDominoes2',icon:'🁢',title:'Guess the Dominoes',age:'5-7',desc:'Arrange dominoes to match a pattern',aim:'Practice matching and logical thinking',instructions:['Use a set of dominoes (or make paper ones).','One player secretly arranges 4 dominoes in a square.','They give clues about the arrangement (totals, matching ends).','Other player tries to recreate it!'],illustration:'Domino [3|4] next to [4|2] (4s touch)',hint:'Look at where numbers match – that tells you which dominoes are connected.',questions:['What clues are most helpful?','Can you make it harder with more dominoes?']},
-  {id:'howMany',icon:'🍎',title:'How Many?',age:'7-11',desc:'Look at photos of fruit and explore different counting strategies',aim:'Develop efficient counting strategies',instructions:['Look at each photo of fruit.','How many do you see? Don\'t count one by one – try to find a quick way!','How did you count? Did you group them? Skip count?','Try the next photo – is there a different way?'],illustration:'🍎🍎🍎\n🍎🍎🍎 → "3+3=6!"',hint:'Look for groups – rows, columns, or patterns – that make counting faster.',questions:['What counting strategy did you use?','Which photo was easiest to count? Why?']},
-  {id:'inceyWincey2',icon:'🕷️',title:'Incey Wincey Spider for Two',age:'5-7',desc:'Move the spider up or down the drainpipe with dice!',aim:'Explore numbers on a vertical track — great for negative numbers prep',instructions:['Draw or print a drainpipe track (numbers from bottom to top).','You are SUNSHINE (spider moves UP). Adult is RAIN (spider moves DOWN).','Take turns rolling one die and moving the spider that many spaces.','Sunshine wins if spider reaches the top. Rain wins if it reaches the bottom.'],illustration:'☀️ roll → spider climbs ⬆️\n🌧️ roll → spider slides ⬇️',hint:'The spider can go up AND down from the middle — it\'s like a number line stood on its end!',questions:['How long does it take to reach one end?','Try with two dice and CHOOSE which number to use — does strategy help?']},
-  {id:'magicVs',icon:'✨',title:'Magic Vs',age:'7-11',desc:'Arrange numbers 1-5 in a V shape so both arms have the same total',aim:'Practice addition and logical thinking',instructions:['Draw a V shape with 5 circles – 3 on left, 3 on right, sharing the bottom point.','Place the numbers 1-5 in the circles, one each.','Both arms (left side and right side) must add to the same total.','How many different solutions can you find?'],illustration:'Left: 1 at top, 4 middle, 3 bottom = 8; Right: 5 top, 2 middle, 3 bottom = 8',hint:'The bottom number is shared, so it counts twice. Total of all numbers is 15, so sum of both arms = 15 + bottom number.',questions:['How many solutions are there?','What happens with numbers 1-6 in a bigger V?']},
-  {id:'maze100',icon:'🧭',title:'Maze 100',age:'7-11',desc:'Find a path through a maze where numbers add to exactly 100',aim:'Practice addition and strategic thinking',instructions:['You have a maze with numbers in each cell.','Start at the top-left, end at bottom-right.','Move only right or down.','The numbers you pass must add to exactly 100.','Find a path that works!'],illustration:'10 → 20 → 30 → 40 = 100? (only if path exists!)',hint:'Work backwards from the end, or try different paths and adjust.',questions:['How many different paths can you find?','What\'s the smallest/largest total possible?']},
-  {id:'missingMultipliers',icon:'❓',title:'Missing Multipliers',age:'7-11',desc:'Work out missing headers in a multiplication table',aim:'Understand multiplication relationships',instructions:['Look at the multiplication table with some numbers filled in.','The row and column headers are missing.','Use the given products to work out what the headers must be.','Check your answer by filling the whole grid.'],illustration:'? × ? = 12, ? × ? = 15 → headers could be 3 and 4, or 3 and 5?',hint:'The number at (row, column) = row header × column header. Look for clues like prime numbers.',questions:['What\'s the smallest number of clues you need?','Can you design your own missing multipliers puzzle?']},
-  {id:'neighbourlyAddition',icon:'🏘️',title:'Neighbourly Addition',age:'7-11',desc:'Explore patterns when adding neighbours\' house numbers',aim:'Investigate number patterns',instructions:['Look at a street with houses numbered consecutively.','Add together the numbers of some neighbours (e.g., 3+4+5).','What do you notice about the total?','Try different groups. Can you explain the pattern?'],illustration:'3+4+5=12 (divisible by 3), 4+5+6=15 (divisible by 3)',hint:'The total is always the middle number × the number of houses.',questions:['Does it work for even numbers of houses?','What if houses skip numbers?']},
-  {id:'niceOrNasty',icon:'😈',title:'Nice or Nasty',age:'7-11',desc:'Place digits to make the largest (or smallest) number',aim:'Understand place value and strategic thinking',instructions:['Draw four boxes like this: _ _ _ _','Take turns rolling a 0-9 dice and placing the digit in one of your boxes.','After 4 rolls each, read your 4-digit number.','Whoever has the larger number wins!','Try the "nasty" version: you can put your digit in the adult\'s boxes instead!'],illustration:'🎲 5 → put in tens place for 5_ _ _',hint:'The leftmost (thousands) box is most important – put big numbers there!',questions:['What\'s the best strategy?','How does the game change if you\'re trying to make the smallest number?']},
-  {id:'nim7',icon:'🔢',title:'Nim-7 for Two',age:'5-14',desc:'Take 1 or 2 counters — grab the last one to win!',aim:'Develop logical and strategic thinking',instructions:['Place 7 counters in a pile.','Take turns: each player takes 1 OR 2 counters from the pile.','The player who takes the LAST counter (or counters) WINS.','Play several games swapping who goes first.','Can you find a winning strategy?'],illustration:'●●●●●●● → take 1 or 2 → ●●●●● → … → WIN!',hint:'Work backwards: if there are 3 left and it\'s your turn, can you always win?',questions:['Does it matter who goes first?','What happens with different starting numbers of counters?']},
-  {id:'numberJumbler',icon:'🎩',title:'The Number Jumbler',age:'7-11',desc:'Figure out how the Number Jumbler always knows your symbol',aim:'Explore number patterns and algebra',instructions:['Think of a two-digit number.','The Number Jumbler asks you to do some operations (add digits, subtract, etc.).','It then shows a grid of symbols – and always knows your symbol!','Can you work out how it works?'],illustration:'Number 23 → 2+3=5, 23-5=18 → symbol at 18 is ★ → it shows ★!',hint:'Try lots of examples. What do all the final numbers have in common?',questions:['Why does it always work?','Can you create your own Number Jumbler?']},
-  {id:'numberLinesInDisguise',icon:'📉',title:'Number Lines in Disguise',age:'7-11',desc:'Figure out missing numbers on a disguised number line',aim:'Understand number sequences and intervals',instructions:['Look at the number line – some numbers are missing.','The scale might not be 1 – it could be 2s, 5s, 10s, or any interval.','Work out what the missing numbers are.','Explain how you figured it out.'],illustration:'_ _ 20 _ 40 _ → intervals of 10: 10, 20, 30, 40, 50',hint:'Find two numbers you know and count the steps between them to find the interval.',questions:['What strategies did you use?','Can you create a disguised number line for a friend?']},
-  {id:'numberSandwiches',icon:'🥪',title:'Number Sandwiches',age:'7-11',desc:'Arrange digits to make a Number Sandwich',aim:'Practice logical reasoning and trial and error',instructions:['Use the digits 1,1,2,2,3,3.','Arrange them in a line.','Between the two 1s, there must be exactly 1 digit.','Between the two 2s, exactly 2 digits.','Between the two 3s, exactly 3 digits.','Can you do it?'],illustration:'2 3 1 2 1 3 works? Check: 1s have 3 in between (that\'s 1 digit – no, 3 is one digit, so yes! Let\'s check carefully...)',hint:'Start by placing the 3s – they need 3 digits between them, so they must be far apart.',questions:['How many solutions are there?','Can you do it with 1,1,2,2,3,3,4,4?']},
-  {id:'reach100',icon:'💯',title:'Reach 100',age:'7-11',desc:'Arrange four digits to make two-digit numbers that add to 100',aim:'Practice place value and addition',instructions:['Choose four different digits from 1-9.','Arrange them in the boxes: _ _ + _ _ = 100','The first two digits make a two-digit number, the last two make another.','Can you make them add to exactly 100?','Try different combinations!'],illustration:'4 8 + 5 2 = 100 (48+52=100)',hint:'Think about the ones digits – they must add to 10. The tens digits must add to 9.',questions:['How many different solutions can you find?','What\'s the largest number of solutions possible?']},
-  {id:'rodFractions',icon:'📏',title:'Rod Fractions',age:'7-11',desc:'Explore fractions using Cuisenaire rods of different colours',aim:'Understand fractions as relationships between lengths',instructions:['Pick two different coloured Cuisenaire rods.','Given unlimited rods of each colour, work out what fraction the shorter rod is of the longer one.','Try with different pairs.','What patterns do you notice?'],illustration:'Dark green rod (6) is 3× the length of red rod (2) → red is 1/3 of dark green',hint:'Line up several shorter rods to match the longer one – count how many it takes.',questions:['How can you find the fraction without lining them up?','What if the rods don\'t match evenly?']},
-  {id:'seeingSquares2',icon:'🟦',title:'Seeing Squares',age:'5-11',desc:'Place dots to make squares on a grid – any size, any tilt!',aim:'Visualise and identify squares including tilted ones',instructions:['Print blank grid paper or use the NRICH interactivity.','Choose a colour each. Take turns drawing a dot on the grid.','First player to place 4 dots that form a square wins!','Squares can be ANY size and can be tilted at any angle.','Think about your strategy — block your partner!'],illustration:'· · · ·\n· ● · ●\n· · · ·\n· ● · ● ← square!',hint:'A tilted square still has 4 equal sides and 4 right angles. Look for diagonals!',questions:['How do you know you\'ve made a square?','Can you work out a strategy to always win?']},
-  {id:'shapeTimesShape',icon:'🔲',title:'Shape Times Shape',age:'7-11',desc:'Solve equations where shapes stand for different numbers',aim:'Develop algebraic thinking',instructions:['Look at the equations – shapes like ▲, ■, ● stand for numbers.','Each shape stands for the same number in all equations.','Use the equations to work out what each shape equals.','Check your answers work in all equations.'],illustration:'▲ × ■ = 12, ■ × ● = 20, ▲ × ● = 15 → ▲=3, ■=4, ●=5',hint:'Try multiplying all three equations together – you get (▲×■×●)² = product of all three numbers on the right.',questions:['What strategy worked best?','Can you create your own shape puzzle?']},
-  {id:'spirallingDecimals',icon:'🌀',title:'Spiralling Decimals',age:'9-14',desc:'Place digits to make the largest decimal',aim:'Understand decimal place value',instructions:['Draw a spiral of 12 empty circles.','Take turns rolling a 0-9 dice and placing digits.','After 12 rolls, read the number from centre out.','Largest number wins!'],illustration:'Start at centre, then spiral outwards – place digits carefully!',hint:'The centre is most important – put your biggest digit there!',questions:['Where should you put small digits?','How does strategy change with negative numbers?']},
-  {id:'squareCorners',icon:'⬛',title:'Square Corners',age:'7-11',desc:'Place counters without four forming a square\'s corners',aim:'Develop spatial reasoning and strategy',instructions:['Draw a grid of dots.','Take turns placing counters on dots.','Try to be the player who DOESN\'T make four counters that form a square.','If you make a square, you lose!','What\'s the maximum number of counters you can place without making a square?'],illustration:'● · ● ·\n· ● · ●\n● · ● ·\n· ● · ● (no square!)',hint:'Think about symmetry and patterns. Try placing counters in a checkerboard pattern.',questions:['What\'s the highest number of counters you can place?','Does the grid size matter?']},
-  {id:'stopTheClock2',icon:'🕐',title:'Stop the Clock for Two',age:'5-7',desc:'Move clock hands to hit 12 o\'clock exactly!',aim:'Tell time and calculate time intervals',instructions:['Set a paper or toy clock to 6 o\'clock.','Take turns moving the clock forward by HALF an hour or 1 HOUR.','The winner is the player who lands the hands EXACTLY on 12 o\'clock.','Play several times. Does it matter who goes first?'],illustration:'🕕 → ½hr or 1hr each turn → 🕛 WIN!',hint:'Work backwards from 12. What time would you need to land on before your last move?',questions:['What happens if you\'re at 10:30? Can you still win?','Can you always win if you go first?']},
-  {id:'strikeItOut',icon:'✏️',title:'Strike It Out for Two',age:'5-11',desc:'Cross out numbers on a number line – stop your partner!',aim:'Practise addition and subtraction strategically',instructions:['Draw a number line from 0 to 20.','Adult crosses out one number, then another, then circles their sum or difference.','You MUST start with the circled number. Cross it out, cross out another, circle their sum or difference.','Take turns. You can\'t circle a number already circled.','Winner: the player who stops their opponent from being able to go!'],illustration:'0─1─2─3…20  ✂️ cross out · ⭕ circle sum/diff',hint:'Think ahead — can you trap your opponent so they have no valid moves?',questions:['Can you cross out ALL numbers in one game?','What\'s the biggest number of numbers you can cross out?']},
+  {id:'hundredSquareJigsaw',icon:'🧩',title:'100 Square Jigsaw',age:'5-7',desc:'Put the 100 square back together!',aim:'Explore number patterns and place value',instructions:['Print puzzle pieces from the NRICH website (search "100 Square Jigsaw NRICH").','Cut them out and mix them up.','Put the 100 square back together like a jigsaw.','Use number patterns to help: tens in each column, units in each row.'],illustration:'1  2  3 … 10\n11 12 13 … 20\n… (reassemble!)  🧩',hint:'Look at the last digit in each column — it\'s always the same!',questions:['How are you going about it? What patterns do you look for?','What\'s the hardest piece to place? Why?']},
+  {id:'polyPlugRectangles',icon:'🟣',title:'Poly Plug Rectangles',age:'5-11',desc:'Find the secret rectangle by testing spots!',aim:'Understand multiplication as arrays',instructions:['Draw a 5×5 grid of dots (or use the NRICH interactivity).','One player secretly colours a rectangle (rows × columns) on the grid.','Other player picks spots to test — are they in the rectangle?','The guesser tries to find the rectangle with as FEW tests as possible.','Once found, count total spots = length × width.'],illustration:'? ? ? ?\n? ■ ■ ?\n? ■ ■ ?\n? ? ? ? ← find me!',hint:'Test a spot near the middle first — it gives the most information.',questions:['Which total numbers of spots are easiest? Why?','How few test spots do you really need?']},
+  {id:'matchingNumbers',icon:'🃏',title:'Matching Numbers for Two',age:'5-7',desc:'Memory game – match different ways to show the same number',aim:'See numbers represented in many ways',instructions:['Print the NRICH Matching Numbers cards (or make your own: dice faces, tally marks, numerals, dot patterns, finger pictures).','Shuffle and place face-down in a grid.','Take turns flipping two cards. If they show the SAME number, keep them!','The player with most pairs at the end wins.'],illustration:'🎴 flip → ⚃ and 4 → Match! 🎉',hint:'Remember where cards are — use your memory!',questions:['How many ways can you show the number 5?','Can you make your OWN extra cards with a new way to show numbers?']},
   {id:'tablesTeaser',icon:'📊',title:'Tables Teaser',age:'5-7',desc:'Work out which numbers head each row and column',aim:'Explore multiplication patterns',instructions:['Draw a 3×3 grid. Pick 3 numbers (e.g. 2, 5, 10) for the row and column headings — keep them SECRET.','Fill in the grid: each cell = row heading × column heading.','Show the filled grid to your partner — can they work out the headings?','Try the NRICH interactivity online for more puzzles.'],illustration:'  ? ?  ?\n? 4 6 10\n? 6 9 15\n? 10 15 25  ← what are the headings?',hint:'Look for the smallest number — what two numbers multiply to make it?',questions:['Why does 20 appear twice in the example grid?','Can you make a puzzle where the same number appears three times?']},
-  {id:'totality2',icon:'🎯',title:'Totality for Two',age:'5-11',desc:'Slide a counter along numbers — be the one to hit the target!',aim:'Practise addition and strategic thinking',instructions:['Print the NRICH Totality game board (a connected web of numbers).','Choose a target total (e.g. 20).','Adult places counter on any number. Slide it to a neighbour, adding as you go.','Take turns sliding the shared counter. Running total must reach EXACTLY the target.','Go ABOVE the target = you lose!'],illustration:'web of numbers → slide → add → 🎯 hit target!',hint:'Work backwards from the target — what running total do you need to FORCE your opponent over?',questions:['Can you work out a winning strategy?','What if you choose a different starting target?']},
-  {id:'trainTactics',icon:'🚂',title:'Train Tactics',age:'5-7',desc:'Add rods to build a train of a target length',aim:'Practice addition and find winning strategies',instructions:['Choose a target length (e.g., 20cm).','Take turns adding Cuisenaire rods to build a train.','Whoever places the last rod to reach exactly the target wins.','If you go over, you lose!'],illustration:'Target 20: 10+5+3+2 = 20 → WIN!',hint:'Work backwards – what length do you need to leave for your opponent?',questions:['Does it matter who goes first?','Can you find a winning strategy?']},
-  {id:'treasureHunt',icon:'💎',title:'Treasure Hunt',age:'7-11',desc:'Find a reliable strategy for locating treasure on a grid',aim:'Develop logical reasoning and coordinate skills',instructions:['Treasure is hidden at a coordinate (x, y) between 0-10.','You guess a coordinate and are told "too high", "too low", or "correct" for x and y separately.','Find the treasure in the fewest guesses.','Can you find a strategy that always works?'],illustration:'Guess (5,5) → x: too high, y: too low → next guess (3,7)...',hint:'Binary search works best – always guess the middle of the remaining range.',questions:['What\'s the maximum number of guesses you might need?','Does your strategy work for any grid size?']},
-  {id:'twoPrimesMakeOneSquare',icon:'🔷',title:'Two Primes Make One Square',age:'7-11',desc:'Find square numbers that can be made by adding two primes',aim:'Explore prime numbers and square numbers',instructions:['A square number is 1×1, 2×2, 3×3, etc.','A prime number is only divisible by 1 and itself (2,3,5,7,11...).','Can you make square numbers by adding two prime numbers?','Try different square numbers. Which ones work?'],illustration:'4 = 2+2 (both prime), 9 = 2+7 (both prime), 16 = 3+13 or 5+11',hint:'Try the smaller square numbers first. Goldbach\'s Conjecture says every even number >2 is sum of two primes.',questions:['Which square numbers don\'t work?','Why do some square numbers have multiple solutions?']},
-  {id:'whatShape',icon:'⬛',title:'What Shape?',age:'7-11',desc:'Guess the shape from clues',aim:'Reason about shape properties',instructions:['One player thinks of a 2D or 3D shape.','Other player asks yes/no questions to guess it.','How few questions can you use?','Swap roles and try again!'],illustration:'Q: "Does it have 4 sides?" A: "Yes" → maybe a square?',hint:'Start with general questions (2D/3D? Number of sides/faces?)',questions:['What questions give the most information?','Can you guess in 5 questions?']},
-  {id:'whichScripts',icon:'🔢',title:'Which Scripts?',age:'7-11',desc:'Match numbers written in five different ancient scripts',aim:'Recognise that numbers can be represented in many ways',instructions:['Look at the six numbers written in different scripts.','Each script shows the same six numbers.','Match each script to its set of numbers.','How are the scripts different? How are they the same?'],illustration:'𓏻 (Egyptian) = 4, 𑁒 (Brahmi) = 4, 𒐕 (Babylonian) = 4',hint:'Look for patterns – some scripts use tally marks, others use symbols.',questions:['Which script was easiest to read?','Why do you think different cultures invented different number systems?']},
-  {id:'ziosZepts',icon:'👾',title:'Zios and Zepts',age:'7-11',desc:'On planet Vuv, Zios have 3 legs and Zepts have 7 legs. Nico counted 52 legs. How many of each?',aim:'Solve problems with two variables',instructions:['Zios have 3 legs, Zepts have 7 legs.','Nico saw 52 legs in total.','Find how many Zios and how many Zepts there could be.','Try different combinations.','Is there more than one answer?'],illustration:'Z⚡ (3 legs) + Z⚡ + Z⚡ = 9 legs, Z⚡ (7 legs) = 7 legs → total 16',hint:'Try starting with Zepts – their legs are 7, so 7×? = a number less than 52. Then the rest must be divisible by 3.',questions:['How many solutions did you find?','What if Nico counted 53 legs instead?']},
-  {id:'shutTheBox',icon:'🎲',title:'Shut the Box for Two',age:'5-7',desc:'Turn over cards matching numbers on two dice',aim:'Use number knowledge with dice sums',instructions:['Make cards numbered 1–12 (or print them). Place them all face up.','Adult rolls two dice first. Turn over cards matching the numbers rolled (e.g. roll 4 & 5 → flip over 4 and 5).','If a double is thrown, your turn ends. Keep rolling until you can\'t flip any more cards.','Add the remaining showing cards — that\'s your score. Lower score wins!','Swap and play again!'],illustration:'🎲🎲 ➔ 4+5 → flip 4️⃣ and 5️⃣',hint:'Try to flip cards that give you the most options for future rolls.',questions:['Which cards are hardest to flip? Why?','What is the best score you can get?']}
+  {id:'stopTheClock',icon:'🕐',title:'Stop the Clock for Two',age:'5-7',desc:'Move clock hands to hit 12 o\'clock exactly!',aim:'Tell time and calculate time intervals',instructions:['Set a paper or toy clock to 6 o\'clock.','Take turns moving the clock forward by HALF an hour or 1 HOUR.','The winner is the player who lands the hands EXACTLY on 12 o\'clock.','Play several times. Does it matter who goes first?'],illustration:'🕕 → ½hr or 1hr each turn → 🕛 WIN!',hint:'Work backwards from 12. What time would you need to land on before your last move?',questions:['What happens if you\'re at 10:30? Can you still win?','Can you always win if you go first?']},
+  {id:'fourTriangles',icon:'🔺',title:'Four Triangles Puzzle',age:'5-11',desc:'Cut a square into 4 triangles and rearrange them!',aim:'Explore shapes by systematic trial',instructions:['Cut a square of paper diagonally corner to corner in BOTH directions — you get 4 right-angled triangles.','Rearrange the 4 triangles to make different shapes.','Long sides must touch long sides; short sides must touch short sides.','How many DIFFERENT shapes can you make?','Record each one by drawing it.'],illustration:'◼ → cut diagonally → △△△△ → rearrange!',hint:'Flip and rotate triangles. Two shapes are the "same" if one is just a rotation/flip of the other.',questions:['How do you know two shapes are different and not just rotations?','How many shapes can you find altogether?']},
+  {id:'oneBigTriangle',icon:'🔟',title:'One Big Triangle',age:'5-7',desc:'Arrange 9 small triangles so touching numbers add to 10!',aim:'Practise number bonds to 10',instructions:['Print the 9 small triangles from NRICH "One Big Triangle" (or draw them).','Each triangle has 3 numbers on its edges.','Arrange them to form ONE big triangle.','Numbers that TOUCH each other across edges must add to 10.'],illustration:'△ △ △ → fit together so 3+7, 4+6, 5+5 at each join = 10',hint:'Find pairs that make 10: 1+9, 2+8, 3+7, 4+6, 5+5. Match those edges!',questions:['How did you get started?','Is there more than one solution?']},
+  {id:'cuisenaireCounting',icon:'🟥',title:'Cuisenaire Counting',age:'5-7',desc:'How many ways can you make a yellow rod with white and red?',aim:'Explore combinations and systematic working',instructions:['Yellow rod = 5 units long. White rod = 1 unit. Red rod = 2 units.','Make all the ways to fill a yellow rod using ONLY white and red rods.','Record each way. How do you know you\'ve found them ALL?','Then try the same for a dark green rod (6 units).'],illustration:'Yellow (5):\nW W W W W\nR W W W\nW R W W\nW W R W\nW W W R\nR R W\n... etc.',hint:'Work systematically: start with all whites, then swap one white for a red, then two...',questions:['How many ways are there for yellow? For dark green?','Can you see a pattern?']},
+  {id:'alwaysSometimesNever',icon:'🤔',title:'Always, Sometimes or Never? KS1',age:'5-7',desc:'Are these maths statements always, sometimes or never true?',aim:'Reason about number and shape properties',instructions:['Read each statement aloud.','Decide: is it ALWAYS true, SOMETIMES true, or NEVER true?','Find an example that proves it (or a counter-example that disproves it!).','Statements include: "When you add two numbers you can swap the order", "When you cut a square in half you get a triangle", "3D shapes have more than four faces"'],illustration:'✅ ALWAYS | 🟡 SOMETIMES | ❌ NEVER',hint:'For "sometimes" — can you say WHEN it is true and when it isn\'t?',questions:['Can you rewrite a "sometimes" statement to make it ALWAYS true?','Which statements surprised you?']},
+  {id:'inceyWincey',icon:'🕷️',title:'Incey Wincey Spider for Two',age:'5-7',desc:'Move the spider up or down the drainpipe with dice!',aim:'Explore numbers on a vertical track — great for negative numbers prep',instructions:['Draw or print a drainpipe track (numbers from bottom to top).','You are SUNSHINE (spider moves UP). Adult is RAIN (spider moves DOWN).','Take turns rolling one die and moving the spider that many spaces.','Sunshine wins if spider reaches the top. Rain wins if it reaches the bottom.'],illustration:'☀️ roll → spider climbs ⬆️\n🌧️ roll → spider slides ⬇️',hint:'The spider can go up AND down from the middle — it\'s like a number line stood on its end!',questions:['How long does it take to reach one end?','Try with two dice and CHOOSE which number to use — does strategy help?']},
+  {id:'butterflyFlowers',icon:'🦋',title:'Butterfly Flowers',age:'5-7',desc:'Match butterfly pairs that add to the flower number',aim:'Practise number bonds',instructions:['Print (or draw) the 16 butterfly cards and 8 flower cards from NRICH "Butterfly Flowers".','Each flower has a number. Find TWO butterflies whose numbers ADD to the flower\'s number.','Place the pair of butterflies on their matching flower.','Which pair of butterflies has NO flower? Which flower gets NO butterflies?'],illustration:'Flower 🌸8: butterflies 3️⃣ + 5️⃣ 🦋🦋',hint:'Add each pair of butterflies systematically until you find a match for each flower.',questions:['Which pair of butterflies has no flower? Why?','Which flower can\'t have a pair of butterflies? Why?']},
+  {id:'robotMonsters',icon:'🤖',title:'Robot Monsters',age:'5-7',desc:'Build robot monsters and measure their heights!',aim:'Add measurements, work systematically',instructions:['Print robot head, body and leg pieces from NRICH "Robot Monsters".','Each piece has a height in cm written on it.','Build a robot using ONE head + ONE body + ONE legs.','How tall is your robot? (Add the three numbers.)','Find the TALLEST and SHORTEST possible robots.'],illustration:'Head (3cm) + Body (5cm) + Legs (4cm) = 12cm 🤖',hint:'To find the tallest, pick the biggest piece from each category. Smallest → pick the smallest.',questions:['Can you find ALL the possible heights?','How do you know you haven\'t missed any?']},
+  {id:'guessTheHouses',icon:'🏡',title:'Guess the Houses for Two',age:'5-7',desc:'Ask questions to guess the secret rule!',aim:'Develop logical questioning and reasoning',instructions:['Print NRICH "Guess the Houses" rule cards and house cards.','Adult secretly picks a rule card (e.g. "houses with orange roofs").','Show the adult house cards one at a time: "Does this card fit your rule?" YES → into the Box. NO → outside.','Keep going until you can say what the rule is!','Try to find the rule in as FEW questions as possible.'],illustration:'🏠 → "Yes" 🟩 / "No" 🟥 → figure out the rule!',hint:'Pick house cards that differ in only ONE property — this helps narrow down the rule fastest.',questions:['What\'s the least number of cards you needed?','What types of questions are most helpful?']},
+  {id:'totality',icon:'🎯',title:'Totality for Two',age:'5-11',desc:'Slide a counter along numbers — be the one to hit the target!',aim:'Practise addition and strategic thinking',instructions:['Print the NRICH Totality game board (a connected web of numbers).','Choose a target total (e.g. 20).','Adult places counter on any number. Slide it to a neighbour, adding as you go.','Take turns sliding the shared counter. Running total must reach EXACTLY the target.','Go ABOVE the target = you lose!'],illustration:'web of numbers → slide → add → 🎯 hit target!',hint:'Work backwards from the target — what running total do you need to FORCE your opponent over?',videoUrl:'https://youtu.be/Gvb10ahRRB0',questions:['Can you work out a winning strategy?','What if you choose a different starting target?']},
+  {id:'wallpaper',icon:'🖼️',title:'Wallpaper',age:'5-7',desc:'Order wallpaper pieces from smallest to largest area',aim:'Compare and estimate area',instructions:['Print the NRICH "Wallpaper" pieces (different sizes of patterned rectangles).','Arrange them in order from SMALLEST to LARGEST.','How are you comparing them? Overlap? Counting squares? Estimate?','Can you explain your method?'],illustration:'🖼️ tiny → 🖼️ small → 🖼️ medium → 🖼️ large',hint:'If you can\'t measure directly, try overlapping pieces or counting the pattern repeats.',questions:['How did you order them?','Were any pieces tricky to compare? Why?']},
+  {id:'nim7',icon:'🔢',title:'Nim-7 for Two',age:'5-14',desc:'Take 1 or 2 counters — grab the last one to win!',aim:'Develop logical and strategic thinking',instructions:['Place 7 counters in a pile.','Take turns: each player takes 1 OR 2 counters from the pile.','The player who takes the LAST counter (or counters) WINS.','Play several games swapping who goes first.','Can you find a winning strategy?'],illustration:'●●●●●●● → take 1 or 2 → ●●●●● → … → WIN!',hint:'Work backwards: if there are 3 left and it\'s your turn, can you always win?',videoUrl:'https://youtu.be/A86TGIdPeO8',questions:['Does it matter who goes first?','What happens with different starting numbers of counters?']},
+  {id:'breakItUp',icon:'🧱',title:'Break It Up!',age:'5-11',desc:'How many ways can you break a stick of 7 cubes into 2 pieces?',aim:'Explore patterns and systematic working',instructions:['Get 7 interlocking cubes (or draw a row of 7 squares).','Break the stick into exactly 2 pieces. Count how many ways you can do this.','Now try with 8 cubes, then 6 cubes.','What pattern do you notice?','Predict how many ways for 5 cubes, then check!'],illustration:'■■■■■■■ → ■|■■■■■■ or ■■|■■■■■ etc.',hint:'Each "break point" gives a different way — count the gaps between cubes!',questions:['What do you notice about the number of ways vs the number of cubes?','How many ways with 20 cubes?']},
+  {id:'enCounters',icon:'⭕',title:'En-Counters for Two',age:'5-7',desc:'Recreate a secret counter pattern by asking questions!',aim:'Use language of colour, position and order',instructions:['Both players have matching sets of up to 12 counters.','Adult secretly arranges their counters and describes them aloud as they place them.','You try to copy the pattern from the description — ask questions if you need to!','When done, compare — are they the same?','Then swap roles.'],illustration:'Adult: "One red counter. One blue counter below it." → copy it!',hint:'Ask about colour, position (above, below, left, right), and distance.',questions:['Which questions helped most?','What language makes the descriptions clearest?']},
+  {id:'paperPatchwork',icon:'📄',title:'Paper Patchwork 1',age:'5-7',desc:'Fold paper and make patchwork patterns!',aim:'Explore shapes through folding and patterns',instructions:['Take a sheet of A4 paper. Fold it in half along the crease shown in the NRICH picture.','What shape do you get?','Make the same shape from A4, A5 and A6 paper in two different colours.','Lay shapes on top of each other (you must see at least part of each) so all three fit inside the largest.','Arrange your patterns on the floor to make a Paper Patchwork!'],illustration:'A4 folded → new shape → repeat in 3 sizes → 🎨 patchwork!',hint:'Fold carefully along the crease line — precision matters for the shapes to fit.',questions:['What shape do you get when you fold?','Can each new pattern be a different design from the others?']},
+  {id:'eightnessOfEight',icon:'🔴',title:'Eightness of Eight',age:'5-7',desc:'Watch counters move and describe what stays the same!',aim:'Understand that a number stays the same however it is arranged',instructions:['Watch the NRICH "Eightness of Eight" video (link below).','8 counters are rearranged in different ways — each time it\'s still 8!','Describe what you notice: what is the same? What is different?','Now imagine 12 counters. How many different ways could you show "12"?','Make or photograph your own arrangements of 12!'],illustration:'●●●●●●●● → arrange differently → still 8! ✨',videoUrl:'https://youtu.be/FX4me1Ffrn0',hint:'The NUMBER doesn\'t change — only the arrangement does.',questions:['What is always the same when you move the counters?','Can you make a video or photos showing the "twelve-ness of twelve"?']},
+  {id:'ladybirdBox',icon:'🐞',title:'Ladybird Box',age:'5-11',desc:'Place 6 ladybirds so every row and column has exactly 2!',aim:'Work systematically to solve a logic puzzle',instructions:['Draw a 3×3 grid (9 squares).','Place 6 ladybirds into the grid so that EVERY row has exactly 2 ladybirds AND every column has exactly 2 ladybirds.','Try it on paper first, then use the NRICH interactivity.','How many different solutions can you find?'],illustration:'🐞 _ 🐞\n_ 🐞 🐞  ← does this work?\n🐞 🐞 _',hint:'Start with the first row — there are 3 ways to place 2 ladybirds in it. Try each and see what follows.',questions:['How many different solutions are there?','How do you know you\'ve found them all?']},
+  {id:'niceOrNasty',icon:'😈',title:'Nice or Nasty for Two',age:'5-11',desc:'Roll dice and choose where to place digits — be nice or nasty!',aim:'Develop place value understanding strategically',instructions:['Each player draws 4 boxes: _ _ _ _  (thousands, hundreds, tens, ones).','Take turns rolling a 0–9 dice (or use a spinner).','Each player MUST place the digit in one of their boxes before rolling again.','After 4 rolls each, compare totals. Highest wins (or agree lowest wins before you start)!','The "nasty" version: you can place YOUR digit in your OPPONENT\'s boxes!'],illustration:'Roll 7 → place in: 7__ or _7_ or __7?\nThink carefully — where does it give you the best number?',hint:'Save your big digits for the hundreds and thousands columns. Put small digits in the ones place.',questions:['Where is the best place to put a 9? A 1?','Can you think of a strategy that always wins?'],adultNotes:'Easier: use 2 boxes (tens, ones). Harder: include a decimal point, making it e.g. _ _ . _ _'},
+  {id:'factorsMultiples',icon:'🔢',title:'Factors and Multiples Game',age:'7-11',desc:'Chain factors and multiples — block your opponent!',aim:'Explore factors, multiples and divisibility',instructions:['Draw numbers 1–100 in a grid (or use the NRICH interactivity).','Players take turns. The first player circles any even number.','Next player must circle a number that is EITHER a factor OR a multiple of the previous circled number.','A number can only be circled once. A player who cannot go LOSES.','Crossed-out numbers are out of the game.'],illustration:'Circle 6 → partner can circle 2, 3, 12, 18, 24… (factors or multiples of 6)',hint:'Avoid leaving your opponent lots of options. Try to circle numbers with few factors/multiples remaining.',questions:['Which numbers give the most options? Which fewest?','Can you work out a winning strategy?'],adultNotes:'Easier: use 1–50. Harder: time each turn (10 seconds max).'},
+  {id:'trainTactics',icon:'🚂',title:'Train Tactics for Two',age:'5-11',desc:'Move trains along a number line — reach your target!',aim:'Practise number bonds and addition along a number line',instructions:['Draw a number line from 0 to 20. Place two trains (counters) at 0.','Players take turns moving EITHER train forward by 1, 2, or 3 spaces.','You CANNOT move a train onto the same space as the other train.','The player who moves a train to exactly 20 WINS.','The trick: the move that lands ON 20 wins — not past it!'],illustration:'Train A at 7, Train B at 12 → move A by 2 → Train A at 9\nGoal: land EXACTLY on 20! 🏁',hint:'Think about which moves leave your opponent in a weak position. Work backwards from 20!',questions:['Is it better to go first or second?','What positions put you in a winning situation?']},
+  {id:'dottySix',icon:'🎲',title:'Dotty Six for Two',age:'5-7',desc:'Roll dice and fill a 3×3 grid — get a line of 6 dots!',aim:'Practise addition and strategic thinking',instructions:['Draw two 3×3 grids — one each.','Take turns rolling two dice. Add the numbers (or use either number).','Draw that many dots in ONE square of your grid (a square can hold multiple dots).','First player to get a row, column or diagonal where ALL 3 squares total exactly 6 wins!','You can spread dots across turns — plan ahead!'],illustration:'Roll 2+4=6 → put 6 dots in one square → instant win? Or spread them?\n_ | _ | _\n_ | 4 | _\n_ | _ | 2  ← can you make each row/col total 6?',hint:'Each row/column must total exactly 6. Plan which squares need 1, 2, 3, 4, 5 or 6 dots.',questions:['Is it better to go for one line or try to block your opponent?','What rolls are most useful?'],adultNotes:'Easier: just try to fill your grid without the winning condition. Harder: play on a 4×4 grid aiming for lines of 8.'},
+  {id:'diceyOperations',icon:'🎰',title:'Dicey Operations in Line',age:'7-11',desc:'Use dice digits to make calculations — get closest to the target!',aim:'Practise addition and subtraction with strategy',instructions:['Draw this: ___ + ___ or ___ − ___ (you choose which operation).','Roll a dice 6 times. Each roll, ALL players write that digit in one of their blank spaces.','Once a digit is placed, it cannot be moved.','After 6 rolls, calculate your answer. Closest to the TARGET wins!','Target is agreed before the game — e.g. as close to 1000 as possible.'],illustration:'Target: 1000\nRoll 6,3,8,1,4,2 → arrange as: 638 + 412 = 1050? Or 642 + 381 = 1023?',hint:'Think about which place each digit should go BEFORE you place it. Big digits go in hundreds/thousands!',questions:['Which roll is the hardest to place? Why?','Can you find a strategy that always gets close to the target?'],adultNotes:'Easier: use _ _ + _ _ (2-digit addition). Harder: _ _ _ × _ _ (multiplication).'},
+  {id:'fourGo',icon:'4️⃣',title:'Four Go for Two',age:'7-11',desc:'Multiply numbers to claim squares — get four in a row!',aim:'Develop multiplication and strategic thinking',instructions:['Draw a 6×6 grid with these products in the squares (or use NRICH interactivity).','At the bottom, list the numbers 1–6 (the factors).','Players take turns choosing TWO numbers from the factor list and multiplying them.','Claim the square showing that product.','First to get FOUR squares in a row (horizontal, vertical or diagonal) wins!'],illustration:'Choose 3 × 4 = 12 → claim the 12 square\nChoose 6 × 6 = 36 → claim the 36 square\nGet 4 in a row! 🏆',hint:'Think about which products appear most on the grid. Some numbers can be made in multiple ways!',questions:['Which products appear most? Why?','Can you block your opponent while still building your own row?'],adultNotes:'Easier: use a 1–5 grid. Harder: introduce negative numbers.'},
+  {id:'firstConnectThree',icon:'🔗',title:'First Connect Three for Two',age:'7-11',desc:'Place counters on a coordinate grid — get three in a row!',aim:'Practise coordinates and multiplication',instructions:['Draw a coordinate grid (or use NRICH interactivity) with x and y axes from 0 to 5.','Each axis is labelled with numbers 0–5.','Players roll two dice to get x and y coordinates. Plot that point and claim it.','First player to get THREE of their counters in a row (any direction) wins!','If the point is already taken, roll again or lose your turn.'],illustration:'Roll 3, then 4 → plot (3, 4) on the grid ✓\nGet 3 in a row → WIN! 🎉',hint:'Try to build in TWO directions at once — it\'s harder for your opponent to block both!',questions:['Which coordinates are hardest to get? Why?','Can you spot when your opponent is about to win?'],adultNotes:'Harder: use all four quadrants including negative coordinates.'},
+  {id:'whatShape',icon:'🔷',title:'What Shape for Two',age:'5-11',desc:'Ask yes/no questions to identify a secret shape!',aim:'Develop knowledge of shape properties',instructions:['One player secretly picks a 2D shape (triangle, square, rectangle, hexagon, circle, pentagon, etc.).','The other player asks YES/NO questions about its properties.','Questions could be: "Does it have 4 sides?", "Are all sides equal?", "Does it have any right angles?", "Does it have curved edges?"','Keep asking until you can name the shape!','Try to guess it in as FEW questions as possible.'],illustration:'🔷 secret shape\n"More than 4 sides?" → Yes\n"All sides equal?" → Yes\n→ Could be hexagon! Ask more…',hint:'Start with broad questions (number of sides) then narrow down (equal sides? right angles?)',questions:['What is the minimum number of questions you need?','Can you always find the shape in 3 questions?'],adultNotes:'Easier: lay out a small set of shapes so the child can see them. Harder: include 3D shapes.'},
+  {id:'guessDominoes',icon:'🁣',title:'Guess Dominoes for Two',age:'5-7',desc:'Ask questions to find the hidden domino!',aim:'Explore number properties and reasoning',instructions:['Get a set of dominoes (or draw domino cards: 0-0 to 6-6).','One player picks a domino and hides it.','The other player asks YES/NO questions about the numbers on the domino.','Questions could be: "Is one side 6?", "Do both sides add to more than 8?", "Are both numbers the same?"','Guess the domino in as few questions as possible!'],illustration:'Hidden: [3|5]\n"Total more than 7?" → Yes\n"Any side = 6?" → No\n"One side odd, one even?" → Yes → 3+5? 1+7?',hint:'Start by asking about the total (add both sides). Then narrow down each side.',questions:['What\'s the best first question?','Can you always guess correctly in 4 questions?'],adultNotes:'Easier: use only dominoes 0-0 to 3-3. Harder: include blank-faced dominoes.'},
+  {id:'spirallingDecimals',icon:'🌀',title:'Spiralling Decimals for Two',age:'9-14',desc:'Place decimal numbers on a number line — who gets closest?',aim:'Develop understanding of decimal place value',instructions:['Draw a number line from 0 to 1 (or 0 to 10).','Roll a dice three times to get three digits (e.g. 3, 7, 1).','Each player arranges these as a decimal: e.g. 0.371, 0.713, 0.137…','Place your number on the number line.','The player whose number is closest to the TARGET (agreed beforehand, e.g. 0.5) wins!'],illustration:'Digits: 2, 8, 5\nPossible decimals: 0.285, 0.528, 0.852, 0.258…\nTarget: 0.5 → which is closest?',hint:'Think about what each decimal position means: tenths, hundredths, thousandths.',questions:['How do you decide which arrangement to use?','Which digit matters most for getting close to the target?'],adultNotes:'Easier: use 2 dice and tenths only. Harder: compete to get the LOWEST or HIGHEST possible decimal.'},
+  {id:'gotIt',icon:'🎯',title:'Got It for Two',age:'5-14',desc:'Add numbers to reach a target — be the one to "get it"!',aim:'Strategic addition and number reasoning',instructions:['Choose a target number (e.g. 23) and the range of numbers to add (e.g. 1–4).','Players take turns adding a number from the range to a running total.','The first player to reach the target EXACTLY wins — "Got It!"','If you go over, you lose.','Play several games. Can you find a winning strategy?'],illustration:'Target: 23, Range: 1-4\nTotal so far: 18\nYou add: 1 → 19 (safe?)\nOpponent adds: 4 → 23 → GOT IT! They win!',hint:'Work backwards from the target. What total do you need to be at before your last turn?',questions:['Does it matter who goes first?','What happens if you change the target or the range?'],adultNotes:'Easier: target 10, range 1-3. Harder: vary both target and range. Look for the pattern in winning positions!'},
+  {id:'boardBlockChallenge',icon:'🔺',title:'Board Block Challenge for Two',age:'7-11',desc:'Fit shapes on a pegboard — triangles AND quadrilaterals!',aim:'Explore properties of triangles and quadrilaterals',instructions:['Use a circular pegboard (or draw one with 9–12 pegs in a circle).','Players take turns stretching a rubber band around ANY 3 or 4 pegs to make a triangle or quadrilateral.','Bands must not overlap (they can share pegs and edges).','A player who cannot make any shape on their turn LOSES.','Once comfortable, explore: which shapes are impossible? Which appear most?'],illustration:'⬡ 12-peg board:\n△ band around 3 pegs\n▱ band around 4 pegs\nNo overlapping allowed!',hint:'Quadrilaterals (4-peg) use more space and can block your opponent more effectively!',questions:['Which shapes appear most often? Why?','Is it better to play triangles or quadrilaterals?'],adultNotes:'Start with Board Block for Two (triangles only) before moving to this challenge version.'},
+  {id:'makingSticks',icon:'📏',title:'Making Sticks',age:'5-7',desc:'Can you make a triangle with your sticks?',aim:'Explore the triangle inequality — when do 3 lengths make a triangle?',instructions:['Cut straws or sticks into lengths: e.g. 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 cm.','Choose ANY 3 sticks and try to make a triangle with them.','Record whether it works or not.','Try to find a RULE: when can three lengths make a triangle?'],illustration:'3cm + 4cm + 5cm → YES, makes a triangle! ✅\n1cm + 2cm + 3cm → NO, too flat! ❌\n2cm + 2cm + 5cm → NO, gaps! ❌',hint:'When does it NOT work? The two shorter sides must ADD UP to MORE than the longest side!',questions:['Can you always make a triangle if all three sticks are the same length?','What about two equal sticks and one different one?'],adultNotes:'This introduces the triangle inequality theorem in a hands-on way. Great for upper KS1/lower KS2.'},
+  {id:'doughnutPercents',icon:'🍩',title:'Doughnut Percents',age:'9-14',desc:'Work out what percentage of the doughnut each topping covers',aim:'Understand percentages as parts of a whole (100%)',instructions:['Draw a circle (the doughnut!) and divide it into sections for different toppings: chocolate, sprinkles, icing, nuts.','Label each section with a fraction first (e.g. ½ chocolate, ¼ sprinkles, ¼ nuts).','Convert each fraction to a percentage. Remember: the whole doughnut = 100%.','Check: do all your percentages add up to 100%?','Try different doughnut recipes with different percentages for each topping!'],illustration:'🍩 Half chocolate (50%) + Quarter sprinkles (25%) + Quarter nuts (25%) = 100% ✓',hint:'To convert a fraction to a percentage: divide the top by the bottom, then multiply by 100.',questions:['If chocolate covers 3/8 of the doughnut, what percentage is that?','Can you make a doughnut where each topping is exactly 10%? How many toppings?'],adultNotes:'Extend by working backwards: given percentages, find the fraction and the degrees in a pie chart.'},
+  {id:'lessMore',icon:'⚖️',title:'Less or More',age:'5-7',desc:'Make the inequality true — find numbers that fit!',aim:'Understand < > = symbols with a range of numbers',instructions:['Write an inequality like: ___ < 50 or ___ > 30 or 20 < ___ < 40.','Fill in the blank with a number that makes it TRUE.','Now find as many different numbers as possible that work!','Challenge: can you find ALL the whole numbers that fit?'],illustration:'___ < 8 → 7 works! 0 works! -1 works!\n20 < ___ < 25 → 21, 22, 23, 24 all work!\nHow many can you find?',hint:'Think about the number line. Numbers to the LEFT are less than; numbers to the RIGHT are more than.',questions:['Are there infinitely many numbers that make ___ < 8 true?','What if you can only use numbers 1–100?'],adultNotes:'Easier: use physical number lines and counters. Harder: include decimals or negative numbers.'},
+  {id:'play37',icon:'3️⃣7️⃣',title:'Play 37',age:'7-11',desc:'Choose numbers 1–5 to reach 37 — but you can\'t repeat your opponent\'s last choice!',aim:'Develop strategic addition and number reasoning',instructions:['Both players share the same running total, starting at 0.','On your turn, add any number from 1 to 5 to the running total.','BUT you cannot add the SAME number your opponent just added.','The first player to make the total reach EXACTLY 37 wins.','If you go over 37, you lose!'],illustration:'Total: 0\nPlayer 1 adds 4 → Total: 4\nPlayer 2 cannot add 4! Adds 3 → Total: 7\nPlayer 1 cannot add 3! Adds 5 → Total: 12…\nGoal: reach 37 exactly!',hint:'Try to work backwards from 37. What totals put you in a winning position?',questions:['Does it matter who goes first?','What is the pattern of winning positions?'],adultNotes:'The key insight is that multiples of 6 are losing positions. Encourage children to discover this themselves through play.'}
 ];
 
 let soarProgress={};
@@ -730,63 +1486,40 @@ try{const s=localStorage.getItem('safia-soar');if(s)soarProgress=JSON.parse(s);}
 window.showSoarMenu=function(){
   const grid=document.getElementById('soarLevelsGrid');
   grid.innerHTML='';
-
-  // Group by age
-  const ageGroups = {
-    '3-5': { name: '🌟 Ages 3-5', activities: [] },
-    '5-7': { name: '✨ Ages 5-7', activities: [] },
-    '7-11': { name: '🚀 Ages 7-11', activities: [] },
-    '9-14': { name: '🌠 Ages 9-14', activities: [] }
-  };
-
-  // Sort activities into age groups
-  soarActivities.forEach((act, idx) => {
-    const age = act.age;
-    if (ageGroups[age]) {
-      ageGroups[age].activities.push({ ...act, index: idx });
-    }
+  const groups={'3-5':[],'5-7':[],'5-11':[],'7-11':[],'9-14':[]};
+  soarActivities.forEach(function(act,idx){
+    const g=groups[act.age]||groups['5-11'];
+    g.push({act,idx});
   });
-
-  // Sort each group alphabetically by title
-  Object.keys(ageGroups).forEach(age => {
-    ageGroups[age].activities.sort((a, b) => a.title.localeCompare(b.title));
-  });
-
-  // Render with headers
-  ['3-5', '5-7', '7-11', '9-14'].forEach(age => {
-    const group = ageGroups[age];
-    if (group.activities.length === 0) return;
-
-    // Add age group header
-    const header = document.createElement('div');
-    header.className = 'age-group-header';
-    header.textContent = group.name;
-    grid.appendChild(header);
-
-    // Add activities in this group
-    group.activities.forEach(item => {
-      const act = item;
-      const btn = document.createElement('div');
-      btn.className = 'soar-level-btn';
-      const done = soarProgress[item.index] ? ' ✅' : '';
-      btn.innerHTML = `<div class="soar-icon">${act.icon}</div><div class="soar-title">${act.title}${done}</div><div class="soar-desc">${act.desc}</div>`;
-      btn.addEventListener('click', function() { showSoarActivity(item.index); });
+  const labels={'3-5':'🌱 Ages 3–5','5-7':'⭐ Ages 5–7','5-11':'🚀 Ages 5–11','7-11':'💡 Ages 7–11','9-14':'🌠 Ages 9–14'};
+  ['3-5','5-7','5-11','7-11','9-14'].forEach(function(age){
+    const items=groups[age];
+    if(!items||!items.length)return;
+    const hdr=document.createElement('div');
+    hdr.className='age-group-header';
+    hdr.textContent=labels[age];
+    grid.appendChild(hdr);
+    items.sort((a,b)=>a.act.title.localeCompare(b.act.title));
+    items.forEach(function(item){
+      const btn=document.createElement('div');
+      btn.className='soar-level-btn';
+      const done=soarProgress[item.idx]?' ✅':'';
+      btn.innerHTML=`<div class="soar-icon">${item.act.icon}</div><div class="soar-title">${item.act.title}${done}</div><div class="soar-desc">${item.act.desc}</div>`;
+      btn.addEventListener('click',function(){showSoarActivity(item.idx);});
       grid.appendChild(btn);
     });
   });
-
   showScreen('soarMenuScreen');
 };
 
 function showSoarActivity(index){
   const act=soarActivities[index];
+  const vid=SOAR_VIDEOS[index];
   const instList=act.instructions.map(t=>`<li style="margin-bottom:8px;">✨ ${t}</li>`).join('');
   const questDiv=act.questions.map(q=>`<div class="talk-bubble">🤔 <strong>Try asking:</strong> ${q}</div>`).join('');
   const doneBtn=soarProgress[index]
     ?`<button class="soar-btn secondary" style="background:#FFD93D;" onclick="window.unmarkDone(${index})">↩️ Mark undone</button>`
     :`<button class="soar-btn secondary" onclick="window.markDone(${index})">✅ I did it!</button>`;
-
-  const nrichBtn = `<div style="text-align:center; margin:10px 0;">${makeNrichBtn(NRICH_LINKS[index], '📘 NRICH Activity Page')}</div>`;
 
   const html=`
     <div class="activity-card">
@@ -799,7 +1532,10 @@ function showSoarActivity(index){
         <div style="font-size:2rem;margin-bottom:8px;">🖍️ Let's try!</div>
         <div style="font-size:1.5rem;background:#1a1530;padding:15px;border-radius:20px;">${act.illustration}</div>
       </div>
-      ${nrichBtn}
+      <div style="text-align:center;margin:10px 0;">
+        ${makeVideoBtn(vid.url, vid.title)}
+        ${NRICH_LINKS[index] ? makeNrichBtn(NRICH_LINKS[index]) : ''}
+      </div>
       <div style="margin:15px 0;">
         <div style="font-weight:800;color:#FFD93D;margin-bottom:8px;">📋 Easy steps:</div>
         <ul style="list-style-type:none;padding-left:5px;">${instList}</ul>
