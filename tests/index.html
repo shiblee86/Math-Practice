@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Dojo — Test Suite</title>
+<style>
+  body { font-family: system-ui, sans-serif; background:#0A1F1F; color:#F4FBFB; padding:20px; max-width:900px; margin:0 auto; }
+  h1 { color:#17C7C7; }
+  h2 { color:#F4FBFB; }
+  h3 { margin-top:1.5em; margin-bottom:.3em; }
+  ul { margin-top:0; }
+  #status { color:#A9C4C4; font-style:italic; }
+  a { color:#3DDCDC; }
+  iframe#appFrame { position:absolute; left:-9999px; top:-9999px; width:430px; height:900px; border:0; }
+</style>
+</head>
+<body>
+  <h1>🏁 Math Dojo — Test Suite</h1>
+  <p id="status">Loading app in a hidden iframe and running unit / integration / regression suites…</p>
+  <div id="results"></div>
+
+  <!-- Test framework + suites (registering suites here does NOT run them yet) -->
+  <script src="harness.js"></script>
+  <script src="../mathdata.js"></script>
+  <script src="unit.test.js"></script>
+  <script src="integration.test.js"></script>
+  <script src="regression.test.js"></script>
+
+  <iframe id="appFrame"></iframe>
+
+  <script>
+    // Integration/regression tests drive the real app in this iframe, which shares
+    // this page's origin and therefore its localStorage. Snapshot + clear the app's
+    // keys before running so tests start from a deterministic blank slate, then
+    // restore whatever was there before — so running the suite never clobbers a
+    // real player's saved progress if this page happens to be opened from the same
+    // server/origin as a live session.
+    const APP_KEYS = ['mathdojo-progress', 'mathdojo-soar', 'mathdojo-trophies', 'mathdojo-badges', 'mathdojo-stars', 'mathdojo-lastbonus', 'mathdojo-mistakes'];
+
+    function snapshotAndClear() {
+      const snapshot = {};
+      APP_KEYS.forEach(k => { snapshot[k] = localStorage.getItem(k); localStorage.removeItem(k); });
+      return snapshot;
+    }
+    function restore(snapshot) {
+      APP_KEYS.forEach(k => {
+        if (snapshot[k] === null) localStorage.removeItem(k);
+        else localStorage.setItem(k, snapshot[k]);
+      });
+    }
+
+    async function main() {
+      const snapshot = snapshotAndClear();
+      try {
+        const frame = document.getElementById('appFrame');
+        await new Promise(resolve => {
+          frame.addEventListener('load', resolve, { once: true });
+          frame.src = '../index.html';
+        });
+        window.__APP_FRAME__ = frame;
+        const report = await runTests();
+        document.getElementById('status').textContent =
+          `Done: ${report.passed}/${report.total} passed` + (report.failed ? ` — ${report.failed} FAILED` : '');
+      } finally {
+        restore(snapshot);
+      }
+    }
+    main();
+  </script>
+</body>
+</html>

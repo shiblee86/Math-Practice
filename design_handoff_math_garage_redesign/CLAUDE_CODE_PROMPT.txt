@@ -1,0 +1,11 @@
+I have a design handoff package for a redesign of our math practice app ("Safia's Math Kingdom" → "Safia's & Safaan's Math Dojo" / Turbo Math visual style). Read design_handoff_math_garage_redesign/README.md first for full context.
+
+Please:
+1. Read README.md in this folder end-to-end.
+2. Open "Safia's & Safaan's Math Dojo.dc.html" in a browser (or view its source) to see the exact reference behavior for every screen (Home, Levels, SOAR menu, SOAR activity, Quiz, Result) — click through all 5 question input types (numeric, multiple choice, coin picker, compose pair, fact family), the hint/feedback/streak/trophy/confetti states, and the persistent back button in the top bar.
+3. Read mathdata.js — it contains the full game engine (20 level question-generators, 56 SOAR activities, hint-rendering helpers, trophies, badges) as plain JS. Port its logic and content into our app's actual language/framework rather than rewriting it from scratch.
+4. Read the component source under _ds/components/ and the tokens under _ds/tokens/ for exact colors, spacing, radii, shadows, and interaction states (press/hover) — recreate these using our existing component library and styling approach, not by copying the raw CSS/JSX files in.
+5. Implement each screen in our real codebase, wiring up: level selection, quiz flow (question generation, checking, scoring, hints), streaks, trophies/badges, daily bonus, SOAR activities with completion tracking, and save/load (or our real persistence layer) for progress.
+6. Match the "pressed game button" interaction language (shadow collapse + translateY on press) and the dark teal/cyan/coral/amber palette exactly as specified in the tokens.
+
+This is a reference design, not code to paste in verbatim — adapt it to our existing architecture, navigation, and state management conventions.

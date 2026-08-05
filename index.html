@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>🎀 Safia's Math Kingdom</title>
+<title>🏁 Safia's & Safaan's Math Dojo</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-peach">
+<body>
 
 <!-- GAMIFICATION OVERLAYS -->
 <canvas id="confettiCanvas"></canvas>
-<div id="mascot" title="Click me! 🎀">🧸</div>
+<div id="mascot" title="Click me!">🥋</div>
 <div id="streakBadge">🔥 3 in a row!</div>
 <div id="popText">WOW!</div>
 
@@ -18,43 +18,36 @@
   <div class="milestone-card">
     <span class="milestone-emoji" id="milestoneEmoji">🏆</span>
     <div class="milestone-title" id="milestoneTitle">Trophy Unlocked!</div>
-    <div class="milestone-sub"   id="milestoneSub">Amazing work, Safia!</div>
-    <button class="milestone-close" onclick="closeMilestone()">Yay! 🎀</button>
+    <div class="milestone-sub"   id="milestoneSub">Amazing work!</div>
+    <button class="milestone-close" onclick="closeMilestone()">Nice! 🏁</button>
   </div>
 </div>
 
 <div class="wrap">
 
-  <div class="topbar">
-    <div class="topbar-title">🎀 Safia's Math Kingdom</div>
-    <div class="topbar-btns">
-      <button class="tb-btn" onclick="saveProgress()">💾 Save</button>
-      <button class="tb-btn tb-load" onclick="loadProgress()">📂 Load</button>
+  <!-- PERSISTENT TOP BAR -->
+  <div class="topbar" id="topBar">
+    <button class="icon-btn icon-btn--ghost topbar__back" id="topBarBack" onclick="handleBack()">←</button>
+    <div class="topbar__title" id="topBarTitle">🏁 Safia's & Safaan's Math Dojo</div>
+    <div class="topbar__actions">
+      <button class="icon-btn" onclick="saveProgress()" title="Save">💾</button>
+      <button class="icon-btn" onclick="loadProgress()" title="Load">📂</button>
       <input type="file" id="loadFile" accept=".json" style="display:none" onchange="handleLoadFile(event)">
     </div>
-    <div class="tb-lbl" id="progressLabel">0/20 mastered · 56 SOAR</div>
+    <div class="topbar__stars" id="topBarStars">★ 0</div>
   </div>
 
-  <div class="theme-selector">
-    <div class="theme-btn default" onclick="setTheme('default')" title="Night"></div>
-    <div class="theme-btn peach"   onclick="setTheme('peach')"   title="Princess Peach">🍑</div>
-    <div class="theme-btn kitty"   onclick="setTheme('kitty')"   title="Hello Kitty">🎀</div>
-    <div class="theme-btn labubu"  onclick="setTheme('labubu')"  title="Labubu">🧸</div>
-    <div class="theme-btn dojo"    onclick="setTheme('dojo')"    title="MMA Dojo">🥊</div>
-    <div class="theme-btn spring"  onclick="setTheme('spring')"  title="Spring"></div>
-  </div>
-
-  <!-- ACHIEVEMENT BADGES — themed -->
+  <!-- ACHIEVEMENT BADGES -->
   <div class="badges-container">
-    <div class="badge badge-tooltip" id="badgeCounting">👑<span class="tooltip-text">Counting Princess!</span></div>
-    <div class="badge badge-tooltip" id="badgeAddition">🎀<span class="tooltip-text">Addition Champion!</span></div>
-    <div class="badge badge-tooltip" id="badgeSubtraction">🧸<span class="tooltip-text">Subtraction Star!</span></div>
-    <div class="badge badge-tooltip" id="badgeBorrow">🥊<span class="tooltip-text">Borrowing Fighter!</span></div>
-    <div class="badge badge-tooltip" id="badgeCarry">🌸<span class="tooltip-text">Carrying Master!</span></div>
-    <div class="badge badge-tooltip" id="badgeLogic">🍑<span class="tooltip-text">Logic Queen!</span></div>
-    <div class="badge badge-tooltip" id="badgeMoneyFractions">🪙<span class="tooltip-text">Money & Fractions Star!</span></div>
-    <div class="badge badge-tooltip" id="badgeTimeCalendar">⏰<span class="tooltip-text">Time & Calendar Champ!</span></div>
-    <div class="badge badge-tooltip" id="badgeDataShapes">📊<span class="tooltip-text">Data & Shapes Explorer!</span></div>
+    <div class="badge badge-tooltip" id="badgeCounting">🏁<span class="tooltip-text">Counting Racer!</span></div>
+    <div class="badge badge-tooltip" id="badgeAddition">➕<span class="tooltip-text">Addition Champion!</span></div>
+    <div class="badge badge-tooltip" id="badgeSubtraction">➖<span class="tooltip-text">Subtraction Star!</span></div>
+    <div class="badge badge-tooltip" id="badgeBorrow">🛠️<span class="tooltip-text">Borrowing Fighter!</span></div>
+    <div class="badge badge-tooltip" id="badgeCarry">🔧<span class="tooltip-text">Carrying Master!</span></div>
+    <div class="badge badge-tooltip" id="badgeLogic">🧠<span class="tooltip-text">Logic Master!</span></div>
+    <div class="badge badge-tooltip" id="badgeMoneyFractions">🪙<span class="tooltip-text">Money &amp; Fractions Star!</span></div>
+    <div class="badge badge-tooltip" id="badgeTimeCalendar">⏰<span class="tooltip-text">Time &amp; Calendar Champ!</span></div>
+    <div class="badge badge-tooltip" id="badgeDataShapes">📊<span class="tooltip-text">Data &amp; Shapes Explorer!</span></div>
     <div class="badge badge-tooltip" id="badgeWordWizard">🏆<span class="tooltip-text">Word Problem Wizard!</span></div>
   </div>
 
@@ -62,135 +55,88 @@
   <div id="homeScreen" class="screen active">
     <div id="dailyBonusWrap"></div>
     <div class="home-hero">
-      <span class="crown-decoration">👑</span>
-      <h1>Safia's Math Kingdom!</h1>
-      <p>20 levels · 56 SOAR activities · YOU are the princess! 🌸</p>
+      <span class="crown-decoration">🏁</span>
+      <h1>Safia's &amp; Safaan's Math Dojo!</h1>
+      <p>20 levels · 56 SOAR activities · Train hard, race fast! 🥋</p>
     </div>
     <div id="patternSummary" class="pattern-section" style="display:none;">
       <div class="pattern-title">🎯 Practice These:</div>
       <div id="patternTags"></div>
     </div>
     <div class="menu-grid">
-      <div class="menu-card" onclick="showSoarMenu()">
-        <div class="mc-icon">🦅🌸</div>
+      <div class="menu-card menu-card--accent" onclick="showSoarMenu()">
+        <div class="mc-icon">🦅</div>
         <div class="mc-name">SOAR Adventures</div>
         <div class="mc-desc">56 NRICH hands-on quests</div>
         <div class="soar-badge green">EXPLORE</div>
       </div>
       <div class="menu-card" onclick="showPracticeMenu()">
-        <div class="mc-icon">👑✏️</div>
+        <div class="mc-icon">🏎️</div>
         <div class="mc-name">Practice Math</div>
-        <div class="mc-desc">20 kingdom challenges</div>
+        <div class="mc-desc">20 dojo challenges</div>
         <div class="soar-badge purple">PRACTISE</div>
       </div>
     </div>
     <div class="progress-chart">
-      <h3 style="color:var(--peach);margin-bottom:8px;">🌸 Safia's Kingdom Progress</h3>
-      <div id="progressStats" style="color:var(--muted);font-size:.85rem;"></div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-cont"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+      <h3 style="color:var(--amber-400);margin-bottom:8px;font-family:var(--font-display);font-size:1.1rem;">🏁 Dojo Progress</h3>
+      <div id="progressStats" style="color:var(--text-secondary);font-size:.85rem;"></div>
+      <div class="progress-bar" style="margin-top:8px;">
+        <div class="progress-bar__fill" id="progressBarFill"></div>
       </div>
     </div>
     <div class="trophy-shelf">
-      <div class="trophy-shelf-title">🏆 Trophy Cabinet</div>
+      <div class="trophy-shelf-title">🏆 Trophy Case</div>
       <div class="trophy-row" id="trophyRow"></div>
-    </div>
-    <div class="quick-nav">
-      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
-      <button class="qn-btn qn-math" onclick="showPracticeMenu()">👑 Maths</button>
     </div>
   </div>
 
-  <!-- PRACTICE MENU -->
+  <!-- PRACTICE MENU (Levels) -->
   <div id="practiceMenuScreen" class="screen">
-    <div style="display:flex;gap:8px;margin-bottom:6px;">
-      <button class="nav-btn home-btn" style="margin:0;" onclick="showHome()">🏠 Home</button>
-      <button class="nav-btn" style="margin:0;background:var(--green);color:#1a0a1e;" onclick="showSoarMenu()">🦅 SOAR</button>
-    </div>
     <div style="text-align:center;padding:10px 0 5px;">
-      <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#C77DFF;">👑 Practice Math Problems</div>
-      <div style="color:var(--muted);font-size:.85rem;margin-top:4px;">Choose a kingdom level!</div>
+      <div style="font-family:var(--font-display);font-size:1.4rem;color:var(--cyan-300);">🏎️ Practice Math Problems</div>
+      <div style="color:var(--text-secondary);font-size:.85rem;margin-top:4px;">Choose a level!</div>
     </div>
     <div class="levels-grid" id="levelsGrid"></div>
-    <div class="quick-nav">
-      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
-      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
-      <button class="qn-btn qn-math" onclick="showPracticeMenu()">👑 Levels</button>
-    </div>
   </div>
 
   <!-- SOAR MENU -->
   <div id="soarMenuScreen" class="screen">
-    <div style="display:flex;gap:8px;margin-bottom:6px;">
-      <button class="nav-btn home-btn" style="margin:0;" onclick="showHome()">🏠 Home</button>
-      <button class="nav-btn" style="margin:0;background:#C77DFF;color:#fff;" onclick="showPracticeMenu()">👑 Maths</button>
-    </div>
     <div class="soar-levels-grid" id="soarLevelsGrid"></div>
-    <div class="quick-nav">
-      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
-      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
-      <button class="qn-btn qn-math" onclick="showPracticeMenu()">👑 Levels</button>
-    </div>
   </div>
 
   <!-- SOAR ACTIVITY -->
   <div id="soarActivityScreen" class="screen">
-    <div style="display:flex;gap:8px;margin-bottom:6px;">
-      <button class="nav-btn home-btn" style="margin:0;" onclick="showHome()">🏠 Home</button>
-      <button class="nav-btn" style="margin:0;" onclick="showSoarMenu()">← SOAR Menu</button>
-      <button class="nav-btn" style="margin:0;background:#C77DFF;color:#fff;" onclick="showPracticeMenu()">👑 Maths</button>
-    </div>
     <div id="soarActivityContent"></div>
-    <div class="quick-nav">
-      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
-      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
-      <button class="qn-btn qn-math" onclick="showPracticeMenu()">👑 Levels</button>
-    </div>
   </div>
 
   <!-- QUIZ -->
   <div id="quizScreen" class="screen">
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
-      <button class="nav-btn home-btn" style="margin:0;flex:1;" onclick="showHome()">🏠 Home</button>
-      <button class="nav-btn" style="margin:0;flex:1;" onclick="goHome()">← Levels</button>
-      <button class="nav-btn" style="margin:0;flex:1;background:var(--green);color:#1a0a1e;" onclick="showSoarMenu()">🦅 SOAR</button>
-    </div>
     <div class="quiz-head">
       <div class="quiz-meta">
         <span id="quizLevelLabel">Level</span>
         <span id="quizQCounter">Q1/15</span>
       </div>
       <div class="quiz-score-row">
-        <div class="qs-item"><div>🌸</div><div class="qs-val" id="scoreCorrect">0</div></div>
+        <div class="qs-item"><div>✅</div><div class="qs-val" id="scoreCorrect">0</div></div>
         <div class="qs-item"><div>🥊</div><div class="qs-val" id="scoreWrong">0</div></div>
         <div class="qs-item"><div>%</div><div class="qs-val" id="scorePercent">—</div></div>
       </div>
       <div class="streak-row" id="streakDots"></div>
-      <div class="prog-bar"><div class="prog-fill" id="quizProgressBar" style="width:0%"></div></div>
+      <div class="progress-bar progress-bar--thin" style="margin-top:8px;"><div class="progress-bar__fill" id="quizProgressBar"></div></div>
     </div>
     <div id="quizVideoArea" style="text-align:center;margin-bottom:8px;"></div>
     <div class="content-card content-card--quiz" id="questionCard"></div>
     <div class="feedback" id="feedback"></div>
     <div class="btn-row">
-      <button class="btn-home"  onclick="goHome()">← Levels</button>
-      <button class="btn-hint"  id="hintButton" onclick="showHint()">💡 Hint</button>
-      <button class="btn-check" id="checkButton" onclick="checkAnswer()">🌸 Check</button>
-      <button class="btn-next"  id="nextButton"  onclick="nextQuestion()">▶ Next</button>
-    </div>
-    <div class="quick-nav">
-      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
-      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
-      <button class="qn-btn qn-math" onclick="goHome()">👑 Levels</button>
+      <button class="btn btn--ghost"  onclick="goHome()">← Levels</button>
+      <button class="btn btn--reward" id="hintButton" onclick="showHint()">💡 Hint</button>
+      <button class="btn btn--primary" id="checkButton" onclick="checkAnswer()">✅ Check</button>
+      <button class="btn btn--accent btn--next" id="nextButton" onclick="nextQuestion()">▶ Next</button>
     </div>
   </div>
 
   <!-- RESULT -->
   <div id="resultScreen" class="screen">
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
-      <button class="nav-btn home-btn" style="margin:0;flex:1;" onclick="showHome()">🏠 Home</button>
-      <button class="nav-btn" style="margin:0;flex:1;" onclick="goHome()">← Levels</button>
-      <button class="nav-btn" style="margin:0;flex:1;background:var(--green);color:#1a0a1e;" onclick="showSoarMenu()">🦅 SOAR</button>
-    </div>
     <div class="result-card">
       <div class="result-emoji" id="resultEmoji">🏆</div>
       <div class="result-title" id="resultTitle">Great job!</div>
@@ -198,20 +144,23 @@
       <div class="result-message" id="resultMessage"></div>
       <div id="mistakePatternsDetail" class="pattern-section" style="margin-top:12px;"></div>
       <div class="btn-row" style="margin-top:16px;">
-        <button class="btn-retry" id="retryButton">🔁 Retry</button>
-        <button class="btn-check" onclick="goHome()">👑 Levels</button>
-        <button class="btn-next"  id="nextLevelButton" style="display:none">➡️ Next</button>
+        <button class="btn btn--ghost" id="retryButton">🔁 Retry</button>
+        <button class="btn btn--primary" onclick="goHome()">🏁 Levels</button>
+        <button class="btn btn--accent" id="nextLevelButton" style="display:none">➡️ Next</button>
       </div>
     </div>
-    <div class="quick-nav">
-      <button class="qn-btn qn-home" onclick="showHome()">🏠 Home</button>
-      <button class="qn-btn qn-soar" onclick="showSoarMenu()">🦅 SOAR</button>
-      <button class="qn-btn qn-math" onclick="goHome()">👑 Levels</button>
-    </div>
+  </div>
+
+  <!-- QUICK NAV (sticky bottom) -->
+  <div class="quicknav" id="quickNav">
+    <button class="quicknav__tab" data-tab="home" onclick="showHome()">🏠 Home</button>
+    <button class="quicknav__tab" data-tab="soar" onclick="showSoarMenu()">🦅 SOAR</button>
+    <button class="quicknav__tab" data-tab="levels" onclick="showPracticeMenu()">🏎️ Levels</button>
   </div>
 
 </div><!-- end wrap -->
 
+<script src="mathdata.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

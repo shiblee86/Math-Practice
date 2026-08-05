@@ -1,0 +1,4 @@
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg-app);color:var(--text-primary);font-family:var(--font-body);margin:0}
+a{color:var(--cyan-400)}
+a:hover{color:var(--cyan-300)}

@@ -1,0 +1,47 @@
+<!-- @dsCard group="Components" viewport="700x420" name="Core" subtitle="Button, IconButton, Badge, ProgressBar" -->
+<!DOCTYPE html><html><head><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" crossorigin></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg-app);padding:20px;font-family:var(--font-body)}.row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:18px}</style>
+</head><body>
+<div id="root"></div>
+<script type="text/babel">
+const { Button, IconButton, Badge, ProgressBar } = window.TurboMathDesignSystem_fa0890;
+function Ic({name,size=20}){ const ref=React.useRef(); React.useEffect(()=>{ ref.current.innerHTML=''; const el=lucide.createElement(lucide.icons[name.charAt(0).toUpperCase()+name.slice(1).replace(/-([a-z])/g,(m,c)=>c.toUpperCase())]); el.setAttribute('width',size); el.setAttribute('height',size); ref.current.appendChild(el); },[]); return <span ref={ref} style={{display:'inline-flex'}}/>; }
+function Demo(){
+  return <div>
+    <div className="row">
+      <Button variant="primary" icon={<Ic name="rocket"/>}>Start</Button>
+      <Button variant="accent">Play Now</Button>
+      <Button variant="ghost">Cancel</Button>
+      <Button variant="reward" icon={<Ic name="star"/>}>Claim</Button>
+      <Button variant="primary" disabled>Locked</Button>
+      <Button variant="primary" size="sm">Small</Button>
+    </div>
+    <div className="row">
+      <IconButton icon={<Ic name="house"/>} label="Home" variant="neutral"/>
+      <IconButton icon={<Ic name="lightbulb"/>} label="Hint" variant="reward"/>
+      <IconButton icon={<Ic name="volume-2"/>} label="Read it" variant="primary"/>
+      <IconButton icon={<Ic name="rotate-ccw"/>} label="Retry" variant="accent"/>
+      <IconButton icon={<Ic name="chevron-right"/>} label="Next" variant="success"/>
+    </div>
+    <div className="row">
+      <Badge variant="primary">PLAY</Badge>
+      <Badge variant="accent">EXPLORE</Badge>
+      <Badge variant="reward" icon={<Ic name="flame" size={14}/>}>3 in a row</Badge>
+      <Badge variant="success">Complete</Badge>
+      <Badge variant="neutral">Locked</Badge>
+    </div>
+    <div className="row" style={{flexDirection:'column',alignItems:'stretch',gap:10}}>
+      <ProgressBar value={30} max={100} variant="primary"/>
+      <ProgressBar value={70} max={100} variant="reward"/>
+      <ProgressBar value={100} max={100} variant="success"/>
+    </div>
+  </div>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body></html>

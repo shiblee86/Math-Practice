@@ -1,0 +1,48 @@
+:root{
+/* base — teal/graphite scale (backgrounds, surfaces) */
+--teal-950:#081716;--teal-900:#0A1F1F;--teal-850:#0D2828;--teal-800:#123636;--teal-700:#1B4747;--teal-600:#275C5C;--teal-500:#3B7A7A;
+/* base — cyan scale (primary) */
+--cyan-600:#0EA3A3;--cyan-500:#17C7C7;--cyan-400:#3DDCDC;--cyan-300:#7EEAEA;--cyan-200:#B8F5F5;
+/* base — coral scale (accent / CTA) */
+--coral-600:#E6432E;--coral-500:#FF5C3D;--coral-400:#FF8563;--coral-300:#FFB29B;
+/* base — amber scale (stars, trophies, rewards) */
+--amber-600:#D68A00;--amber-500:#FFB020;--amber-400:#FFC94D;--amber-300:#FFDE8C;
+/* base — signal colors */
+--mint-500:#2FE6A7;--mint-400:#6EF0C2;
+--red-500:#FF3B3B;--red-400:#FF6B6B;
+/* base — neutrals (text/ink) */
+--ink-000:#F4FBFB;--ink-100:#D3E7E7;--ink-300:#A9C4C4;--ink-500:#6E8C8C;--ink-700:#425555;
+
+/* semantic — surfaces */
+--bg-app:var(--teal-900);
+--bg-app-deep:var(--teal-950);
+--surface-1:var(--teal-850);
+--surface-2:var(--teal-800);
+--surface-raised:var(--teal-700);
+--border-subtle:var(--teal-700);
+--border-strong:var(--teal-600);
+
+/* semantic — text */
+--text-primary:var(--ink-000);
+--text-secondary:var(--ink-300);
+--text-muted:var(--ink-500);
+--text-on-primary:var(--teal-950);
+--text-on-accent:#2A0F08;
+
+/* semantic — action */
+--color-primary:var(--cyan-500);
+--color-primary-hover:var(--cyan-400);
+--color-primary-press:var(--cyan-600);
+--color-accent:var(--coral-500);
+--color-accent-hover:var(--coral-400);
+--color-accent-press:var(--coral-600);
+--color-reward:var(--amber-500);
+--color-success:var(--mint-500);
+--color-error:var(--red-500);
+
+/* semantic — shadows (colored, for pressed-button game feel) */
+--shadow-primary:var(--cyan-600);
+--shadow-accent:var(--coral-600);
+--shadow-neutral:var(--teal-950);
+--shadow-reward:var(--amber-600);
+}
