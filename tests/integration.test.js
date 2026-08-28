@@ -126,7 +126,15 @@ suite('integration — quiz flow: the other 4 question kinds render their real m
   });
 
   test('multiple_choice renders one button per choice and marks the clicked one on check', () => {
-    run(`(function(){ const l = LEVELS.find(l => l.id === 'compare_numbers'); startLevel(l); })()`);
+    // eqCompare() has 4 random branches and only 3 are multiple_choice (compare_double is
+    // numeric) — keep re-rolling question 0 until it lands on one, same reasoning as the
+    // coin_picker test below for eqMoney().
+    run(`(function(){
+      const l = LEVELS.find(l => l.id === 'compare_numbers'); startLevel(l);
+      let guard = 0;
+      while (kindOf(questions[0]) !== 'multiple_choice' && guard++ < 100) { questions[0] = eqCompare(); }
+      renderQuestion();
+    })()`);
     assert.equal(run('kindOf(questions[0])'), 'multiple_choice');
     const choiceCount = run('questions[0].choices.length');
     assert.equal($$('.mc-choice').length, choiceCount);
@@ -310,9 +318,9 @@ suite('integration — Mental Math Gym: navigation', () => {
 });
 
 suite('integration — Mental Math Gym: play one problem in each section', () => {
-  test('Gym hub renders 5 tiles and the fact-set chip picker', () => {
+  test('Gym hub renders 6 tiles (including Tens & Ones) and the fact-set chip picker', () => {
     run('showGym()');
-    assert.equal($$('.gym-tile').length, 5);
+    assert.equal($$('.gym-tile').length, 6);
     assert.ok($$('.chip').length > 0);
   });
 
@@ -369,5 +377,107 @@ suite('integration — Mental Math Gym: play one problem in each section', () =>
       run(`mmEntry='${answer}'; submitColumn();`);
     }
     assert.equal(run('mmPlanStep'), 1);
+  });
+});
+
+suite('integration — Tens & Ones: play one problem of each strategy', () => {
+  function solveTensStep(idx) {
+    run(`loadTensProblem(${idx})`);
+    const steps = JSON.parse(run('JSON.stringify(currentTensSteps())'));
+    steps.forEach(st => {
+      if (st.kind === 'yesno') run(`answerTensYesNo('${st.answer}')`);
+      else run(`mmEntry='${st.answer}'; submitTensKeypad();`);
+    });
+  }
+
+  test('startTens opens the tens screen with the first (split) problem', () => {
+    run('startTens()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'tensScreen');
+    assert.equal(run('tensItems[0].strategy'), 'split');
+  });
+
+  test('split: submitting every step in order solves the problem', () => {
+    solveTensStep(0);
+    assert.equal(run('tensItems[tensIdx].strategy'), 'split');
+    assert.equal(run('tensSolved'), true);
+    assert.equal($('#tensContent .feedback').classList.contains('ok'), true);
+  });
+
+  test('blocks (no regroup): the keypad is available immediately and solving works', () => {
+    run('loadTensProblem(1)');
+    assert.equal(run('tensItems[tensIdx].strategy'), 'blocks');
+    assert.equal(run('tensBlocks.gate'), true, 'no regroup needed => no trade gate');
+    solveTensStep(1);
+    assert.equal(run('tensSolved'), true);
+  });
+
+  test('blocks (with regroup): the keypad is gated until tradeTensBlocks runs', () => {
+    run('loadTensProblem(4)');
+    assert.equal(run('tensItems[tensIdx].strategy'), 'blocks');
+    assert.equal(run('tensItems[tensIdx].regroup'), true);
+    assert.equal(run('tensBlocks.gate'), false, 'regroup needed => gated before the trade');
+    assert.equal($$('#tensContent .keypad').length, 0, 'keypad should be hidden before the trade');
+    run('tradeTensBlocks()');
+    assert.equal(run('tensBlocks.gate'), true, 'gate should open after trading ten cubes for a rod');
+    solveTensStep(4);
+    assert.equal(run('tensSolved'), true);
+  });
+
+  test('number line: submitting both jumps solves the problem', () => {
+    solveTensStep(3);
+    assert.equal(run('tensItems[tensIdx].strategy'), 'line');
+    assert.equal(run('tensSolved'), true);
+  });
+
+  test('round and adjust (compensate): submitting both steps solves the problem', () => {
+    solveTensStep(5);
+    assert.equal(run('tensItems[tensIdx].strategy'), 'compensate');
+    assert.equal(run('tensSolved'), true);
+  });
+
+  test('column method (addition with carry): submitting both steps solves the problem', () => {
+    solveTensStep(8);
+    assert.equal(run('tensItems[tensIdx].strategy'), 'column');
+    assert.equal(run('tensItems[tensIdx].op'), '+');
+    assert.equal(run('tensSolved'), true);
+  });
+
+  test('column method (subtraction with borrow): a wrong yes/no answer marks the run unclean, the correct one still solves it', () => {
+    run('loadTensProblem(11)');
+    assert.equal(run('tensItems[tensIdx].strategy'), 'column');
+    assert.equal(run('tensItems[tensIdx].op'), '-');
+    const correct = run('currentTensSteps()[0].answer');
+    const wrong = correct === 'yes' ? 'no' : 'yes';
+    run(`answerTensYesNo('${wrong}')`);
+    assert.equal(run('tensClean'), false, 'a wrong first guess should mark the attempt unclean');
+    run(`answerTensYesNo('${correct}')`);
+    const steps = JSON.parse(run('JSON.stringify(currentTensSteps())'));
+    for (let i = 1; i < steps.length; i++) run(`mmEntry='${steps[i].answer}'; submitTensKeypad();`);
+    assert.equal(run('tensSolved'), true);
+  });
+
+  test('nextTensProblem advances tensRecord.done and only counts a clean solve toward tensRecord.correct', () => {
+    run(`(function(){ tensRecord={key:todayKey(),done:0,correct:0,log:[]}; persistTens(); loadTensProblem(0); })()`);
+    solveTensStep(0);
+    run('nextTensProblem()');
+    assert.equal(run('tensRecord.done'), 1);
+    assert.equal(run('tensRecord.correct'), 1);
+  });
+
+  test('finishing all 12 problems shows the result screen and the grown-up summary lists all 5 strategies', () => {
+    run(`(function(){ tensRecord={key:todayKey(),done:0,correct:0,log:[]}; persistTens(); startTens(); })()`);
+    for (let i = 0; i < 12; i++) {
+      const steps = JSON.parse(run('JSON.stringify(currentTensSteps())'));
+      steps.forEach(st => {
+        if (st.kind === 'yesno') run(`answerTensYesNo('${st.answer}')`);
+        else run(`mmEntry='${st.answer}'; submitTensKeypad();`);
+      });
+      run('nextTensProblem()');
+    }
+    assert.equal(run('tensView'), 'result');
+    assert.equal(run('tensRecord.done'), 12);
+    run('showTensReport()');
+    assert.equal(run('tensView'), 'report');
+    assert.equal($$('#tensContent .progress-bar--thin').length, 5, 'expected one row per strategy (split/blocks/line/compensate/column)');
   });
 });

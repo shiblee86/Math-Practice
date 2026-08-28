@@ -535,11 +535,11 @@ function showResults(){
 //  NAVIGATION — persistent TopBar back button + QuickNav tabs
 // ============================================================
 const BACK_TARGET={practiceMenuScreen:'homeScreen',soarMenuScreen:'homeScreen',soarActivityScreen:'soarMenuScreen',quizScreen:'practiceMenuScreen',resultScreen:'practiceMenuScreen',
-  gymScreen:'homeScreen',drillScreen:'gymScreen',flashScreen:'gymScreen',trainerScreen:'gymScreen',dailyScreen:'gymScreen',columnScreen:'gymScreen',gymResultScreen:'gymScreen',sheetResultScreen:'gymScreen'};
+  gymScreen:'homeScreen',drillScreen:'gymScreen',flashScreen:'gymScreen',trainerScreen:'gymScreen',dailyScreen:'gymScreen',columnScreen:'gymScreen',gymResultScreen:'gymScreen',sheetResultScreen:'gymScreen',tensScreen:'gymScreen'};
 const TAB_FOR_SCREEN={homeScreen:'home',practiceMenuScreen:'levels',soarMenuScreen:'soar',soarActivityScreen:'soar',quizScreen:'levels',resultScreen:'levels',
-  gymScreen:'gym',drillScreen:'gym',flashScreen:'gym',trainerScreen:'gym',dailyScreen:'gym',columnScreen:'gym',gymResultScreen:'gym',sheetResultScreen:'gym'};
+  gymScreen:'gym',drillScreen:'gym',flashScreen:'gym',trainerScreen:'gym',dailyScreen:'gym',columnScreen:'gym',gymResultScreen:'gym',sheetResultScreen:'gym',tensScreen:'gym'};
 const SCREEN_TITLES={homeScreen:"🏁 Safia's & Safaan's Math Dojo",practiceMenuScreen:'🏎️ Practice Math',soarMenuScreen:'🦅 SOAR Adventures',soarActivityScreen:'🦅 SOAR Activity',quizScreen:'🥊 Quiz',resultScreen:'🏆 Result',
-  gymScreen:'🧠 Mental Math Gym',drillScreen:'⏱️ Speed Drill',flashScreen:'🃏 Flash Cards',trainerScreen:'🌉 Learn a Trick',dailyScreen:"📋 Today's Sheet",columnScreen:'🧮 Carry & Borrow',gymResultScreen:'🏁 Drill Result',sheetResultScreen:'🏆 Sheet Result'};
+  gymScreen:'🧠 Mental Math Gym',drillScreen:'⏱️ Speed Drill',flashScreen:'🃏 Flash Cards',trainerScreen:'🌉 Learn a Trick',dailyScreen:"📋 Today's Sheet",columnScreen:'🧮 Carry & Borrow',gymResultScreen:'🏁 Drill Result',sheetResultScreen:'🏆 Sheet Result',tensScreen:'🔟 Tens & Ones'};
 
 function updateTopBar(screenId){
   const t=document.getElementById('topBarTitle');
@@ -578,7 +578,7 @@ function showScreen(id){
 // ============================================================
 function buildSaveBundle(){
   return {version:1,savedAt:new Date().toISOString(),progress,soarProgress,trophyData,badges,totalStarsEarned,
-    mmCards,mmMisses,mmBest,mmSets,mmSession,mmSheet};
+    mmCards,mmMisses,mmBest,mmSets,mmSession,mmSheet,tensRecord};
 }
 function saveProgress(){
   const b=new Blob([JSON.stringify(buildSaveBundle(),null,2)],{type:'application/json'});
@@ -606,8 +606,9 @@ function handleLoadFile(e){
         if(Array.isArray(data.mmSets)&&data.mmSets.length)mmSets=data.mmSets;
         if(typeof data.mmSession==='number')mmSession=data.mmSession;
         if(data.mmSheet)mmSheet=data.mmSheet;
+        if(data.tensRecord)tensRecord=data.tensRecord;
       }
-      persistAll();persistMM();
+      persistAll();persistMM();persistTens();
       renderHome();checkBadges();renderTrophyShelf();updateTopBarStars();renderWeakFactsPanel();
       alert('Progress loaded!');
     }catch{alert('Could not read that file.');}
@@ -705,6 +706,9 @@ let mmSession=0;   try{const s=localStorage.getItem('tm-mm-session');if(s)mmSess
 let mmSheet={key:null,daily:{done:0,correct:0},column:{done:0,correct:0}};
 try{const s=localStorage.getItem('tm-mm-sheet'); if(s)mmSheet=JSON.parse(s);}catch(e){}
 if(mmSheet.key!==todayKey())mmSheet={key:todayKey(),daily:{done:0,correct:0},column:{done:0,correct:0}};
+let tensRecord={key:null,done:0,correct:0,log:[]};
+try{const s=localStorage.getItem('tm-mm-tens'); if(s)tensRecord=JSON.parse(s);}catch(e){}
+if(tensRecord.key!==todayKey())tensRecord={key:todayKey(),done:0,correct:0,log:[]};
 
 function persistMM(){
   localStorage.setItem('tm-mm-cards',JSON.stringify(mmCards));
@@ -713,6 +717,9 @@ function persistMM(){
   localStorage.setItem('tm-mm-sets',JSON.stringify(mmSets));
   localStorage.setItem('tm-mm-session',String(mmSession));
   localStorage.setItem('tm-mm-sheet',JSON.stringify(mmSheet));
+}
+function persistTens(){
+  localStorage.setItem('tm-mm-tens',JSON.stringify(tensRecord));
 }
 
 // ── the drill's setInterval clock + auto-advance setTimeout — cleaned up
@@ -750,6 +757,7 @@ function mmPressKey(k,screen){
   else if(screen==='trainer')renderTrainerStep();
   else if(screen==='daily')renderSheetProblem();
   else if(screen==='column')renderColumnStep();
+  else if(screen==='tens')renderTensScreen();
 }
 
 // ── Gym hub ──
@@ -760,6 +768,7 @@ function renderGym(){
   }).join('');
   const weakCount=Object.keys(mmMisses||{}).length;
   const tiles=[
+    {icon:'🔟',name:'Tens & ones',line:'45 + 32 by splitting the tens from the ones.',stat:`${tensRecord.done}/12`,color:'cyan1',full:true,onclick:'startTens()'},
     {icon:'📋',name:"Today's sheet",line:'16 problems. Add, take away and shop money.',stat:`${mmSheet.daily.done}/16`,color:'success',full:true,onclick:'startDaily()'},
     {icon:'🧮',name:'Carry & borrow',line:'Big numbers, drawn out step by step.',stat:`${mmSheet.column.done}/12`,color:'amber',onclick:'startColumn()'},
     {icon:'⏱️',name:'Speed drill',line:'20 facts, fast. Beat your best time.',stat:mmBest?`${mmBest.time}s`:'new',color:'cyan1',onclick:'startDrill()'},
@@ -783,7 +792,8 @@ function renderGym(){
       <div style="font-family:var(--font-display);color:var(--cyan-300);font-size:1.05rem;margin-bottom:4px;">Pick what to practise</div>
       <div style="color:var(--text-muted);font-size:.75rem;font-weight:700;margin-bottom:10px;">Tap one to turn it on or off.</div>
       <div class="chip-row">${chipsHtml}</div>
-    </div>`;
+    </div>
+    <button class="btn btn--ghost" style="width:100%;margin-top:12px;" onclick="showTensReport()">👪 Grown-up summary</button>`;
 }
 function showGym(){stopDrillTimers();renderGym();showScreen('gymScreen');}
 function toggleMMSet(id){
@@ -1209,6 +1219,302 @@ function answerColumnYesNo(v){
     return;
   }
   advanceColumnStep(step);
+}
+
+// ============================================================
+//  TENS & ONES — place-value add/subtract within 100.
+//  tensSheet/tensSteps/tensNote/TENS_STRATEGY_LABEL/TENS_STRATEGY_NAME
+//  come from mentalmath.js. Shares the keypad + mmEntry buffer with the
+//  other step-driven Gym screens (trainer/daily/column) rather than a
+//  separate entry variable, since only one such screen is ever active.
+// ============================================================
+let tensItems=[], tensView='play', tensIdx=0, tensStep=0, tensSolved=false, tensClean=true, tensFeedback=null;
+let tensBlocks={bt:0,bo:0,rt:0,ro:0,gate:true};
+let tensDraw={};
+
+function startTens(){
+  const today=todayKey();
+  tensItems=tensSheet(today);
+  if(tensRecord.key!==today)tensRecord={key:today,done:0,correct:0,log:[]};
+  const start=tensRecord.done>=tensItems.length?0:tensRecord.done;
+  if(start===0)tensRecord={key:today,done:0,correct:0,log:[]};
+  persistTens();
+  stopDrillTimers();
+  tensView='play';
+  loadTensProblem(start);
+  showScreen('tensScreen');
+}
+function loadTensProblem(idx){
+  const it=tensItems[idx];
+  tensIdx=idx;tensStep=0;mmEntry='';tensFeedback=null;tensSolved=false;tensClean=true;tensDraw={};
+  if(it.strategy==='blocks'){
+    const a1=it.a%10,b1=it.b%10;
+    if(it.op==='+'){
+      const bt=Math.floor(it.a/10)+Math.floor(it.b/10),bo=a1+b1;
+      tensBlocks={bt,bo,rt:0,ro:0,gate:bo<10};
+    }else{
+      tensBlocks={bt:Math.floor(it.a/10),bo:a1,rt:0,ro:0,gate:false};
+    }
+  }else{
+    tensBlocks={bt:0,bo:0,rt:0,ro:0,gate:true};
+  }
+  renderTensScreen();
+}
+function currentTensSteps(){return tensSteps(tensItems[tensIdx]);}
+
+function submitTensStep(val){
+  const it=tensItems[tensIdx];
+  const steps=currentTensSteps();
+  const step=steps[tensStep];
+  if(!step)return;
+  const ok=step.kind==='yesno'?val===step.answer:parseInt(val,10)===step.answer;
+  mmEntry='';
+  if(!ok){
+    tensClean=false;
+    tensFeedback={ok:false,msg: step.kind==='yesno'
+      ? (step.answer==='no'?'Look again — the top ones digit is smaller, so trade a ten.':'The top ones digit is big enough here.')
+      : `Not that one — it is ${step.answer}.`};
+    renderTensScreen();
+    return;
+  }
+  tensDraw=Object.assign({},tensDraw,step.reveal||{});
+  const next=tensStep+1;
+  if(next>=steps.length){
+    tensRecord.log.push({strategy:it.strategy,ok:tensClean});
+    if(tensClean){tensRecord.correct++;launchConfetti(20);}
+    tensStep=next;tensSolved=true;
+    tensFeedback={ok:true,msg: tensClean?'Solved it, step by step.':'Got there. Try that one again tomorrow.'};
+    persistTens();
+  }else{
+    tensStep=next;tensFeedback=null;
+  }
+  renderTensScreen();
+}
+function answerTensYesNo(v){submitTensStep(v);}
+function submitTensKeypad(){if(mmEntry==='')return;submitTensStep(mmEntry);}
+
+function nextTensProblem(){
+  const next=tensIdx+1;
+  tensRecord.done=next;
+  persistTens();
+  if(next>=tensItems.length){
+    totalStarsEarned+=3;
+    updateTopBarStars();
+    persistAll();
+    launchConfetti(80);
+    tensView='result';
+    renderTensScreen();
+    return;
+  }
+  loadTensProblem(next);
+}
+
+function tradeTensBlocks(){
+  const it=tensItems[tensIdx];
+  if(it.op==='+'){
+    tensBlocks.bo-=10;tensBlocks.bt+=1;tensBlocks.gate=tensBlocks.bo<10;
+  }else{
+    tensBlocks={bt:Math.floor(it.a/10),bo:it.a%10,rt:0,ro:0,gate:false};
+  }
+  renderTensScreen();
+}
+function takeTensRod(){
+  const it=tensItems[tensIdx];
+  if(tensBlocks.bt<=0)return;
+  tensBlocks.rt+=1;tensBlocks.bt-=1;
+  tensBlocks.gate=(tensBlocks.rt*10+tensBlocks.ro)===it.b;
+  renderTensScreen();
+}
+function takeTensCube(){
+  const it=tensItems[tensIdx];
+  if(tensBlocks.bo<=0)return;
+  tensBlocks.ro+=1;tensBlocks.bo-=1;
+  tensBlocks.gate=(tensBlocks.rt*10+tensBlocks.ro)===it.b;
+  renderTensScreen();
+}
+
+function tensBlocksHtml(it){
+  const pipsHtml=Array.from({length:10},()=>`<span style="display:block;width:8px;height:4px;background:rgba(8,23,22,.45);border-radius:1px;"></span>`).join('');
+  const canRemove=it.op==='-'&&!tensBlocks.gate;
+  const rodsHtml=Array.from({length:tensBlocks.bt}).map(()=>
+    `<button type="button" onclick="${canRemove?'takeTensRod()':''}" style="width:16px;height:76px;border-radius:4px;border:2px solid var(--cyan-300);background:var(--cyan-600);padding:0;cursor:${canRemove?'pointer':'default'};display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:space-evenly;">${pipsHtml}</button>`
+  ).join('');
+  const cubesHtml=Array.from({length:tensBlocks.bo}).map(()=>
+    `<button type="button" onclick="${canRemove?'takeTensCube()':''}" style="width:16px;height:16px;border-radius:3px;border:2px solid var(--amber-300);background:var(--amber-500);padding:0;cursor:${canRemove?'pointer':'default'};"></button>`
+  ).join('');
+  const removed=tensBlocks.rt*10+tensBlocks.ro;
+  const canTrade=it.op==='+'?tensBlocks.bo>=10:(removed>0&&!tensBlocks.gate);
+  const tradeLabel=it.op==='+'?'Trade 10 ones → 1 ten':'Put them all back';
+  const blockTally=it.op==='+'
+    ?(tensStep>=2?`${tensBlocks.bt} tens · ${tensBlocks.bo} ones`:'Count them yourself')
+    :`Take away ${it.b} — removed ${removed}`;
+  const blockHint=it.op==='+'
+    ?(tensBlocks.bo>=10?'Too many loose cubes. Ten of them make a rod — trade them.':'Now count the rods and the cubes.')
+    :(tensBlocks.gate?'Good. Count what is left.':`Tap blocks to take ${it.b} away. Tap a rod to remove a whole ten.`);
+  return `<div style="background:var(--surface-2);border:2px solid var(--border-strong);border-radius:var(--radius-md);padding:12px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;color:var(--text-muted);font-size:.68rem;font-weight:800;margin-bottom:8px;"><span>TENS</span><span>ONES</span></div>
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="display:flex;flex-wrap:wrap;gap:5px;flex:0 0 auto;max-width:60%;">${rodsHtml}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;flex:1;">${cubesHtml}</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;">
+      <div style="font-family:var(--font-display);color:var(--cyan-300);font-size:1.05rem;">${blockTally}</div>
+      ${canTrade?`<button type="button" class="btn btn--reward" style="flex:0 0 auto;padding:10px 14px;font-size:.85rem;" onclick="tradeTensBlocks()">${tradeLabel}</button>`:''}
+    </div>
+    <div style="color:var(--text-secondary);font-size:.85rem;font-weight:700;margin-top:8px;line-height:1.45;">${blockHint}</div>
+  </div>`;
+}
+function tensColumnHtml(it){
+  const a10=Math.floor(it.a/10),a1=it.a%10,b10=Math.floor(it.b/10),b1=it.b%10;
+  const above=tensDraw.carry!==undefined?String(tensDraw.carry):(tensDraw.tensNew!==undefined?String(tensDraw.tensNew):'');
+  const aboveOnes=tensDraw.onesNew!==undefined?String(tensDraw.onesNew):'';
+  const strikeCls=tensDraw.tensNew!==undefined?'strike':'';
+  const resTens=tensDraw.resTens!==undefined?String(tensDraw.resTens):'';
+  const resOnes=tensDraw.resOnes!==undefined?String(tensDraw.resOnes):'';
+  return `<div class="column-math">
+    <div class="column-math__above"></div>
+    <div class="column-math__above" style="color:var(--amber-400);">${above}</div>
+    <div class="column-math__above" style="color:var(--amber-400);">${aboveOnes}</div>
+    <div class="column-math__digit"></div>
+    <div class="column-math__digit ${strikeCls}">${a10}</div>
+    <div class="column-math__digit ${strikeCls}">${a1}</div>
+    <div class="column-math__digit column-math__op">${it.op==='+'?'+':MINUS}</div>
+    <div class="column-math__digit">${b10}</div>
+    <div class="column-math__digit">${b1}</div>
+    <div class="column-math__rule"></div>
+    <div class="column-math__digit"></div>
+    <div class="column-math__digit column-math__result">${resTens}</div>
+    <div class="column-math__digit column-math__result">${resOnes}</div>
+  </div>`;
+}
+function tensLineHtml(it){
+  const b10=Math.floor(it.b/10)*10,b1=it.b%10;
+  const mid=it.op==='+'?it.a+b10:it.a-b10;
+  const lo=Math.min(it.a,it.answer),hi=Math.max(it.a,it.answer),span=Math.max(1,hi-lo);
+  const pos=v=>6+((v-lo)/span)*88;
+  const stops=[
+    {label:String(it.a),left:pos(it.a).toFixed(1),color:'var(--cyan-300)'},
+    {label:tensStep>=1?String(mid):'?',left:pos(mid).toFixed(1),color:'var(--amber-400)'},
+    {label:tensStep>=2?String(it.answer):'?',left:pos(it.answer).toFixed(1),color:'var(--color-success)'},
+  ];
+  const sign=it.op==='+'?'+':MINUS;
+  const hops=[
+    {label:`${sign}${b10}`,left:(((pos(it.a))+(pos(mid)))/2).toFixed(1)},
+    {label:`${sign}${b1}`,left:(((pos(mid))+(pos(it.answer)))/2).toFixed(1)},
+  ];
+  const stopsHtml=stops.map(s=>`<div style="position:absolute;top:0;transform:translateX(-50%);text-align:center;left:${s.left}%;"><div style="font-family:var(--font-display);font-size:1.1rem;color:${s.color};">${s.label}</div><div style="width:3px;height:16px;background:${s.color};margin:4px auto 0;"></div></div>`).join('');
+  const hopsHtml=hops.map(h=>`<div style="position:absolute;top:48px;transform:translateX(-50%);color:var(--coral-400);font-family:var(--font-display);font-size:.95rem;white-space:nowrap;left:${h.left}%;">${h.label}</div>`).join('');
+  return `<div style="background:var(--surface-2);border:2px solid var(--border-strong);border-radius:var(--radius-md);padding:18px 14px 12px;margin-bottom:12px;">
+    <div style="position:relative;height:82px;">
+      <div style="position:absolute;left:0;right:0;top:38px;height:3px;background:var(--border-strong);"></div>
+      ${stopsHtml}${hopsHtml}
+    </div>
+  </div>`;
+}
+function tensStepsHtml(steps){
+  return steps.map((s,i)=>{
+    const done=i<tensStep;
+    const current=i===tensStep&&!tensSolved;
+    const text=i>tensStep?'Next step…':s.text;
+    const slot=done?String(s.answer):(current?(mmEntry===''?'?':mmEntry):'·');
+    const cls=done?'is-done':(current?'is-current':'');
+    return `<div class="trainer-step ${cls}"><div class="trainer-step__text">${text}</div><div class="trainer-step__slot">${slot}</div></div>`;
+  }).join('');
+}
+
+function renderTensScreen(){
+  if(tensView==='result')renderTensResult();
+  else if(tensView==='report')renderTensReport();
+  else renderTensPlay();
+}
+function renderTensPlay(){
+  const it=tensItems[tensIdx];
+  const steps=currentTensSteps();
+  const pct=Math.round(tensIdx/tensItems.length*100);
+  const gated=!tensBlocks.gate;
+  const step=steps[tensStep];
+  const showYesNo=!tensSolved&&!gated&&step&&step.kind==='yesno';
+  const showKeypad=!tensSolved&&!gated&&step&&step.kind!=='yesno';
+  const visualHtml=it.strategy==='blocks'?tensBlocksHtml(it):it.strategy==='column'?tensColumnHtml(it):it.strategy==='line'?tensLineHtml(it):'';
+  const feedbackHtml=tensFeedback?`<div class="feedback show ${tensFeedback.ok?'ok':'bad'}" style="margin-top:12px;">${tensFeedback.msg}</div>`:'';
+  const yesNoHtml=showYesNo?`<div class="btn-row"><button class="btn btn--primary" onclick="answerTensYesNo('yes')">Yes</button><button class="btn btn--accent" onclick="answerTensYesNo('no')">No</button></div>`:'';
+  const keypadHtml=showKeypad?`<div style="margin-top:14px;"><div class="keypad-display">${mmEntry===''?'·':mmEntry}</div>${mmKeypadHtml('tens','submitTensKeypad()')}</div>`:'';
+  const solvedHtml=tensSolved?`<div><div style="text-align:center;margin-top:12px;font-family:var(--font-display);font-size:1.15rem;color:var(--cyan-300);">So ${it.a} ${it.op==='+'?'+':MINUS} ${it.b} = ${it.answer}.</div><div style="text-align:center;margin-top:6px;color:var(--text-secondary);font-size:.95rem;font-weight:700;line-height:1.5;">${tensNote(it)}</div><button class="btn btn--reward" style="width:100%;margin-top:14px;" onclick="nextTensProblem()">Next ▶</button></div>`:'';
+  document.getElementById('tensContent').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-secondary);font-size:.75rem;font-weight:800;margin-bottom:8px;">
+      <span>🔟 Tens &amp; ones</span><span>${it.group}</span><span>${tensIdx+1} / ${tensItems.length}</span>
+    </div>
+    <div class="progress-bar progress-bar--thin" style="margin-bottom:12px;"><div class="progress-bar__fill" style="width:${pct}%;"></div></div>
+    <div class="content-card content-card--quiz">
+      <div class="q-type-badge">${TENS_STRATEGY_LABEL[it.strategy]}</div>
+      <div class="question-text" style="font-size:2.2rem;margin-bottom:6px;">${it.display}</div>
+      <div style="text-align:center;color:var(--text-muted);font-size:.8rem;font-weight:800;margin-bottom:12px;">${it.regroup?'This one needs a trade':'No trading needed'}</div>
+      ${visualHtml}
+      ${tensStepsHtml(steps)}
+      ${feedbackHtml}
+      ${yesNoHtml}
+      ${keypadHtml}
+      ${solvedHtml}
+    </div>
+    <button class="btn btn--ghost" style="width:100%;margin-top:12px;" onclick="showGym()">Pause sheet</button>`;
+}
+function renderTensResult(){
+  const n=tensItems.length,c=tensRecord.correct;
+  const message=c===n?'Every one first time. Tens and ones are clicking.':'Sheet finished. The summary shows which strategy needs another go.';
+  document.getElementById('tensContent').innerHTML=`
+    <div class="result-card" style="border-color:var(--cyan-500);box-shadow:0 0 32px rgba(23,199,199,.2);">
+      <div class="result-emoji">🔟</div>
+      <div class="result-title">Tens &amp; ones done</div>
+      <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--amber-400);margin-top:6px;">${c}/${n}</div>
+      <div class="result-message">${message}</div>
+      <div class="btn-row" style="margin-top:18px;">
+        <button class="btn btn--primary" onclick="startTens()">Do it again</button>
+        <button class="btn btn--accent" onclick="showTensReport()">Grown-up summary</button>
+        <button class="btn btn--ghost" onclick="showGym()">Gym</button>
+      </div>
+    </div>`;
+}
+function renderTensReport(){
+  const tally={};
+  tensRecord.log.forEach(l=>{const t=tally[l.strategy]||(tally[l.strategy]={n:0,ok:0});t.n++;if(l.ok)t.ok++;});
+  const report=Object.keys(TENS_STRATEGY_NAME).map(k=>{
+    const t=tally[k]||{n:0,ok:0};
+    const pct=t.n?Math.round(t.ok/t.n*100):0;
+    const color=!t.n?'var(--text-muted)':pct>=75?'var(--color-success)':pct>=40?'var(--amber-400)':'var(--coral-400)';
+    return {name:TENS_STRATEGY_NAME[k],score:t.n?`${t.ok}/${t.n} clean`:'not yet',pct,color};
+  });
+  const weak=Object.keys(TENS_STRATEGY_NAME)
+    .filter(k=>tally[k]&&tally[k].ok<tally[k].n)
+    .map(k=>({label:`${TENS_STRATEGY_NAME[k]} (${tally[k].n-tally[k].ok} slip${tally[k].n-tally[k].ok===1?'':'s'})`,cls:tally[k].ok===0?'high':''}));
+  if(!weak.length)weak.push({label:'No slips yet',cls:''});
+  const rowsHtml=report.map(row=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:.9rem;font-weight:800;margin-bottom:4px;"><span>${row.name}</span><span style="color:${row.color};">${row.score}</span></div>
+      <div class="progress-bar progress-bar--thin"><div class="progress-bar__fill" style="width:${row.pct}%;background:${row.color};"></div></div>
+    </div>`).join('');
+  const weakHtml=weak.map(w=>`<span class="pattern-tag ${w.cls}">${w.label}</span>`).join('');
+  document.getElementById('tensContent').innerHTML=`
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:2rem;">👪</div>
+      <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--cyan-300);margin-top:4px;">Grown-up summary</div>
+      <div style="color:var(--text-secondary);font-size:.9rem;">Applies place value to add and subtract within 100.</div>
+    </div>
+    <div class="content-card" style="margin-bottom:12px;">
+      <div style="font-family:var(--font-display);color:var(--amber-400);font-size:1.05rem;margin-bottom:10px;">By strategy</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">${rowsHtml}</div>
+    </div>
+    <div class="pattern-section">
+      <div class="pattern-title">🎯 Where the steps break down</div>
+      <div class="chip-row">${weakHtml}</div>
+      <div style="color:var(--text-secondary);font-size:.85rem;font-weight:700;margin-top:10px;line-height:1.5;">Clean means solved with no wrong steps. A strategy under 75% is the one to sit with — the standard is about understanding 45 as 4 tens and 5 ones, not about speed.</div>
+    </div>
+    <button class="btn btn--ghost" style="width:100%;margin-top:12px;" onclick="showGym()">Back to the gym</button>`;
+}
+function showTensReport(){
+  tensView='report';
+  stopDrillTimers();
+  showScreen('tensScreen');
+  renderTensScreen();
 }
 
 // ============================================================

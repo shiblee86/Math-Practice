@@ -11,6 +11,7 @@ const FACT_SETS = [
   { id: 'missing', icon: '❓',  label: 'Missing number', desc: '17−?=10' },
   { id: 'tables',  icon: '✖️', label: 'Times tables',  desc: '2s to 10s' },
   { id: 'sameTens', icon: '🔟', label: 'Same tens',    desc: '17−12, 26−23' },
+  { id: 'tensOnes', icon: '🏗️', label: 'Tens & ones',  desc: 'Two-digit adding' },
 ];
 
 const SET_LABEL = FACT_SETS.reduce((m, s) => (m[s.id] = s.label, m), {});
@@ -79,6 +80,14 @@ const GEN = {
     const t = r(1, 4), a1 = r(3, 9), b1 = r(1, a1 - 1);
     const a = t * 10 + a1, b = t * 10 + b1;
     return fact('sameTens', `${a} ${MINUS} ${b}`, a - b, { a, b, op: '-', sameTens: true });
+  },
+  // Quick two-digit + two-digit facts (tens digits kept <=9 so the sum stays two-digit) —
+  // the fast-recall companion to the full Tens & Ones teaching sheet further down this file.
+  tensOnes() {
+    const a10 = r(1, 8), a1 = r(0, 9);
+    const b10 = r(1, Math.max(1, 9 - a10)), b1 = r(0, 9);
+    const a = a10 * 10 + a1, b = b10 * 10 + b1;
+    return fact('tensOnes', `${a} + ${b}`, a + b, { a, b, op: '+' });
   },
 };
 
@@ -397,5 +406,130 @@ function columnPlan(p) {
   return { steps, borrow, note: borrow
     ? `${a1} is smaller than ${b1}, so cross out the ${a10} and make it ${a10 - 1}. The ${a1} becomes ${a1 + 10}.`
     : 'Nothing to borrow — the ones are big enough.' };
+}
+
+// ── tens & ones sheet — place-value add/subtract within 100 ──
+// 12 problems, a fixed strategy plan, seeded by date like the other sheets so
+// the same day always gives the same sheet. Five teaching strategies: split
+// the tens and ones apart, base-ten blocks, a number line, round-and-adjust
+// (compensation), and the column method (identical mechanics to columnPlan()
+// above, just with its own copy since it's presented inside its own sheet).
+const TENS_STRATEGY_LABEL = {
+  split: 'SPLIT THE TENS AND ONES', blocks: 'BUILD IT WITH BLOCKS', line: 'JUMP ALONG THE NUMBER LINE',
+  compensate: 'ROUND AND ADJUST', column: 'COLUMN METHOD',
+};
+const TENS_STRATEGY_NAME = {
+  split: 'Split the tens', blocks: 'Base-ten blocks', line: 'Number line',
+  compensate: 'Round and adjust', column: 'Column method',
+};
+
+function tensSheet(key) {
+  const rnd = seeded(seedFrom('tens' + key));
+  const R = (lo, hi) => lo + Math.floor(rnd() * (hi - lo + 1));
+  const addPair = (regroup) => {
+    const a1 = regroup ? R(4, 9) : R(1, 4);
+    const b1 = regroup ? R(10 - a1, 9) : R(1, 9 - a1 - 1 < 1 ? 1 : 9 - a1);
+    const a10 = R(2, 5), b10 = R(1, 9 - a10 < 1 ? 1 : Math.min(4, 9 - a10));
+    return [a10 * 10 + a1, b10 * 10 + b1];
+  };
+  const subPair = (regroup) => {
+    const a1 = regroup ? R(0, 4) : R(5, 9);
+    const b1 = regroup ? R(a1 + 1, 9) : R(1, a1 - 1 < 1 ? 1 : a1 - 1);
+    const a10 = R(4, 9), b10 = R(1, a10 - 2 < 1 ? 1 : a10 - 2);
+    return [a10 * 10 + a1, b10 * 10 + b1];
+  };
+  const plan = [
+    ['+', 'split', false], ['+', 'blocks', false], ['-', 'split', false], ['-', 'line', false],
+    ['+', 'blocks', true], ['+', 'compensate', false], ['+', 'split', false], ['+', 'line', true],
+    ['+', 'column', true], ['-', 'blocks', false], ['-', 'compensate', false], ['-', 'column', true],
+  ];
+  return plan.map(([op, strategy, regroup], i) => {
+    let a, b;
+    if (strategy === 'compensate') {
+      const b10 = R(1, 3);
+      b = b10 * 10 + 9;
+      a = op === '+' ? R(2, 5) * 10 + R(1, 6) : (b10 + R(2, 4)) * 10 + R(2, 8);
+    } else {
+      [a, b] = op === '+' ? addPair(regroup) : subPair(regroup);
+    }
+    const answer = op === '+' ? a + b : a - b;
+    return { id: `tens-${i}`, a, b, op, strategy, regroup, answer,
+      display: `${a} ${op === '+' ? '+' : MINUS} ${b}`,
+      group: op === '+' ? 'Adding' : 'Taking away' };
+  });
+}
+
+function tensSteps(it) {
+  const { a, b, op, answer } = it;
+  const a10 = Math.floor(a / 10) * 10, a1 = a % 10, b10 = Math.floor(b / 10) * 10, b1 = b % 10;
+  if (it.strategy === 'split') {
+    const tens = op === '+' ? a10 + b10 : a10 - b10;
+    const ones = op === '+' ? a1 + b1 : a1 - b1;
+    return [
+      { text: `${a} is ${a10} and how many ones?`, answer: a1 },
+      { text: `${b} is ${b10} and how many ones?`, answer: b1 },
+      { text: `Now the tens: ${a10} ${op === '+' ? '+' : MINUS} ${b10}`, answer: tens },
+      { text: `Now the ones: ${a1} ${op === '+' ? '+' : MINUS} ${b1}`, answer: ones },
+      { text: `Put them back together: ${tens} + ${ones}`, answer },
+    ];
+  }
+  if (it.strategy === 'line') {
+    const mid = op === '+' ? a + b10 : a - b10;
+    const nt = b10 / 10;
+    return [
+      { text: `Start at ${a} and jump ${nt} ten${nt === 1 ? '' : 's'} ${op === '+' ? 'forward' : 'back'}. Where do you land?`, answer: mid },
+      { text: `Now ${b1} little hop${b1 === 1 ? '' : 's'} ${op === '+' ? 'forward' : 'back'}. Where do you finish?`, answer },
+    ];
+  }
+  if (it.strategy === 'compensate') {
+    const round = b + 1;
+    const mid = op === '+' ? a + round : a - round;
+    return [
+      { text: `${b} is one away from ${round}. What is ${a} ${op === '+' ? '+' : MINUS} ${round}?`, answer: mid },
+      { text: op === '+' ? `You added one too many. Take 1 off ${mid}` : `You took one too many away. Put 1 back on ${mid}`, answer },
+    ];
+  }
+  if (it.strategy === 'blocks') {
+    if (op === '+') {
+      const tens = Math.floor(answer / 10), ones = answer % 10;
+      return [
+        { text: 'Count the ten-rods. How many tens?', answer: tens },
+        { text: 'Count the loose cubes. How many ones?', answer: ones },
+        { text: `${tens} tens and ${ones} ones makes`, answer },
+      ];
+    }
+    return [{ text: 'Count what is left on the mat.', answer }];
+  }
+  // column
+  const ao = a % 10, at = Math.floor(a / 10), bo = b % 10, bt = Math.floor(b / 10);
+  if (op === '+') {
+    const sum = ao + bo, carry = sum >= 10 ? 1 : 0;
+    return [
+      { text: `Add the ones: ${ao} + ${bo}`, answer: sum, reveal: carry ? { carry: 1, resOnes: sum % 10 } : { resOnes: sum } },
+      carry
+        ? { text: `Now the tens, plus the 1 you carried: 1 + ${at} + ${bt}`, answer: 1 + at + bt, reveal: { resTens: 1 + at + bt } }
+        : { text: `Add the tens: ${at} + ${bt}`, answer: at + bt, reveal: { resTens: at + bt } },
+    ];
+  }
+  const borrowT = ao < bo;
+  const stepsT = [{ kind: 'yesno', text: `Is ${ao} big enough to take ${bo} away?`, answer: borrowT ? 'no' : 'yes',
+    reveal: borrowT ? { tensNew: at - 1, onesNew: ao + 10 } : {} }];
+  if (borrowT) {
+    stepsT.push({ text: `You borrowed a ten. Now ${ao + 10} ${MINUS} ${bo}`, answer: ao + 10 - bo, reveal: { resOnes: ao + 10 - bo } });
+    stepsT.push({ text: `The ${at} became ${at - 1}. Now ${at - 1} ${MINUS} ${bt}`, answer: at - 1 - bt, reveal: { resTens: at - 1 - bt } });
+  } else {
+    stepsT.push({ text: `Take the ones: ${ao} ${MINUS} ${bo}`, answer: ao - bo, reveal: { resOnes: ao - bo } });
+    stepsT.push({ text: `Take the tens: ${at} ${MINUS} ${bt}`, answer: at - bt, reveal: { resTens: at - bt } });
+  }
+  return stepsT;
+}
+
+function tensNote(it) {
+  const a10 = Math.floor(it.a / 10) * 10, a1 = it.a % 10, b10 = Math.floor(it.b / 10) * 10, b1 = it.b % 10;
+  if (it.strategy === 'split') return `${it.a} is ${a10} and ${a1}. ${it.b} is ${b10} and ${b1}. Do the tens, do the ones, put them back together.`;
+  if (it.strategy === 'line') return `Big jumps of ten first, then the little ones. Same answer, less counting.`;
+  if (it.strategy === 'compensate') return `Round to the friendly ten, then fix it by one.`;
+  if (it.strategy === 'blocks') return it.op === '+' && (a1 + b1) >= 10 ? 'Ten loose cubes always trade for one rod. That is what carrying means.' : 'The rods are tens. The cubes are ones.';
+  return it.op === '+' ? 'The carried 1 is a whole ten moving over.' : 'Borrowing breaks one ten into ten ones.';
 }
 

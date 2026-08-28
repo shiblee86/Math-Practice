@@ -234,3 +234,69 @@ suite('mentalmath.js — columnPlan reconstructs the right answer', () => {
     });
   });
 });
+
+suite('mentalmath.js — tensSheet / tensSteps (tens & ones)', () => {
+  // The 12-problem plan is fixed (not randomized) — only the numbers are seeded.
+  const EXPECTED_PLAN = [
+    ['+', 'split'], ['+', 'blocks'], ['-', 'split'], ['-', 'line'],
+    ['+', 'blocks'], ['+', 'compensate'], ['+', 'split'], ['+', 'line'],
+    ['+', 'column'], ['-', 'blocks'], ['-', 'compensate'], ['-', 'column'],
+  ];
+
+  // For split/line/compensate/blocks, the last step's `answer` is the final
+  // two-digit result. For column, the result is assembled from two different
+  // steps' `reveal` fields (see columnPlan-style reconstruction above).
+  function reconstructTensAnswer(it, steps) {
+    if (it.strategy === 'column') {
+      if (it.op === '+') return steps[1].reveal.resTens * 10 + steps[0].reveal.resOnes;
+      return steps[2].reveal.resTens * 10 + steps[1].reveal.resOnes;
+    }
+    return steps[steps.length - 1].answer;
+  }
+
+  test('tensSheet(key) always returns exactly 12 problems following the fixed strategy plan', () => {
+    const sheet = tensSheet('2026-08-28');
+    assert.equal(sheet.length, 12);
+    sheet.forEach((it, i) => {
+      assert.equal(it.op, EXPECTED_PLAN[i][0], `problem ${i}: expected op ${EXPECTED_PLAN[i][0]}`);
+      assert.equal(it.strategy, EXPECTED_PLAN[i][1], `problem ${i}: expected strategy ${EXPECTED_PLAN[i][1]}`);
+    });
+  });
+
+  test('the same date key always produces the same tens sheet (seeded, deterministic)', () => {
+    assert.deepEqual(tensSheet('2026-08-28'), tensSheet('2026-08-28'));
+  });
+
+  test('different date keys produce different tens sheets', () => {
+    assert.ok(JSON.stringify(tensSheet('2026-08-28')) !== JSON.stringify(tensSheet('2099-01-01')));
+  });
+
+  test('every problem is genuinely two-digit and its answer matches a op b', () => {
+    tensSheet('2026-08-28').concat(tensSheet('2099-01-01')).forEach(it => {
+      assert.ok(it.a >= 10 && it.a < 100 && it.b >= 10 && it.b < 100, `expected two-digit a/b, got ${it.a}, ${it.b}`);
+      assert.equal(it.answer, it.op === '+' ? it.a + it.b : it.a - it.b, JSON.stringify(it));
+    });
+  });
+
+  test('tensSteps reconstructs the correct final answer for every strategy across a sampled sheet', () => {
+    tensSheet('2026-08-28').concat(tensSheet('2099-01-01')).forEach(it => {
+      const steps = tensSteps(it);
+      assert.ok(steps.length > 0, `tensSteps returned no steps for ${JSON.stringify(it)}`);
+      steps.forEach(st => assert.ok(st.answer !== undefined && st.answer !== '', `step missing an answer: ${JSON.stringify(st)}`));
+      const result = reconstructTensAnswer(it, steps);
+      assert.equal(result, it.answer, `${it.a} ${it.op} ${it.b} (${it.strategy}): reconstructed ${result}, expected ${it.answer}`);
+    });
+  });
+
+  test('TENS_STRATEGY_LABEL and TENS_STRATEGY_NAME cover every strategy used in the plan', () => {
+    const strategies = [...new Set(EXPECTED_PLAN.map(p => p[1]))];
+    strategies.forEach(s => {
+      assert.ok(TENS_STRATEGY_LABEL[s], `missing TENS_STRATEGY_LABEL for '${s}'`);
+      assert.ok(TENS_STRATEGY_NAME[s], `missing TENS_STRATEGY_NAME for '${s}'`);
+    });
+  });
+
+  test('tensNote never throws and returns non-empty text for every problem in a sheet', () => {
+    tensSheet('2026-08-28').forEach(it => assert.ok(typeof tensNote(it) === 'string' && tensNote(it).length > 0));
+  });
+});
