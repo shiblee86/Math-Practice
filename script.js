@@ -188,20 +188,6 @@ function playWrongSound(){playTone(300,'sawtooth',.15,.08);setTimeout(()=>playTo
 function playCelebrationSound(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.2,.1),i*120));}
 
 // ============================================================
-//  MISTAKE PATTERNS
-// ============================================================
-let mistakePatterns={};
-try{const s=localStorage.getItem('mathdojo-mistakes');if(s)mistakePatterns=JSON.parse(s);}catch(e){}
-function updateMistakePatternsDisplay(){
-  const ps=document.getElementById('patternSummary'),pt=document.getElementById('patternTags');
-  if(!pt)return;
-  const p=Object.entries(mistakePatterns).sort((a,b)=>b[1].count-a[1].count).slice(0,3);
-  if(!p.length){if(ps)ps.style.display='none';return;}
-  if(ps)ps.style.display='block';
-  pt.innerHTML=p.map(([t,d])=>`<span class="pattern-tag ${d.count>5?'high':''}">${t} (${d.count})</span>`).join('');
-}
-
-// ============================================================
 //  BADGES — data-driven off BADGES_DEF (mathdata.js)
 // ============================================================
 let badges={};
@@ -425,6 +411,8 @@ function renderHome(){
   checkBadges();
   renderTrophyShelf();
   updateTopBarStars();
+  const gymStat=document.getElementById('gymHomeStat');
+  if(gymStat)gymStat.textContent=`Today ${mmSheet.daily.done}/16`;
 }
 window.showPracticeMenu=function(){renderHome();showScreen('practiceMenuScreen');};
 
@@ -546,9 +534,12 @@ function showResults(){
 // ============================================================
 //  NAVIGATION — persistent TopBar back button + QuickNav tabs
 // ============================================================
-const BACK_TARGET={practiceMenuScreen:'homeScreen',soarMenuScreen:'homeScreen',soarActivityScreen:'soarMenuScreen',quizScreen:'practiceMenuScreen',resultScreen:'practiceMenuScreen'};
-const TAB_FOR_SCREEN={homeScreen:'home',practiceMenuScreen:'levels',soarMenuScreen:'soar',soarActivityScreen:'soar',quizScreen:'levels',resultScreen:'levels'};
-const SCREEN_TITLES={homeScreen:"🏁 Safia's & Safaan's Math Dojo",practiceMenuScreen:'🏎️ Practice Math',soarMenuScreen:'🦅 SOAR Adventures',soarActivityScreen:'🦅 SOAR Activity',quizScreen:'🥊 Quiz',resultScreen:'🏆 Result'};
+const BACK_TARGET={practiceMenuScreen:'homeScreen',soarMenuScreen:'homeScreen',soarActivityScreen:'soarMenuScreen',quizScreen:'practiceMenuScreen',resultScreen:'practiceMenuScreen',
+  gymScreen:'homeScreen',drillScreen:'gymScreen',flashScreen:'gymScreen',trainerScreen:'gymScreen',dailyScreen:'gymScreen',columnScreen:'gymScreen',gymResultScreen:'gymScreen',sheetResultScreen:'gymScreen'};
+const TAB_FOR_SCREEN={homeScreen:'home',practiceMenuScreen:'levels',soarMenuScreen:'soar',soarActivityScreen:'soar',quizScreen:'levels',resultScreen:'levels',
+  gymScreen:'gym',drillScreen:'gym',flashScreen:'gym',trainerScreen:'gym',dailyScreen:'gym',columnScreen:'gym',gymResultScreen:'gym',sheetResultScreen:'gym'};
+const SCREEN_TITLES={homeScreen:"🏁 Safia's & Safaan's Math Dojo",practiceMenuScreen:'🏎️ Practice Math',soarMenuScreen:'🦅 SOAR Adventures',soarActivityScreen:'🦅 SOAR Activity',quizScreen:'🥊 Quiz',resultScreen:'🏆 Result',
+  gymScreen:'🧠 Mental Math Gym',drillScreen:'⏱️ Speed Drill',flashScreen:'🃏 Flash Cards',trainerScreen:'🌉 Learn a Trick',dailyScreen:"📋 Today's Sheet",columnScreen:'🧮 Carry & Borrow',gymResultScreen:'🏁 Drill Result',sheetResultScreen:'🏆 Sheet Result'};
 
 function updateTopBar(screenId){
   const t=document.getElementById('topBarTitle');
@@ -573,6 +564,8 @@ function updateTopBarStars(){
 
 function goHome(){renderHome();showScreen('practiceMenuScreen');}
 function showScreen(id){
+  const current=document.querySelector('.screen.active');
+  if(current&&current.id==='drillScreen'&&id!=='drillScreen')stopDrillTimers();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   updateTopBar(id);
@@ -584,7 +577,8 @@ function showScreen(id){
 //  badges and total stars (a full backup, not just level progress).
 // ============================================================
 function buildSaveBundle(){
-  return {version:1,savedAt:new Date().toISOString(),progress,soarProgress,trophyData,badges,totalStarsEarned};
+  return {version:1,savedAt:new Date().toISOString(),progress,soarProgress,trophyData,badges,totalStarsEarned,
+    mmCards,mmMisses,mmBest,mmSets,mmSession,mmSheet};
 }
 function saveProgress(){
   const b=new Blob([JSON.stringify(buildSaveBundle(),null,2)],{type:'application/json'});
@@ -606,9 +600,15 @@ function handleLoadFile(e){
         if(data.trophyData)Object.assign(trophyData,data.trophyData);
         if(data.badges)Object.assign(badges,data.badges);
         if(typeof data.totalStarsEarned==='number')totalStarsEarned=data.totalStarsEarned;
+        if(data.mmCards)Object.assign(mmCards,data.mmCards);
+        if(data.mmMisses)Object.assign(mmMisses,data.mmMisses);
+        if(data.mmBest)mmBest=data.mmBest;
+        if(Array.isArray(data.mmSets)&&data.mmSets.length)mmSets=data.mmSets;
+        if(typeof data.mmSession==='number')mmSession=data.mmSession;
+        if(data.mmSheet)mmSheet=data.mmSheet;
       }
-      persistAll();
-      renderHome();checkBadges();renderTrophyShelf();updateTopBarStars();
+      persistAll();persistMM();
+      renderHome();checkBadges();renderTrophyShelf();updateTopBarStars();renderWeakFactsPanel();
       alert('Progress loaded!');
     }catch{alert('Could not read that file.');}
   };
@@ -692,9 +692,529 @@ window.unmarkDone=function(i){soarProgress[i]=false;persistAll();showSoarActivit
 window.showHome=function(){showScreen('homeScreen');renderHome();checkDailyBonus();};
 
 // ============================================================
+//  MENTAL MATH GYM — FACT_SETS/randFact/buildDrill/choicesFor/
+//  strategyFor/trainerFact/trainerSteps/gradeCard/flashDeck/
+//  mastery/weakFacts/todayKey/dailySheet/dailyHint/columnSheet/
+//  columnPlan all come from mentalmath.js.
+// ============================================================
+let mmCards={};    try{const s=localStorage.getItem('tm-mm-cards');  if(s)mmCards=JSON.parse(s);}catch(e){}
+let mmMisses={};   try{const s=localStorage.getItem('tm-mm-misses'); if(s)mmMisses=JSON.parse(s);}catch(e){}
+let mmBest=null;   try{const s=localStorage.getItem('tm-mm-best');   if(s)mmBest=JSON.parse(s);}catch(e){}
+let mmSets=[...ALL_SET_IDS]; try{const s=localStorage.getItem('tm-mm-sets'); if(s){const p=JSON.parse(s); if(Array.isArray(p)&&p.length)mmSets=p;}}catch(e){}
+let mmSession=0;   try{const s=localStorage.getItem('tm-mm-session');if(s)mmSession=parseInt(s)||0;}catch(e){}
+let mmSheet={key:null,daily:{done:0,correct:0},column:{done:0,correct:0}};
+try{const s=localStorage.getItem('tm-mm-sheet'); if(s)mmSheet=JSON.parse(s);}catch(e){}
+if(mmSheet.key!==todayKey())mmSheet={key:todayKey(),daily:{done:0,correct:0},column:{done:0,correct:0}};
+
+function persistMM(){
+  localStorage.setItem('tm-mm-cards',JSON.stringify(mmCards));
+  localStorage.setItem('tm-mm-misses',JSON.stringify(mmMisses));
+  localStorage.setItem('tm-mm-best',JSON.stringify(mmBest));
+  localStorage.setItem('tm-mm-sets',JSON.stringify(mmSets));
+  localStorage.setItem('tm-mm-session',String(mmSession));
+  localStorage.setItem('tm-mm-sheet',JSON.stringify(mmSheet));
+}
+
+// ── the drill's setInterval clock + auto-advance setTimeout — cleaned up
+// whenever navigation leaves drillScreen (see the guard in showScreen()),
+// and at the moment a drill finishes, so nothing keeps ticking in the background.
+let mmClockHandle=null, mmAdvanceHandle=null;
+function stopDrillTimers(){
+  if(mmClockHandle){clearInterval(mmClockHandle);mmClockHandle=null;}
+  if(mmAdvanceHandle){clearTimeout(mmAdvanceHandle);mmAdvanceHandle=null;}
+}
+
+// ── weak-facts panel — replaces the old vestigial mistakePatterns mechanism,
+// reusing the same #patternSummary/#patternTags DOM slot and .pattern-tag CSS.
+function renderWeakFactsPanel(){
+  const ps=document.getElementById('patternSummary'),pt=document.getElementById('patternTags');
+  if(!pt)return;
+  const weak=weakFacts(mmMisses,6);
+  if(!weak.length){if(ps)ps.style.display='none';return;}
+  if(ps)ps.style.display='block';
+  pt.innerHTML=weak.map(w=>`<span class="pattern-tag ${w.count>5?'high':''}">${w.display} (${w.count})</span>`).join('');
+}
+
+// ── shared keypad — screen tag routes a keypress to that screen's own render
+// function, which always redraws from current state (mmEntry is only ever
+// reset by the "start a new question/step" functions, never by a render fn),
+// so re-rendering on every keystroke is always safe.
+function mmKeypadHtml(screen,onSubmit){
+  const digits=['1','2','3','4','5','6','7','8','9'].map(d=>`<button type="button" class="btn btn--ghost" onclick="mmPressKey('${d}','${screen}')">${d}</button>`).join('');
+  return `<div class="keypad">${digits}<button type="button" class="btn btn--ghost" onclick="mmPressKey('del','${screen}')">⌫</button><button type="button" class="btn btn--ghost" onclick="mmPressKey('0','${screen}')">0</button><button type="button" class="btn btn--primary" onclick="${onSubmit}">✓</button></div>`;
+}
+function mmPressKey(k,screen){
+  if(k==='del')mmEntry=mmEntry.slice(0,-1);
+  else if(mmEntry.length<3)mmEntry+=k;
+  if(screen==='drill')renderDrillQuestion();
+  else if(screen==='trainer')renderTrainerStep();
+  else if(screen==='daily')renderSheetProblem();
+  else if(screen==='column')renderColumnStep();
+}
+
+// ── Gym hub ──
+function renderGym(){
+  const chipsHtml=FACT_SETS.map(fs=>{
+    const on=mmSets.includes(fs.id);
+    return `<button type="button" class="chip${on?' chip--active':''}" onclick="toggleMMSet('${fs.id}')"><span>${fs.icon}</span>${fs.label}</button>`;
+  }).join('');
+  const weakCount=Object.keys(mmMisses||{}).length;
+  const tiles=[
+    {icon:'📋',name:"Today's sheet",line:'16 problems. Add, take away and shop money.',stat:`${mmSheet.daily.done}/16`,color:'success',full:true,onclick:'startDaily()'},
+    {icon:'🧮',name:'Carry & borrow',line:'Big numbers, drawn out step by step.',stat:`${mmSheet.column.done}/12`,color:'amber',onclick:'startColumn()'},
+    {icon:'⏱️',name:'Speed drill',line:'20 facts, fast. Beat your best time.',stat:mmBest?`${mmBest.time}s`:'new',color:'cyan1',onclick:'startDrill()'},
+    {icon:'🃏',name:'Flash cards',line:'Flip a card. Say the answer out loud.',stat:`${mastery(mmCards)}%`,color:'coral',onclick:'startFlash()'},
+    {icon:'🌉',name:'Learn a trick',line:'A hard sum, broken into little steps.',stat:weakCount?`${weakCount} to fix`:'go',color:'cyan2',onclick:'startTrainer()'},
+  ];
+  const tilesHtml=tiles.map(t=>`
+    <button type="button" class="gym-tile gym-tile--${t.color}${t.full?' gym-tile--full':''}" onclick="${t.onclick}">
+      <span class="gym-tile__icon">${t.icon}</span>
+      <span class="gym-tile__body"><span class="gym-tile__name">${t.name}</span><span class="gym-tile__line">${t.line}</span></span>
+      <span class="gym-tile__stat">${t.stat}</span>
+    </button>`).join('');
+  document.getElementById('gymContent').innerHTML=`
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:2rem;">🧠</div>
+      <div style="font-family:var(--font-display);font-size:1.6rem;color:var(--coral-400);margin-top:4px;">Mental Math Gym</div>
+      <div style="color:var(--text-secondary);font-size:.9rem;">Fast facts, in your head. No paper, no fingers.</div>
+    </div>
+    <div class="gym-tile-grid">${tilesHtml}</div>
+    <div class="content-card" style="margin-top:14px;">
+      <div style="font-family:var(--font-display);color:var(--cyan-300);font-size:1.05rem;margin-bottom:4px;">Pick what to practise</div>
+      <div style="color:var(--text-muted);font-size:.75rem;font-weight:700;margin-bottom:10px;">Tap one to turn it on or off.</div>
+      <div class="chip-row">${chipsHtml}</div>
+    </div>`;
+}
+function showGym(){stopDrillTimers();renderGym();showScreen('gymScreen');}
+function toggleMMSet(id){
+  let sets=mmSets.includes(id)?mmSets.filter(x=>x!==id):[...mmSets,id];
+  if(!sets.length)sets=[id];
+  mmSets=sets;persistMM();renderGym();
+}
+
+// ── Speed drill ──
+let mmQueue=[],mmIdx=0,mmScore=0,mmWrong=0,mmStreak=0,mmElapsed=0,mmEntry='',mmFeedback=null,mmReview=[];
+function startDrill(){
+  mmQueue=buildDrill(20,mmSets,mmMisses);
+  mmIdx=0;mmScore=0;mmWrong=0;mmStreak=0;mmEntry='';mmElapsed=0;mmFeedback=null;mmReview=[];
+  stopDrillTimers();
+  mmClockHandle=setInterval(()=>{mmElapsed++;updateDrillClock();},1000);
+  showScreen('drillScreen');
+  renderDrillQuestion();
+}
+function mmClockLabel(){return `${Math.floor(mmElapsed/60)}:${String(mmElapsed%60).padStart(2,'0')}`;}
+function updateDrillClock(){
+  const el=document.getElementById('mmClock');if(el)el.textContent=mmClockLabel();
+  const youFill=document.getElementById('mmYouFill');if(youFill)youFill.style.width=Math.round(mmIdx/mmQueue.length*100)+'%';
+  if(mmBest){
+    const ghostIdx=Math.min(mmQueue.length,Math.floor(mmElapsed/(mmBest.time/mmQueue.length)));
+    const gf=document.getElementById('mmGhostFill');if(gf)gf.style.width=Math.round(ghostIdx/mmQueue.length*100)+'%';
+    const gl=document.getElementById('mmGhostLabel');if(gl)gl.textContent=`${ghostIdx} facts by now`;
+  }
+}
+function renderDrillQuestion(){
+  const f=mmQueue[mmIdx];
+  const isChoice=mmIdx%3===2;
+  const answered=!!mmFeedback;
+  const dotsHtml=Array.from({length:5},(_,i)=>`<div class="streak-dot${i<Math.min(mmStreak,5)?' lit':''}"></div>`).join('');
+  let inputHtml='';
+  if(!answered){
+    if(isChoice){
+      inputHtml=`<div class="mc-grid">${choicesFor(f).map(c=>`<button type="button" class="mc-choice" onclick="submitDrillAnswer('${c.label}')">${c.label}</button>`).join('')}</div>`;
+    }else{
+      inputHtml=`<div class="keypad-display">${mmEntry===''?'·':mmEntry}</div>${mmKeypadHtml('drill',"submitDrillAnswer(mmEntry)")}`;
+    }
+  }
+  const feedbackHtml=mmFeedback?`<div class="feedback show ${mmFeedback.ok?'ok':'bad'}">${mmFeedback.msg}</div>`:'';
+  document.getElementById('drillContent').innerHTML=`
+    <div class="content-card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-secondary);font-size:.75rem;font-weight:800;">
+        <span>⏱️ Speed drill</span><span id="mmClock" style="font-family:var(--font-display);font-size:1.1rem;color:var(--amber-400);">${mmClockLabel()}</span><span>${mmIdx+1} / ${mmQueue.length}</span>
+      </div>
+      <div class="progress-bar" style="margin-top:10px;"><div class="progress-bar__fill" id="mmYouFill" style="width:${Math.round(mmIdx/mmQueue.length*100)}%;"></div></div>
+      <div class="ghost-label-row" style="color:var(--cyan-300);"><span>YOU</span><span>${mmScore} right</span></div>
+      ${mmBest?`<div class="progress-bar progress-bar--thin" style="margin-top:6px;"><div class="progress-bar__fill progress-bar__fill--ghost" id="mmGhostFill" style="width:0%;"></div></div><div class="ghost-label-row" style="color:var(--text-muted);"><span>👻 YOUR BEST</span><span id="mmGhostLabel">no run yet</span></div>`:''}
+    </div>
+    <div class="content-card content-card--quiz">
+      <div class="streak-row" style="margin-bottom:12px;">${dotsHtml}</div>
+      <div class="question-text" style="font-size:2.2rem;">${f.display}</div>
+      <div style="text-align:center;color:var(--text-muted);font-size:.72rem;font-weight:800;margin-top:-6px;margin-bottom:10px;">${(SET_LABEL[f.set]||'').toUpperCase()}</div>
+      ${inputHtml}
+      ${feedbackHtml}
+    </div>`;
+  updateDrillClock();
+}
+function submitDrillAnswer(value){
+  if(mmFeedback)return;
+  if(value===''||value===null||value===undefined)return;
+  const f=mmQueue[mmIdx];
+  const ok=parseInt(value,10)===f.answer;
+  if(ok){if(mmMisses[f.id]){mmMisses[f.id]-=1;if(mmMisses[f.id]<=0)delete mmMisses[f.id];}}
+  else{mmMisses[f.id]=(mmMisses[f.id]||0)+1;mmReview.push(f);}
+  persistMM();renderWeakFactsPanel();
+  mmScore=ok?mmScore+1:mmScore;
+  mmWrong=ok?mmWrong:mmWrong+1;
+  mmStreak=ok?mmStreak+1:0;
+  mmFeedback=ok?{ok:true,msg:mmStreak>=4?`🔥 ${mmStreak} in a row!`:'Yes!'}:{ok:false,msg:`It was ${f.answer}`};
+  if(ok&&mmStreak>0&&mmStreak%5===0)launchConfetti(20);
+  renderDrillQuestion();
+  clearTimeout(mmAdvanceHandle);
+  mmAdvanceHandle=setTimeout(advanceDrill,ok?550:1400);
+}
+function advanceDrill(){
+  mmAdvanceHandle=null;
+  const next=mmIdx+1;
+  if(next>=mmQueue.length){finishDrill();return;}
+  mmIdx=next;mmEntry='';mmFeedback=null;
+  renderDrillQuestion();
+}
+function finishDrill(){
+  stopDrillTimers();
+  const time=mmElapsed;
+  const beat=mmScore>=Math.round(mmQueue.length*0.7)&&(!mmBest||time<mmBest.time);
+  if(beat)mmBest={time,score:mmScore};
+  mmSession++;
+  totalStarsEarned+=(mmScore>=15?3:1);
+  updateTopBarStars();
+  persistMM();persistAll();
+  launchConfetti(mmScore>=18?90:45);
+  showGymResult(beat);
+}
+function showGymResult(beat){
+  const n=mmQueue.length||20,time=mmElapsed;
+  const emoji=beat?'🏁':mmScore>=16?'🧠':'💪';
+  const title=beat?'New personal best!':mmScore>=16?'Sharp work':'Good workout';
+  const message=beat?'Faster than your last run — the ghost never stood a chance.'
+    :mmReview.length?'A few facts slowed you down. They will come back around.'
+    :'Every fact answered. Try a tighter set next time.';
+  const review=mmReview.slice(0,5).map(f=>{
+    const display=f.missing?f.display.replace('?',String(f.answer)):`${f.display} = ${f.answer}`;
+    return `<div style="display:flex;justify-content:space-between;gap:10px;font-size:.95rem;"><span style="font-family:var(--font-display);color:var(--text-primary);">${display}</span><span style="color:var(--text-secondary);">${strategyFor(f).name}</span></div>`;
+  }).join('');
+  document.getElementById('gymResultContent').innerHTML=`
+    <div class="result-card" style="border-color:var(--cyan-500);box-shadow:0 0 32px rgba(23,199,199,.2);">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-title">${title}</div>
+      <div style="display:flex;justify-content:center;gap:22px;margin-top:12px;">
+        <div><div style="font-family:var(--font-display);font-size:1.4rem;color:var(--amber-400);">${time}s</div><div style="color:var(--text-muted);font-size:.68rem;font-weight:800;">TIME</div></div>
+        <div><div style="font-family:var(--font-display);font-size:1.4rem;color:var(--color-success);">${mmScore}/${n}</div><div style="color:var(--text-muted);font-size:.68rem;font-weight:800;">CORRECT</div></div>
+        <div><div style="font-family:var(--font-display);font-size:1.4rem;color:var(--cyan-300);">${(time/n).toFixed(1)}</div><div style="color:var(--text-muted);font-size:.68rem;font-weight:800;">SEC / FACT</div></div>
+      </div>
+      <div class="result-message">${message}</div>
+      ${review?`<div class="content-card" style="margin-top:16px;text-align:left;"><div style="font-family:var(--font-display);color:var(--coral-400);font-size:.95rem;margin-bottom:8px;">Worth another look</div><div style="display:flex;flex-direction:column;gap:6px;">${review}</div></div>`:''}
+      <div class="btn-row" style="margin-top:18px;">
+        <button class="btn btn--primary" onclick="startDrill()">Run again</button>
+        <button class="btn btn--accent" onclick="startTrainer()">Coach me</button>
+        <button class="btn btn--ghost" onclick="showGym()">Gym</button>
+      </div>
+    </div>`;
+  showScreen('gymResultScreen');
+}
+
+// ── Flash cards ──
+let mmDeck=[],mmFlipped=false;
+function startFlash(){
+  mmDeck=flashDeck(mmCards,mmSession,mmSets,12);
+  mmIdx=0;mmFlipped=false;
+  stopDrillTimers();
+  showScreen('flashScreen');
+  renderFlashCard();
+}
+function renderFlashCard(){
+  const c=mmDeck[mmIdx];
+  const strat=mmFlipped?strategyFor(c):{name:'',line:''};
+  document.getElementById('flashContent').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--text-secondary);font-size:.75rem;font-weight:800;">
+      <span>🃏 Flash cards</span><span>${mmIdx+1} / ${mmDeck.length}</span>
+    </div>
+    <div class="flashcard" onclick="flipFlashCard()">
+      <div class="flashcard__front">${c.display}</div>
+      ${mmFlipped?`<div class="flashcard__answer">${c.answer}</div><div class="flashcard__strategy"><div class="flashcard__strategy-name">${strat.name}</div><div class="flashcard__strategy-line">${strat.line}</div></div>`:`<div class="flashcard__prompt">Say it out loud, then tap the card</div>`}
+    </div>
+    ${mmFlipped?`<div class="btn-row" style="margin-top:14px;"><button class="btn btn--accent" onclick="gradeFlashCard(false)">Tricky</button><button class="btn btn--primary" onclick="gradeFlashCard(true)">Got it</button></div>`:''}
+    <button class="btn btn--ghost" style="width:100%;margin-top:12px;" onclick="showGym()">End workout</button>`;
+}
+function flipFlashCard(){mmFlipped=!mmFlipped;renderFlashCard();}
+function gradeFlashCard(easy){
+  const card=mmDeck[mmIdx];
+  mmCards=gradeCard(mmCards,card.id,easy,mmSession);
+  if(!easy)mmMisses[card.id]=(mmMisses[card.id]||0)+1;
+  else if(mmMisses[card.id]){mmMisses[card.id]-=1;if(mmMisses[card.id]<=0)delete mmMisses[card.id];}
+  persistMM();renderWeakFactsPanel();
+  const next=mmIdx+1;
+  if(next>=mmDeck.length){
+    mmSession++;persistMM();
+    launchConfetti(40);
+    showGym();
+  }else{
+    mmIdx=next;mmFlipped=false;renderFlashCard();
+  }
+}
+
+// ── Learn a trick (strategy coach) ──
+let mmFact=null,mmSteps=[],mmStep=0,mmScaffold=0,mmCleanStreak=0,mmTrainerDone=false;
+function startTrainer(){
+  mmScaffold=0;mmCleanStreak=0;
+  stopDrillTimers();
+  showScreen('trainerScreen');
+  loadTrainerFact();
+}
+function loadTrainerFact(){
+  const f=trainerFact();
+  const all=trainerSteps(f);
+  mmFact=f;
+  mmSteps=mmScaffold===0?all:mmScaffold===1?all.slice(-2):all.slice(-1);
+  mmStep=0;mmEntry='';mmFeedback=null;mmTrainerDone=false;
+  renderTrainerStep();
+}
+function nextTrainerFact(){loadTrainerFact();}
+function renderTrainerStep(){
+  const labels=['Coach: every step','Coach: two steps','Coach: on your own'];
+  const rowsHtml=mmSteps.map((st,i)=>{
+    const done=i<mmStep;
+    const isCurrent=i===mmStep&&!mmTrainerDone;
+    const slot=done?String(st.answer):(isCurrent?(mmEntry===''?'?':mmEntry):'·');
+    const cls=done?'is-done':(isCurrent?'is-current':'');
+    return `<div class="trainer-step ${cls}"><div class="trainer-step__text">${st.text}</div><div class="trainer-step__slot">${slot}</div></div>`;
+  }).join('');
+  const feedbackHtml=mmFeedback?`<div class="feedback show ${mmFeedback.ok?'ok':'bad'}">${mmFeedback.msg}</div>`:'';
+  const keysHtml=mmTrainerDone?'':`<div class="keypad-display">${mmEntry===''?'·':mmEntry}</div>${mmKeypadHtml('trainer','submitTrainerStep()')}`;
+  const nextBtn=mmTrainerDone?`<button class="btn btn--primary" style="width:100%;margin-top:12px;" onclick="nextTrainerFact()">Next one ▶</button>`:'';
+  document.getElementById('trainerContent').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--text-secondary);font-size:.75rem;font-weight:800;">
+      <span>🌉 Strategy coach</span><span>${labels[mmScaffold]}</span>
+    </div>
+    <div class="content-card content-card--quiz" style="border-top-color:var(--color-accent);">
+      <div class="question-text" style="font-size:2rem;">${mmFact.display}</div>
+      ${rowsHtml}
+      ${feedbackHtml}
+      ${keysHtml}
+      ${nextBtn}
+    </div>
+    <button class="btn btn--ghost" style="width:100%;margin-top:12px;" onclick="showGym()">End workout</button>`;
+}
+function submitTrainerStep(){
+  if(mmEntry==='')return;
+  const step=mmSteps[mmStep];
+  const ok=parseInt(mmEntry,10)===step.answer;
+  if(!ok){
+    mmEntry='';mmCleanStreak=0;
+    mmFeedback={ok:false,msg:`Not quite — it is ${step.answer}. Say it with me.`};
+    renderTrainerStep();
+    return;
+  }
+  const next=mmStep+1;
+  mmEntry='';
+  if(next<mmSteps.length){
+    mmStep=next;mmFeedback=null;
+    renderTrainerStep();
+    return;
+  }
+  mmStep=next;mmTrainerDone=true;
+  const run=mmCleanStreak+1;
+  let msg='Solved it!';
+  if(run>=3&&mmScaffold<2){
+    mmScaffold+=1;
+    msg=mmScaffold===1?'Nice — fewer steps from here.':'Straight to the answer now. You have got this.';
+    mmCleanStreak=0;
+  }else{
+    mmCleanStreak=run;
+  }
+  launchConfetti(20);
+  mmFeedback={ok:true,msg};
+  renderTrainerStep();
+}
+
+// ── Today's sheet & Carry/borrow — shared start/finish, per-kind renderers ──
+let mmSheetKind='daily',mmSheetIdx=0,mmSheetItems=[],mmSheetCorrect=0,mmSheetSolved=false;
+function startSheet(kind){
+  const items=kind==='daily'?dailySheet(todayKey()):columnSheet(todayKey());
+  const prog=mmSheet[kind];
+  const start=prog.done>=items.length?0:prog.done;
+  mmSheetKind=kind;mmSheetItems=items;mmSheetIdx=start;mmSheetCorrect=start?prog.correct:0;
+  mmEntry='';mmSheetSolved=false;mmFeedback=null;
+  stopDrillTimers();
+  if(kind==='daily'){showScreen('dailyScreen');renderSheetProblem();}
+  else{showScreen('columnScreen');loadColumnStep();}
+}
+function startDaily(){startSheet('daily');}
+function startColumn(){startSheet('column');}
+function nextSheetItem(){
+  const next=mmSheetIdx+1;
+  mmSheet[mmSheetKind]={done:next,correct:mmSheetCorrect};
+  persistMM();
+  if(next>=mmSheetItems.length){
+    totalStarsEarned+=3;
+    updateTopBarStars();
+    persistAll();
+    launchConfetti(80);
+    showSheetResult();
+    return;
+  }
+  mmSheetIdx=next;mmEntry='';mmFeedback=null;mmSheetSolved=false;
+  if(mmSheetKind==='daily')renderSheetProblem();
+  else loadColumnStep();
+}
+function showSheetResult(){
+  const n=mmSheetItems.length,c=mmSheetCorrect;
+  const emoji=c===n?'🏆':c>=n*0.75?'🧠':'💪';
+  const title=mmSheetKind==='daily'?"Today's sheet is done":'Carry & borrow done';
+  const message=c===n?'Every single one. Come back tomorrow for a fresh sheet.':'Sheet finished. Tomorrow brings a new set of problems.';
+  document.getElementById('sheetResultContent').innerHTML=`
+    <div class="result-card" style="border-color:var(--color-success);box-shadow:0 0 32px rgba(47,230,167,.18);">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-title" style="color:var(--color-success);">${title}</div>
+      <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--amber-400);margin-top:6px;">${c}/${n}</div>
+      <div class="result-message">${message}</div>
+      <div class="btn-row" style="margin-top:18px;">
+        <button class="btn btn--primary" onclick="startSheet('${mmSheetKind}')">Do it again</button>
+        <button class="btn btn--ghost" onclick="showGym()">Gym</button>
+      </div>
+    </div>`;
+  showScreen('sheetResultScreen');
+}
+
+// ── Today's sheet renderer ──
+function renderSheetProblem(){
+  const p=mmSheetItems[mmSheetIdx];
+  const pct=Math.round(mmSheetIdx/Math.max(1,mmSheetItems.length)*100);
+  const itemsHtml=(p.items||[]).map(it=>`<div style="display:flex;align-items:center;gap:10px;background:var(--surface-2);border:2px solid var(--border-strong);border-radius:var(--radius-md);padding:8px 14px;"><span style="font-size:1.4rem;">${it.emoji}</span><span style="flex:1;font-weight:700;font-size:.95rem;">${it.name}</span><span style="font-family:var(--font-display);color:var(--amber-400);font-size:1.1rem;">$${it.price}</span></div>`).join('');
+  const noteLine=p.note?`<div style="color:var(--text-secondary);font-size:.95rem;margin-top:8px;font-weight:700;">You hand over $${p.note}.</div>`:'';
+  const body=p.kind==='word'
+    ?`<div style="font-size:1.1rem;line-height:1.55;color:var(--text-primary);font-weight:700;">${p.text}</div><div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;">${itemsHtml}</div>${noteLine}`
+    :`<div class="question-text" style="font-size:2.2rem;">${p.display}</div>`;
+  const feedbackHtml=mmFeedback?`<div class="feedback show ${mmFeedback.ok?'ok':'bad'}">${mmFeedback.msg}</div>`:'';
+  const belowHtml=mmSheetSolved
+    ?`<button class="btn btn--primary" style="width:100%;margin-top:14px;" onclick="nextSheetItem()">Next ▶</button>`
+    :`<div class="keypad-display">${mmEntry===''?'·':mmEntry}</div>${mmKeypadHtml('daily','submitDaily()')}`;
+  document.getElementById('dailyContent').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-secondary);font-size:.75rem;font-weight:800;margin-bottom:8px;">
+      <span>📋 Today's sheet</span><span>${p.group||''}</span><span>${mmSheetIdx+1} / ${mmSheetItems.length}</span>
+    </div>
+    <div class="progress-bar progress-bar--thin" style="margin-bottom:12px;"><div class="progress-bar__fill" style="width:${pct}%;background:var(--color-success);"></div></div>
+    <div class="content-card content-card--quiz" style="border-top-color:var(--color-success);">
+      ${body}
+      ${feedbackHtml}
+      ${belowHtml}
+    </div>
+    <button class="btn btn--ghost" style="width:100%;margin-top:12px;" onclick="showGym()">Pause sheet</button>`;
+}
+function submitDaily(){
+  if(mmEntry===''||mmSheetSolved)return;
+  const p=mmSheetItems[mmSheetIdx];
+  const ok=parseInt(mmEntry,10)===p.answer;
+  mmSheetSolved=true;
+  if(ok){mmSheetCorrect++;launchConfetti(15);}
+  mmFeedback=ok?{ok:true,msg:'That is it!'}:{ok:false,msg:`It comes to ${p.answer}. ${dailyHint(p)}`};
+  renderSheetProblem();
+}
+
+// ── Carry & borrow renderer — a real column-sum drawing, updated live as
+// each guided step is answered via the `reveal` keys columnPlan() sends back.
+let mmPlan=null,mmPlanStep=0,mmDraw={above:'',aboveOnes:'',strike:false,resTens:'',resOnes:''};
+function loadColumnStep(){
+  const p=mmSheetItems[mmSheetIdx];
+  mmPlan=columnPlan(p);
+  mmPlanStep=0;mmEntry='';mmFeedback=null;mmSheetSolved=false;
+  mmDraw={above:'',aboveOnes:'',strike:false,resTens:'',resOnes:''};
+  renderColumnStep();
+}
+function applyColumnReveal(reveal){
+  if(reveal.carry!==undefined)mmDraw.above=String(reveal.carry);
+  if(reveal.tensNew!==undefined){mmDraw.above=String(reveal.tensNew);mmDraw.strike=true;}
+  if(reveal.onesNew!==undefined)mmDraw.aboveOnes=String(reveal.onesNew);
+  if(reveal.resOnes!==undefined)mmDraw.resOnes=String(reveal.resOnes);
+  if(reveal.resTens!==undefined)mmDraw.resTens=String(reveal.resTens);
+}
+function renderColumnStep(){
+  const p=mmSheetItems[mmSheetIdx];
+  const pct=Math.round(mmSheetIdx/Math.max(1,mmSheetItems.length)*100);
+  const step=mmPlan.steps[mmPlanStep]||null;
+  const a10=Math.floor(p.a/10),a1=p.a%10,b10=Math.floor(p.b/10),b1=p.b%10;
+  const aboveColor=p.op==='+'?'var(--amber-400)':'var(--color-success)';
+  const drawHtml=`
+    <div class="column-math">
+      <div class="column-math__above"></div>
+      <div class="column-math__above" style="color:${aboveColor};">${mmDraw.above}</div>
+      <div class="column-math__above" style="color:${aboveColor};">${mmDraw.aboveOnes}</div>
+      <div class="column-math__digit"></div>
+      <div class="column-math__digit${mmDraw.strike?' strike':''}">${a10}</div>
+      <div class="column-math__digit${mmDraw.strike?' strike':''}">${a1}</div>
+      <div class="column-math__digit column-math__op">${p.op==='+'?'+':'−'}</div>
+      <div class="column-math__digit">${b10}</div>
+      <div class="column-math__digit">${b1}</div>
+      <div class="column-math__rule"></div>
+      <div class="column-math__digit"></div>
+      <div class="column-math__digit column-math__result">${mmDraw.resTens}</div>
+      <div class="column-math__digit column-math__result">${mmDraw.resOnes}</div>
+    </div>`;
+  const wordHtml=p.kind==='word'?`<div style="font-size:1.05rem;line-height:1.55;color:var(--text-primary);font-weight:700;margin-bottom:10px;">${p.text}</div>`:'';
+  const solvedHtml=mmSheetSolved
+    ?`<div style="text-align:center;margin-top:10px;font-family:var(--font-display);font-size:1.1rem;color:var(--cyan-300);">So ${p.a} ${p.op==='+'?'+':'−'} ${p.b} = ${p.answer}.</div>
+       <div style="text-align:center;margin-top:6px;color:var(--text-secondary);font-size:.95rem;font-weight:700;line-height:1.5;">${mmPlan.note}</div>
+       <button class="btn btn--reward" style="width:100%;margin-top:14px;" onclick="nextSheetItem()">Next ▶</button>`
+    :'';
+  const stepHtml=(!mmSheetSolved&&step)?`<div style="margin-top:16px;background:var(--surface-2);border:2px solid var(--coral-500);border-radius:var(--radius-md);padding:14px;font-size:1.05rem;font-weight:700;text-align:center;line-height:1.5;">${step.text}</div>`:'';
+  const feedbackHtml=mmFeedback?`<div class="feedback show ${mmFeedback.ok?'ok':'bad'}" style="margin-top:12px;">${mmFeedback.msg}</div>`:'';
+  const controlsHtml=(!mmSheetSolved&&step)
+    ?(step.kind==='yesno'
+        ?`<div class="btn-row" style="margin-top:14px;"><button class="btn btn--primary" onclick="answerColumnYesNo('yes')">Yes</button><button class="btn btn--accent" onclick="answerColumnYesNo('no')">No</button></div>`
+        :`<div style="margin-top:14px;"><div class="keypad-display">${mmEntry===''?'·':mmEntry}</div>${mmKeypadHtml('column','submitColumn()')}</div>`)
+    :'';
+  document.getElementById('columnContent').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-secondary);font-size:.75rem;font-weight:800;margin-bottom:8px;">
+      <span>🧮 Carry &amp; borrow</span><span>${p.group||''}</span><span>${mmSheetIdx+1} / ${mmSheetItems.length}</span>
+    </div>
+    <div class="progress-bar progress-bar--thin" style="margin-bottom:12px;"><div class="progress-bar__fill" style="width:${pct}%;background:var(--color-reward);"></div></div>
+    <div class="content-card content-card--quiz" style="border-top-color:var(--color-reward);">
+      ${wordHtml}
+      ${drawHtml}
+      ${stepHtml}
+      ${feedbackHtml}
+      ${controlsHtml}
+      ${solvedHtml}
+    </div>
+    <button class="btn btn--ghost" style="width:100%;margin-top:12px;" onclick="showGym()">Pause sheet</button>`;
+}
+function advanceColumnStep(step){
+  applyColumnReveal(step.reveal||{});
+  const next=mmPlanStep+1;
+  if(next>=mmPlan.steps.length){
+    mmSheetCorrect++;
+    mmPlanStep=next;mmSheetSolved=true;mmEntry='';
+    mmFeedback={ok:true,msg:'Solved it, step by step.'};
+    launchConfetti(25);
+  }else{
+    mmPlanStep=next;mmEntry='';mmFeedback=null;
+  }
+  renderColumnStep();
+}
+function submitColumn(){
+  if(mmEntry===''||mmSheetSolved)return;
+  const step=mmPlan.steps[mmPlanStep];
+  if(parseInt(mmEntry,10)!==step.answer){
+    mmEntry='';
+    mmFeedback={ok:false,msg:`Not that one — it is ${step.answer}.`};
+    renderColumnStep();
+    return;
+  }
+  advanceColumnStep(step);
+}
+function answerColumnYesNo(v){
+  if(mmSheetSolved)return;
+  const step=mmPlan.steps[mmPlanStep];
+  if(v!==step.answer){
+    mmFeedback={ok:false,msg:step.answer==='no'?'Look again — the top ones digit is smaller, so we need to borrow.':'The top ones digit is big enough here.'};
+    renderColumnStep();
+    return;
+  }
+  advanceColumnStep(step);
+}
+
+// ============================================================
 //  INIT
 // ============================================================
-updateMistakePatternsDisplay();
+renderWeakFactsPanel();
 checkBadges();
 renderTrophyShelf();
 checkDailyBonus();

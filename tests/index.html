@@ -22,7 +22,9 @@
   <!-- Test framework + suites (registering suites here does NOT run them yet) -->
   <script src="harness.js"></script>
   <script src="../mathdata.js"></script>
+  <script src="../mentalmath.js"></script>
   <script src="unit.test.js"></script>
+  <script src="unit-mentalmath.test.js"></script>
   <script src="integration.test.js"></script>
   <script src="regression.test.js"></script>
 
@@ -35,7 +37,8 @@
     // restore whatever was there before — so running the suite never clobbers a
     // real player's saved progress if this page happens to be opened from the same
     // server/origin as a live session.
-    const APP_KEYS = ['mathdojo-progress', 'mathdojo-soar', 'mathdojo-trophies', 'mathdojo-badges', 'mathdojo-stars', 'mathdojo-lastbonus', 'mathdojo-mistakes'];
+    const APP_KEYS = ['mathdojo-progress', 'mathdojo-soar', 'mathdojo-trophies', 'mathdojo-badges', 'mathdojo-stars', 'mathdojo-lastbonus',
+      'tm-mm-cards', 'tm-mm-misses', 'tm-mm-best', 'tm-mm-sets', 'tm-mm-session', 'tm-mm-sheet'];
 
     function snapshotAndClear() {
       const snapshot = {};

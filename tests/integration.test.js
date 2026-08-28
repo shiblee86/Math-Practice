@@ -277,4 +277,97 @@ suite('integration — save/load', () => {
     assert.equal(run('progress.carry_add.completed'), true);
     assert.equal(run('totalStarsEarned'), 42, 'legacy load must not touch totalStarsEarned');
   });
+
+  test('buildSaveBundle includes all 6 Mental Math Gym fields alongside the original 5', () => {
+    const bundle = JSON.parse(run('JSON.stringify(buildSaveBundle())'));
+    ['mmCards', 'mmMisses', 'mmBest', 'mmSets', 'mmSession', 'mmSheet'].forEach(k => {
+      assert.ok(k in bundle, `save bundle missing "${k}"`);
+    });
+  });
+});
+
+suite('integration — Mental Math Gym: navigation', () => {
+  test('every Gym screen maps to the correct back target and QuickNav tab', () => {
+    const cases = [
+      ['gymScreen', 'homeScreen'], ['drillScreen', 'gymScreen'], ['flashScreen', 'gymScreen'],
+      ['trainerScreen', 'gymScreen'], ['dailyScreen', 'gymScreen'], ['columnScreen', 'gymScreen'],
+      ['gymResultScreen', 'gymScreen'], ['sheetResultScreen', 'gymScreen'],
+    ];
+    cases.forEach(([from, expectedBack]) => {
+      run(`showScreen('${from}')`);
+      assert.equal($('.quicknav__tab--active')?.dataset.tab, 'gym', `${from}: wrong active QuickNav tab`);
+      run('handleBack()');
+      assert.equal(appDoc().querySelector('.screen.active').id, expectedBack, `${from}: back() went to the wrong screen`);
+    });
+  });
+
+  test('the Home screen has a Gym card that opens the hub', () => {
+    run(`(function(){ progress = {}; LEVELS.forEach(l => progress[l.id] = {completed:false, score:0}); window.showHome(); })()`);
+    assert.ok($('#gymHomeStat'), 'expected a Gym stat element on Home');
+    run('showGym()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'gymScreen');
+  });
+});
+
+suite('integration — Mental Math Gym: play one problem in each section', () => {
+  test('Gym hub renders 5 tiles and the fact-set chip picker', () => {
+    run('showGym()');
+    assert.equal($$('.gym-tile').length, 5);
+    assert.ok($$('.chip').length > 0);
+  });
+
+  test('Speed drill: answering a keypad question correctly increments the score', () => {
+    run(`(function(){ mmSets=[...ALL_SET_IDS]; mmMisses={}; startDrill(); })()`);
+    // force question 0 (never the every-3rd multiple-choice slot) so a keypad exists
+    assert.equal(run('mmIdx'), 0);
+    const answer = run('mmQueue[0].answer');
+    run(`submitDrillAnswer('${answer}')`);
+    assert.equal(run('mmScore'), 1);
+    // scoped to #drillContent: the static quiz screen also has a class="feedback" div
+    // in the DOM at all times, so a bare .feedback selector would match the wrong one.
+    assert.equal($('#drillContent .feedback').classList.contains('ok'), true);
+  });
+
+  test('Flash cards: flipping and grading a card updates mmCards', () => {
+    run('startFlash()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'flashScreen');
+    run('flipFlashCard()');
+    assert.equal(run('mmFlipped'), true);
+    const cardId = run('mmDeck[mmIdx].id');
+    run('gradeFlashCard(true)');
+    const box = run(`mmCards[${JSON.stringify(cardId)}] ? mmCards[${JSON.stringify(cardId)}].box : -1`);
+    assert.ok(box >= 1, 'grading "Got it" should advance the card\'s Leitner box');
+  });
+
+  test('Learn a trick: submitting the first step\'s correct answer advances mmStep', () => {
+    run('startTrainer()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'trainerScreen');
+    const before = run('mmStep');
+    const answer = run('mmSteps[mmStep].answer');
+    run(`mmEntry='${answer}'; submitTrainerStep();`);
+    assert.ok(run('mmStep') > before || run('mmTrainerDone') === true);
+  });
+
+  test("Today's sheet: submitting the first problem's correct answer marks it solved", () => {
+    run('startDaily()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'dailyScreen');
+    const answer = run('mmSheetItems[mmSheetIdx].answer');
+    run(`mmEntry='${answer}'; submitDaily();`);
+    assert.equal(run('mmSheetSolved'), true);
+    assert.equal($('#dailyContent .feedback').classList.contains('ok'), true);
+  });
+
+  test('Carry & borrow: submitting the first guided step (numeric or yes/no) advances mmPlanStep', () => {
+    run('startColumn()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'columnScreen');
+    const kind = run('mmPlan.steps[0].kind');
+    if (kind === 'yesno') {
+      const answer = run('mmPlan.steps[0].answer');
+      run(`answerColumnYesNo('${answer}')`);
+    } else {
+      const answer = run('mmPlan.steps[0].answer');
+      run(`mmEntry='${answer}'; submitColumn();`);
+    }
+    assert.equal(run('mmPlanStep'), 1);
+  });
 });

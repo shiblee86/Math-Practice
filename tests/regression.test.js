@@ -166,3 +166,14 @@ suite('regression — app branding', () => {
     assert.ok(!appDoc().title.includes('Kingdom'));
   });
 });
+
+suite('regression — the vestigial mistakePatterns mechanism was retired, not left alongside its replacement', () => {
+  test('mistakePatterns/updateMistakePatternsDisplay no longer exist, and #patternSummary is driven by weakFacts instead', () => {
+    assert.equal(run('typeof mistakePatterns'), 'undefined');
+    assert.equal(run('typeof updateMistakePatternsDisplay'), 'undefined');
+    assert.equal(run('typeof renderWeakFactsPanel'), 'function');
+    run(`(function(){ mmMisses = {'add20:2 + 2': 9}; renderWeakFactsPanel(); })()`);
+    assert.equal($('#patternSummary').style.display, 'block');
+    assert.match($('#patternTags').innerHTML, '2 + 2');
+  });
+});

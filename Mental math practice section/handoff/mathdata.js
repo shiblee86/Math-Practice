@@ -1,28 +1,24 @@
-// Turbo Math Dojo — game engine & content. Pure data/logic, no DOM.
-// Ported from design_handoff_math_garage_redesign/mathdata.js (canonical content:
-// levels, SOAR activities, trophies, badges, word-problem pools) merged with the
-// richer per-level equation-generator sub-types from the previous "Safia's Math
-// Kingdom" app (script.js), retargeted to the Turbo Math token palette below.
-// Loaded as a plain global script (no ES modules) — must be included before script.js.
+// Turbo Math Kingdom — game engine & content, ported from the legacy app.
+// Pure data/logic, no DOM. Colors follow the Turbo Math Design System tokens.
 const CY='#17C7C7', CYL='#3DDCDC', COR='#FF5C3D', CORL='#FF8563', AMB='#FFB020', AMBL='#FFC94D',
-      MINT='#2FE6A7', RED='#FF3B3B', INK='#F4FBFB', MUT='#A9C4C4', SURF1='#0D2828', SURF2='#123636', BORDER='#275C5C', PURP='#B98CFF';
+      MINT='#2FE6A7', RED='#FF3B3B', INK='#F4FBFB', MUT='#A9C4C4', SURF1='#0D2828', SURF2='#123636', BORDER='#275C5C';
 
-function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+export function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+export function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function pick(arr){return arr[rnd(0,arr.length-1)];}
 
 // ── Hint-card formatting helpers ──────────────────────────────
-function bubble(text){return `<div style="background:${SURF2};border-radius:14px;padding:12px 16px;margin:8px 0;color:${INK};line-height:1.7;font-size:.92rem;">${text}</div>`;}
-function wrap(borderColor,icon,title,body){return `<div style="background:linear-gradient(135deg,${SURF2},${SURF1});border-radius:20px;padding:18px;border:3px solid ${borderColor};font-size:.95rem;"><div style="color:${borderColor};font-weight:900;font-size:1.05rem;text-align:center;margin-bottom:12px;font-family:var(--font-display);">${icon} ${title}</div>${body}</div>`;}
-function numChip(n,bg){return `<span style="display:inline-flex;align-items:center;justify-content:center;background:${bg||CY};color:#0A1F1F;min-width:38px;height:38px;border-radius:9px;font-size:1.2rem;font-weight:900;padding:0 5px;margin:2px;">${n}</span>`;}
-function colBox(rows){const lines=rows.map(r=>`<div style="font-family:'Courier New';font-size:1.5rem;color:${r.color||CY};text-align:right;padding:1px 0;">${r.text}</div>`).join('');return `<div style="background:#081716;border-radius:12px;padding:12px 22px;display:inline-block;min-width:110px;">${lines}</div>`;}
-function coinChip(v){const label=v===25?'25¢':v===10?'10¢':v===5?'5¢':'1¢';return `<span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 30%,${AMB},${SURF2} 85%);border:2px solid ${MUT};color:#0A1F1F;font-weight:900;font-size:.7rem;margin:2px;">${label}</span>`;}
-function coinRow(coins){return coins.map(v=>coinChip(v)).join('');}
-function formatCents(c){return c>=100?`$${(c/100).toFixed(2)}`:`${c}¢`;}
-function coinLabel(v){return v===25?'25¢':v===10?'10¢':v===5?'5¢':'1¢';}
+export function bubble(text){return `<div style="background:${SURF2};border-radius:14px;padding:12px 16px;margin:8px 0;color:${INK};line-height:1.7;font-size:.92rem;">${text}</div>`;}
+export function wrap(borderColor,icon,title,body){return `<div style="background:linear-gradient(135deg,${SURF2},${SURF1});border-radius:20px;padding:18px;border:3px solid ${borderColor};font-size:.95rem;"><div style="color:${borderColor};font-weight:900;font-size:1.05rem;text-align:center;margin-bottom:12px;font-family:var(--font-display);">${icon} ${title}</div>${body}</div>`;}
+export function numChip(n,bg){return `<span style="display:inline-flex;align-items:center;justify-content:center;background:${bg||CY};color:#0A1F1F;min-width:38px;height:38px;border-radius:9px;font-size:1.2rem;font-weight:900;padding:0 5px;margin:2px;">${n}</span>`;}
+export function colBox(rows){const lines=rows.map(r=>`<div style="font-family:'Courier New';font-size:1.5rem;color:${r.color||CY};text-align:right;padding:1px 0;">${r.text}</div>`).join('');return `<div style="background:#081716;border-radius:12px;padding:12px 22px;display:inline-block;min-width:110px;">${lines}</div>`;}
+export function coinChip(v){const label=v===25?'25¢':v===10?'10¢':v===5?'5¢':'1¢';return `<span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 30%,${AMB},${SURF2} 85%);border:2px solid ${MUT};color:#0A1F1F;font-weight:900;font-size:.7rem;margin:2px;">${label}</span>`;}
+export function coinRow(coins){return coins.map(v=>coinChip(v)).join('');}
+export function formatCents(c){return c>=100?`$${(c/100).toFixed(2)}`:`${c}¢`;}
+export function coinLabel(v){return v===25?'25¢':v===10?'10¢':v===5?'5¢':'1¢';}
 
 // ── Core addition / subtraction column hints ──────────────────
-function subtractColumn(big,small){
+export function subtractColumn(big,small){
   const oB=big%10,oS=small%10,tB=Math.floor(big/10),tS=Math.floor(small/10);
   const needBorrow=oB<oS,ans=big-small,pad=String(big).length;
   if(!needBorrow){
@@ -43,7 +39,7 @@ function subtractColumn(big,small){
     +`<div style="text-align:center;margin:10px 0;">${colBox([{text:'  '+big},{text:'− '+String(small).padStart(pad,' ')},{text:'─────',color:MUT},{text:'  '+ans,color:MINT}])}</div>`
     +bubble(`<strong style="color:${MINT};">${big} − ${small} = ${ans}</strong>`));
 }
-function addColumn(a,b){
+export function addColumn(a,b){
   const oA=a%10,oB=b%10,tA=Math.floor(a/10),tB=Math.floor(b/10);
   const onesSum=oA+oB,needCarry=onesSum>9,onesWrite=onesSum%10,carry=Math.floor(onesSum/10),ans=a+b,pad=String(a).length;
   if(!needCarry){
@@ -59,17 +55,17 @@ function addColumn(a,b){
     +`<div style="text-align:center;margin:10px 0;">${colBox([{text:'  '+carry,color:AMB},{text:'  '+a},{text:'+ '+String(b).padStart(pad,' ')},{text:'─────',color:MUT},{text:'  '+ans,color:MINT}])}</div>`
     +bubble(`<strong style="color:${MINT};">${a} + ${b} = ${ans}</strong>`));
 }
-const hintAdd=addColumn, hintSub=subtractColumn, hintCarryAdd=addColumn, hintBorrowSub=subtractColumn;
+export const hintAdd=addColumn, hintSub=subtractColumn, hintCarryAdd=addColumn, hintBorrowSub=subtractColumn;
 
-function hintMissingAddSimple(total,a){const ans=total-a;return wrap(MINT,'❓','MISSING NUMBER — ADDITION',bubble(`We have: ${a} + ? = ${total}`)+subtractColumn(total,a)+bubble(`<strong style="color:${MINT};">The missing number is ${ans}. Check: ${a} + ${ans} = ${total} ✓</strong>`));}
-function hintMissingSubSmall(total,result){const ans=total-result;return wrap(COR,'❓','MISSING NUMBER — SUBTRACTION',bubble(`We have: ${total} − ? = ${result}`)+subtractColumn(total,result)+bubble(`<strong style="color:${MINT};">The missing number is ${ans}. Check: ${total} − ${ans} = ${result} ✓</strong>`));}
-function hintMissingThreeAdd(total,a,b){const known=a+b,ans=total-known;return wrap(MINT,'❓','MISSING NUMBER — THREE ADDENDS',bubble(`Step 1 — add what we know: ${a} + ${b}`)+addColumn(a,b)+bubble(`Step 2 — subtract from the total: ${total} − ${known}`)+subtractColumn(total,known)+bubble(`<strong style="color:${MINT};">Missing number: ${ans}. Check: ${a} + ${b} + ${ans} = ${total} ✓</strong>`));}
-function hintAddThree(a,b,c){const s1=a+b,s2=s1+c;return wrap(MINT,'➕',`${a} + ${b} + ${c}`,bubble(`Add two at a time. Step 1 — ${a} + ${b}:`)+addColumn(a,b)+bubble(`Step 2 — add ${c} to ${s1}:`)+addColumn(s1,c)+bubble(`<strong style="color:${MINT};">${a} + ${b} + ${c} = ${s2}</strong>`));}
-function hintSubThree(total,b,c){const s1=total-b,s2=s1-c;return wrap(COR,'➖',`${total} − ${b} − ${c}`,bubble(`Step 1 — subtract ${b} from ${total}:`)+subtractColumn(total,b)+bubble(`Step 2 — subtract ${c} from ${s1}:`)+subtractColumn(s1,c)+bubble(`<strong style="color:${MINT};">${total} − ${b} − ${c} = ${s2}</strong>`));}
-function hintComposeAdd(target){const e=target>10?7:3,ans=target-e,e2=e+3,ans2=target-e2;return wrap(MINT,'💎',`Two pairs that add to ${target}`,bubble(`Pair 1 — pick ${e}: ${e} + ? = ${target}`)+subtractColumn(target,e)+bubble(`${numChip(e,COR)} + ${numChip(ans,MINT)} = ${numChip(target,AMB)}`)+bubble(`Pair 2 — pick ${e2}: ${e2} + ? = ${target}`)+subtractColumn(target,e2)+bubble(`${numChip(e2,COR)} + ${numChip(ans2,MINT)} = ${numChip(target,AMB)}<br><strong style="color:${MINT};">Now find your own two pairs!</strong>`));}
-function hintComposeSub(diff){const big=diff+2,small=big-diff,small2=3,big2=small2+diff;return wrap(COR,'🦋',`Two pairs with a difference of ${diff}`,bubble(`Case 1 — Big number known: ${big} − ? = ${diff}`)+subtractColumn(big,diff)+bubble(`${numChip(big,AMB)} − ${numChip(small,COR)} = ${numChip(diff,MINT)}`)+bubble(`Case 2 — Big number hidden: ? − ${small2} = ${diff}. Add it back:`)+addColumn(diff,small2)+bubble(`${numChip(big2,AMB)} − ${numChip(small2,COR)} = ${numChip(diff,MINT)}<br><strong style="color:${MINT};">Now try your own pairs!</strong>`));}
-function hintFactFamily(a,b,total){
-  return wrap(PURP,'🏰',`Fact family — ${a}, ${b}, ${total}`,
+export function hintMissingAddSimple(total,a){const ans=total-a;return wrap(MINT,'❓','MISSING NUMBER — ADDITION',bubble(`We have: ${a} + ? = ${total}`)+subtractColumn(total,a)+bubble(`<strong style="color:${MINT};">The missing number is ${ans}. Check: ${a} + ${ans} = ${total} ✓</strong>`));}
+export function hintMissingSubSmall(total,result){const ans=total-result;return wrap(COR,'❓','MISSING NUMBER — SUBTRACTION',bubble(`We have: ${total} − ? = ${result}`)+subtractColumn(total,result)+bubble(`<strong style="color:${MINT};">The missing number is ${ans}. Check: ${total} − ${ans} = ${result} ✓</strong>`));}
+export function hintMissingThreeAdd(total,a,b){const known=a+b,ans=total-known;return wrap(MINT,'❓','MISSING NUMBER — THREE ADDENDS',bubble(`Step 1 — add what we know: ${a} + ${b}`)+addColumn(a,b)+bubble(`Step 2 — subtract from the total: ${total} − ${known}`)+subtractColumn(total,known)+bubble(`<strong style="color:${MINT};">Missing number: ${ans}. Check: ${a} + ${b} + ${ans} = ${total} ✓</strong>`));}
+export function hintAddThree(a,b,c){const s1=a+b,s2=s1+c;return wrap(MINT,'➕',`${a} + ${b} + ${c}`,bubble(`Add two at a time. Step 1 — ${a} + ${b}:`)+addColumn(a,b)+bubble(`Step 2 — add ${c} to ${s1}:`)+addColumn(s1,c)+bubble(`<strong style="color:${MINT};">${a} + ${b} + ${c} = ${s2}</strong>`));}
+export function hintSubThree(total,b,c){const s1=total-b,s2=s1-c;return wrap(COR,'➖',`${total} − ${b} − ${c}`,bubble(`Step 1 — subtract ${b} from ${total}:`)+subtractColumn(total,b)+bubble(`Step 2 — subtract ${c} from ${s1}:`)+subtractColumn(s1,c)+bubble(`<strong style="color:${MINT};">${total} − ${b} − ${c} = ${s2}</strong>`));}
+export function hintComposeAdd(target){const e=target>10?7:3,ans=target-e,e2=e+3,ans2=target-e2;return wrap(MINT,'💎',`Two pairs that add to ${target}`,bubble(`Pair 1 — pick ${e}: ${e} + ? = ${target}`)+subtractColumn(target,e)+bubble(`${numChip(e,COR)} + ${numChip(ans,MINT)} = ${numChip(target,AMB)}`)+bubble(`Pair 2 — pick ${e2}: ${e2} + ? = ${target}`)+subtractColumn(target,e2)+bubble(`${numChip(e2,COR)} + ${numChip(ans2,MINT)} = ${numChip(target,AMB)}<br><strong style="color:${MINT};">Now find your own two pairs!</strong>`));}
+export function hintComposeSub(diff){const big=diff+2,small=big-diff,small2=3,big2=small2+diff;return wrap(COR,'🦋',`Two pairs with a difference of ${diff}`,bubble(`Case 1 — Big number known: ${big} − ? = ${diff}`)+subtractColumn(big,diff)+bubble(`${numChip(big,AMB)} − ${numChip(small,COR)} = ${numChip(diff,MINT)}`)+bubble(`Case 2 — Big number hidden: ? − ${small2} = ${diff}. Add it back:`)+addColumn(diff,small2)+bubble(`${numChip(big2,AMB)} − ${numChip(small2,COR)} = ${numChip(diff,MINT)}<br><strong style="color:${MINT};">Now try your own pairs!</strong>`));}
+export function hintFactFamily(a,b,total){
+  return wrap('#B98CFF','🏰',`Fact family — ${a}, ${b}, ${total}`,
     bubble(`<div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:8px 0;">
       <div style="text-align:center;"><div style="background:${AMB};color:#0A1F1F;border-radius:50%;width:60px;height:60px;display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;">${total}</div><div style="color:${AMB};font-size:.85rem;margin-top:4px;font-weight:800;">BIGGEST</div></div>
       <div style="text-align:center;"><div style="background:${CY};color:#0A1F1F;border-radius:50%;width:50px;height:50px;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;">${a}</div><div style="color:${CY};font-size:.85rem;margin-top:4px;font-weight:800;">PART</div></div>
@@ -77,25 +73,12 @@ function hintFactFamily(a,b,total){
     +bubble(`<strong style="color:${AMB};">Plus rule:</strong> the two parts join to make the biggest — order doesn't matter.<br>${numChip(a,CY)} + ${numChip(b,CY)} = ${numChip(total,AMB)} &nbsp;|&nbsp; ${numChip(b,CY)} + ${numChip(a,CY)} = ${numChip(total,AMB)}`)
     +bubble(`<strong style="color:${AMB};">Minus rule:</strong> always start from the biggest.<br>${numChip(total,AMB)} − ${numChip(a,CY)} = ${numChip(b,MINT)} &nbsp;|&nbsp; ${numChip(total,AMB)} − ${numChip(b,CY)} = ${numChip(a,MINT)}`));
 }
-function hintMoneyCount(coins){const total=coins.reduce((a,b)=>a+b,0);let running=0;const steps=coins.map(v=>{running+=v;return running;});return wrap(AMB,'🪙','Counting Coins',bubble(`We have: ${coinRow(coins)}`)+bubble(`Count up: ${coins.map(v=>'+'+v).join(' ')} → running total: ${steps.join('¢, ')}¢`)+bubble(`<strong style="color:${MINT};">Total = ${total}¢</strong>`));}
-function hintMoneyMake(target,combo){return wrap(AMB,'🪙',`Make ${target}¢`,bubble(`Tap coins that add up to exactly ${target}¢.`)+bubble(`One way: ${coinRow(combo)} → ${combo.join('¢ + ')}¢ = <strong style="color:${MINT};">${target}¢</strong>`));}
-function hintMoneyEquiv(q,ans,name){return wrap(AMB,'🪙',`Pennies in a ${name}`,bubble(`A ${name} is worth ${q}¢, and each penny is worth 1¢.<br>So it takes <strong style="color:${MINT};">${ans}</strong> pennies to equal one ${name}!`));}
-function hintTime(hour,delta,answer){const dir=delta>=0?'forward':'back';return wrap(CY,'⏰','Telling time',bubble(`Start at <strong>${hour} o'clock</strong> and move ${Math.abs(delta)} hour${Math.abs(delta)!==1?'s':''} ${dir}.`)+bubble(`Count around the clock: ${Array.from({length:Math.abs(delta)},(_,i)=>dir==='forward'?((hour+i)%12)+1:((hour-i-1+12)%12)+1).join(' → ')}`)+bubble(`<strong style="color:${MINT};">It will be ${answer} o'clock.</strong>`));}
-function hintTimeRead(hour,minute){return wrap(AMB,'⏰','Reading the Clock',bubble(`The short hand (hour hand) points close to <strong>${hour}</strong>.`)+bubble(minute===0?`The long hand (minute hand) points straight up at <strong>12</strong> — that means it's exactly <strong>${hour} o'clock</strong>.`:`The long hand (minute hand) points straight down at <strong>6</strong> — that means it's <strong>half past ${hour}</strong>.`)+bubble(`<strong style="color:${MINT};">The time is ${formatTime(hour,minute)}</strong>`));}
-function hintCompareSymbol(a,b,sym){return wrap(CY,'⚖️','Comparing numbers',bubble(`Compare ${a} and ${b} on the number line — whichever is further along is bigger.`)+bubble(`<strong style="color:${MINT};">${a} ${sym} ${b}</strong>`));}
-function hintTrueFalse(a,b,shown,sum){return wrap(shown===sum?MINT:COR,'🔎','Is It True?',bubble(`Let's check: ${a} + ${b} = ?`)+addColumn(a,b)+bubble(shown===sum?`The equation says ${a} + ${b} = ${shown}, and that's exactly right!<br><strong style="color:${MINT};">TRUE ✓</strong>`:`The equation says ${a} + ${b} = ${shown}, but we just worked out it's really ${sum}.<br><strong style="color:${RED};">FALSE</strong> — the real answer is ${sum}.`));}
-function hintDouble(n){return wrap(CY,'✨','Doubles',bubble(`Double means add the number to itself: ${n} + ${n}.`)+addColumn(n,n));}
-function hintNearDouble(n){const m=n+1;return wrap(MINT,'✨',`${n} + ${m} (a near double!)`,bubble(`${n} and ${m} are almost the same number! Double ${n} is <strong>${2*n}</strong>.`)+bubble(`${m} is just <strong>1 more</strong> than ${n}, so ${n} + ${m} is just <strong>1 more</strong> than double ${n}.`)+bubble(`<strong style="color:${MINT};">${n} + ${m} = ${2*n} + 1 = ${n+m}</strong>`));}
-function hintFraction(denom,part,label){return wrap(PURP,'🍕','Fractions',bubble(`Split the whole into ${denom} equal pieces. ${part} of them is written as <strong>${label}</strong>.`));}
-function hintFractionPie(parts,shaded,label){const wholeWord=parts===2?'2 equal parts (halves)':'4 equal parts (fourths)';return wrap(PURP,'🍕',`Understanding ${label}`,bubble(`The shape is cut into <strong>${wholeWord}</strong>.`)+bubble(`${shaded} out of ${parts} parts are shaded, so that's <strong style="color:${MINT};">${label}</strong> shaded!`)+`<div style="text-align:center;">${pieSliceSvg(parts,shaded)}</div>`);}
-function hintShapeSides(shape,sides,name){return wrap(PURP,'🔺',`${name} Sides`,bubble(sides===0?`A circle is round all the way — it has <strong style="color:${MINT};">no straight sides</strong>!`:`Count each straight edge: a ${name.toLowerCase()} has <strong style="color:${MINT};">${sides}</strong> sides!`)+`<div style="text-align:center;">${shapeSvg(shape)}</div>`);}
-function hintShapeName(sides){return wrap(PURP,'🔺','Naming Shapes',bubble(`This shape has ${sides===0?'no straight sides — it is round':sides+' sides'}.`));}
-function hintLengthBlocks(n){return wrap(PURP,'📏','Measuring Length',bubble(`Count each block one at a time, left to right.`)+bubble(`<strong style="color:${MINT};">It's ${n} blocks long!</strong>`));}
-function hintGraphMost(label,val){return wrap(AMB,'📊','Reading the Graph',bubble(`Look for the <strong>tallest</strong> bar!`)+bubble(`<strong style="color:${MINT};">${label} has the most, with ${val}!</strong>`));}
-function hintGraphDiff(bigLabel,bigVal,smallLabel,smallVal){return wrap(AMB,'📊','Comparing Bars',bubble(`${bigLabel}: ${bigVal}, ${smallLabel}: ${smallVal}`)+subtractColumn(bigVal,smallVal));}
-function hintGraphTotal(items,total){return wrap(AMB,'📊','Adding It All Up',bubble(`Add every bar together: ${items.join(' + ')} = <strong style="color:${MINT};">${total}</strong>`));}
-function hintOrdinal(n,correct){return wrap(CY,'🏅','Ordinal Numbers',bubble(`Ordinal numbers tell us the ORDER of something: 1st, 2nd, 3rd, 4th...`)+bubble(`Number <strong>${n}</strong> in order is called <strong style="color:${MINT};">${correct}</strong>!`));}
-function hintNumberWord(correct,n){return wrap(CY,'🔤','Number Words',bubble(`"${correct}" is how we write the number <strong style="color:${MINT};">${n}</strong> in words!`));}
+export function hintMoneyCount(coins){const total=coins.reduce((a,b)=>a+b,0);let running=0;const steps=coins.map(v=>{running+=v;return running;});return wrap(AMB,'🪙','Counting Coins',bubble(`We have: ${coinRow(coins)}`)+bubble(`Count up: ${coins.map(v=>'+'+v).join(' ')} → running total: ${steps.join('¢, ')}¢`)+bubble(`<strong style="color:${MINT};">Total = ${total}¢</strong>`));}
+export function hintMoneyMake(target,combo){return wrap(AMB,'🪙',`Make ${target}¢`,bubble(`Tap coins that add up to exactly ${target}¢.`)+bubble(`One way: ${coinRow(combo)} → ${combo.join('¢ + ')}¢ = <strong style="color:${MINT};">${target}¢</strong>`));}
+export function hintTime(hour,delta,answer){const dir=delta>=0?'forward':'back';return wrap(CY,'⏰','Telling time',bubble(`Start at <strong>${hour} o'clock</strong> and move ${Math.abs(delta)} hour${Math.abs(delta)!==1?'s':''} ${dir}.`)+bubble(`Count around the clock: ${Array.from({length:Math.abs(delta)},(_,i)=>dir==='forward'?((hour+i)%12)+1:((hour-i-1+12)%12)+1).join(' → ')}`)+bubble(`<strong style="color:${MINT};">It will be ${answer} o'clock.</strong>`));}
+export function hintCompareSymbol(a,b,sym){return wrap(CY,'⚖️','Comparing numbers',bubble(`Compare ${a} and ${b} on the number line — whichever is further along is bigger.`)+bubble(`<strong style="color:${MINT};">${a} ${sym} ${b}</strong>`));}
+export function hintDouble(n){return wrap(CY,'✨','Doubles',bubble(`Double means add the number to itself: ${n} + ${n}.`)+addColumn(n,n));}
+export function hintFraction(denom,part,label){return wrap('#B98CFF','🍕','Fractions',bubble(`Split the whole into ${denom} equal pieces. ${part} of them is written as <strong>${label}</strong>.`));}
 
 // ── Days/months/seasons ─────────────────────────────────────
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -103,12 +86,7 @@ const MONTHS=['January','February','March','April','May','June','July','August',
 const SEASONS=['Winter','Spring','Summer','Autumn'];
 
 // ── Equation generators (one per level id) ───────────────────
-function eqCounting(){
-  const t=rnd(0,2);
-  if(t===0){const n=rnd(5,20),obj=pick(['🏎️','🏁','⭐','⚙️']);return{type:'counting_objects',category:'equation',hasHint:true,question:`Count them up:<br>${obj.repeat(n)}<br>How many are there?`,answer:n,hint:wrap(MINT,'🔢','Counting',bubble(`Count one at a time up to <strong style="color:${MINT};">${n}</strong>.`))};}
-  if(t===1){const a=rnd(2,14),b=rnd(1,6);return{type:'counting_add',category:'equation',hasHint:true,question:`${a} + ${b} = ?`,answer:a+b,hint:addColumn(a,b)};}
-  const a=rnd(6,18),b=rnd(1,5);return{type:'counting_sub',category:'equation',hasHint:true,question:`${a} − ${b} = ?`,answer:a-b,hint:subtractColumn(a,b)};
-}
+function eqCounting(){const n=rnd(5,20),obj=pick(['🏎️','🏁','⭐','⚙️']);return{type:'counting_add',question:`Count them up:<br>${obj.repeat(n)}<br>How many are there?`,answer:n,hint:wrap(MINT,'🔢','Counting',bubble(`Count one at a time up to <strong style="color:${MINT};">${n}</strong>.`))};}
 function eqGrouping(){const tens=rnd(1,9),ones=rnd(0,9),total=tens*10+ones;return{type:'grouping',question:`${tens} bundle${tens!==1?'s':''} of 10 + ${ones} loose. How many total?`,answer:total,hint:wrap(MINT,'📦','Tens and Ones',bubble(`${tens} tens = <strong>${tens*10}</strong>, plus ${ones} ones = <strong>${ones}</strong><br>${tens*10} + ${ones} = <strong style="color:${MINT};">${total}</strong>`))};}
 function eqMissingAdd(){const a=rnd(3,15),miss=rnd(2,12),total=a+miss;return{type:'missing_add',question:`${a} + ? = ${total}`,answer:miss,hint:hintMissingAddSimple(total,a)};}
 function eqCarryAdd(){let a,b,g=0;do{a=rnd(15,69);b=rnd(15,69);g++;}while((a%10+b%10)<=9&&g<300);return{type:'carry_add',question:`${a} + ${b} = ?`,answer:a+b,hint:hintCarryAdd(a,b)};}
@@ -118,102 +96,14 @@ function eqSubThree(){const total=rnd(50,95),b=rnd(10,Math.floor(total/2)-2),c=r
 function eqComposeAdd(){const target=rnd(10,20);return{type:'compose_add',kind:'compose_pair',question:`Write two different pairs of numbers that add up to <strong>${target}</strong>.`,target,hint:hintComposeAdd(target)};}
 function eqComposeSub(){const diff=rnd(4,10);return{type:'compose_sub',kind:'compose_pair',question:`Write two pairs where the big number take away the small number leaves <strong>${diff}</strong>.`,target:diff,hint:hintComposeSub(diff)};}
 function eqFactFamily(){let a,b,g=0;do{a=rnd(3,12);b=rnd(3,12);g++;}while(a===b&&g<200);const total=a+b;return{type:'fact_family',question:`<strong>${a}</strong>, <strong>${b}</strong> and <strong>${total}</strong> are a number family.<br>Rows 1 and 2: make a plus fact. Rows 3 and 4: make a take-away fact.`,a,b,total,hint:hintFactFamily(a,b,total)};}
-
-const LOGIC_EMOJI_POOL=['🏎️','🏁','⭐','🔧','🥊','🧸','🎀','⚙️','🔴','🟡','🔵','🟢'];
-function eqLogic(){
-  const t=rnd(0,3);
-  if(t===0){
-    const p=pick([{pattern:'🏁⚙️🏁⚙️',next:'🏁'},{pattern:'🏎️🥊🏎️🥊',next:'🏎️'},{pattern:'⭐🔧⭐🔧',next:'⭐'}]);
-    const distractors=shuffle(LOGIC_EMOJI_POOL.filter(e=>e!==p.next&&!p.pattern.includes(e))).slice(0,3);
-    const choices=shuffle([{label:p.next,correct:true},...distractors.map(l=>({label:l,correct:false}))]);
-    return{type:'logic',kind:'multiple_choice',question:`What comes next?<br>${p.pattern} __?`,choices,hint:wrap(MINT,'🧠','Patterns',bubble(`The pattern repeats: <strong>${p.pattern}</strong> — look at what comes after each pair!`)+bubble(`<strong style="color:${MINT};">Next is ${p.next}!</strong>`))};
-  }
-  if(t===1){
-    const p=pick([{q:"If it's raining, we use an umbrella.<br>It is raining today. What do we use?",correct:'Umbrella',choices:['Umbrella','A fan','Sunglasses','A kite']},{q:'Finish your homework → get screen time.<br>Safaan finished his homework. Does he get screen time?',correct:'Yes',choices:['Yes','No']}]);
-    const choices=shuffle(p.choices.map(c=>({label:c,correct:c===p.correct})));
-    return{type:'logic',kind:'multiple_choice',question:p.q,choices,hint:wrap(MINT,'🧠','Think It Through',bubble(`Read the rule carefully, then follow it.`)+bubble(`<strong style="color:${MINT};">${p.correct}!</strong>`))};
-  }
-  if(t===2){
-    const p=pick([{q:'Which doesn\'t belong?<br>🏎️🏁🏆🐻',answer:'🐻',options:['🏎️','🏁','🏆','🐻']},{q:'Which doesn\'t belong?<br>🔴🟡🔵🟢⭐',answer:'⭐',options:['🔴','🟡','🔵','🟢','⭐']}]);
-    const choices=shuffle(p.options.map(o=>({label:o,correct:o===p.answer})));
-    return{type:'logic',kind:'multiple_choice',question:p.q,choices,hint:wrap(MINT,'🧠','Odd One Out',bubble(`Most of these belong to the same group — one is different!`)+bubble(`<strong style="color:${MINT};">${p.answer} doesn't belong!</strong>`))};
-  }
-  const step=pick([2,3,4,5]),start=rnd(1,10),seq=[start,start+step,start+2*step,start+3*step];
-  return{type:'logic',kind:'numeric',question:`What comes next? ${seq.join(', ')}, __?`,answer:start+4*step,hint:wrap(CY,'🧠','Number patterns',bubble(`Each number is <strong>${step}</strong> more than the last: ${seq[3]} + ${step} = <strong style="color:${MINT};">${start+4*step}</strong>`))};
-}
-
-const COIN_VALUES=[1,5,10,25];
-function eqMoney(){
-  const t=rnd(0,2);
-  if(t===0){const n=rnd(2,4),coins=Array.from({length:n},()=>pick(COIN_VALUES)),total=coins.reduce((a,b)=>a+b,0);return{type:'money_count',kind:'numeric',question:`How many cents is this?<br>${coinRow(coins)}`,answer:total,hint:hintMoneyCount(coins)};}
-  if(t===1){const pool=shuffle([25,25,10,10,5,5,1,1,1]).slice(0,rnd(3,5));const target=pool.reduce((a,b)=>a+b,0);return{type:'money_make',kind:'coin_picker',question:`Tap coins that add up to exactly ${formatCents(target)}.`,coins:pool,target,hint:hintMoneyMake(target,pool)};}
-  const opts=pick([{q:5,a:'nickel'},{q:10,a:'dime'},{q:25,a:'quarter'}]);
-  return{type:'money_equiv',kind:'numeric',question:`How many pennies (1¢) equal one ${opts.a} (${opts.q}¢)?`,answer:opts.q,hint:hintMoneyEquiv(opts.q,opts.q,opts.a)};
-}
-
-function eqTime(){
-  const t=rnd(0,1);
-  if(t===0){const hour=rnd(1,11),delta=pick([1,2,3,-1,-2,-3]),answer=((hour+delta-1)%12+12)%12+1;return{type:'time',question:delta>0?`It is ${hour} o'clock. What o'clock will it be in ${delta} hour${delta!==1?'s':''}?`:`It is ${hour} o'clock. What o'clock was it ${-delta} hour${-delta!==1?'s':''} ago?`,answer,hint:hintTime(hour,delta,answer)};}
-  const hour=rnd(1,12),minute=rnd(0,1)*30,correct=formatTime(hour,minute);
-  const distractors=new Set();
-  while(distractors.size<3){const dh=rnd(1,12),dm=rnd(0,1)*30,label=formatTime(dh,dm);if(label!==correct)distractors.add(label);}
-  const choices=shuffle([{label:correct,correct:true},...[...distractors].map(l=>({label:l,correct:false}))]);
-  return{type:'time_read',kind:'multiple_choice',question:`What time does this clock show?${clockFaceSvg(hour,minute)}`,choices,hint:hintTimeRead(hour,minute)};
-}
-
-function eqCompare(){
-  const t=rnd(0,3);
-  if(t===0){let a=rnd(5,40),b=rnd(5,40);while(a===b)b=rnd(5,40);const correct=a>b?a:b;return{type:'compare',kind:'multiple_choice',question:`Which is greater: ${a} or ${b}?`,choices:shuffle([{label:String(a),correct:a>b},{label:String(b),correct:b>a}]),hint:hintCompareSymbol(a,b,a>b?'>':'<')};}
-  if(t===1){const a=rnd(1,50);const b=rnd(0,3)===0?a:rnd(1,50);const sym=a<b?'<':a>b?'>':'=';const choices=shuffle(['<','>','='].map(s=>({label:s,correct:s===sym})));return{type:'compare_symbol',kind:'multiple_choice',question:`${a} ___ ${b}`,choices,hint:hintCompareSymbol(a,b,sym)};}
-  if(t===2){const a=rnd(2,15),b=rnd(2,15),sum=a+b;const showFalse=rnd(0,1)===0;let shown=sum;if(showFalse){let g=0;do{shown=sum+(rnd(1,3)*(rnd(0,1)?1:-1));g++;}while((shown===sum||shown<0)&&g<50);}const correct=shown===sum;const choices=[{label:'True',correct:correct},{label:'False',correct:!correct}];return{type:'compare_truefalse',kind:'multiple_choice',question:`${a} + ${b} = ${shown}. True or False?`,choices,hint:hintTrueFalse(a,b,shown,sum)};}
-  const n=rnd(1,10);
-  if(rnd(0,1)===0)return{type:'compare_double',kind:'numeric',question:`Double ${n} = ${n} + ${n} = ?`,answer:2*n,hint:hintDouble(n)};
-  return{type:'compare_double',kind:'numeric',question:`${n} + ${n+1} = ? <br><span style="font-size:.8em;color:${MUT};">(near double!)</span>`,answer:n+(n+1),hint:hintNearDouble(n)};
-}
-
-function eqFractions(){
-  const t=rnd(0,1);
-  if(t===0){const denom=pick([2,4]),num=rnd(1,denom-1),label=`${num}/${denom}`;const others=shuffle(['1/2','1/4','2/4','3/4'].filter(l=>l!==label)).slice(0,3);return{type:'fractions',kind:'multiple_choice',question:`A shape is split into ${denom} equal pieces. ${num} of them are colored. What fraction is that?`,choices:shuffle([{label,correct:true},...others.map(l=>({label:l,correct:false}))]),hint:hintFraction(denom,num,label)};}
-  const parts=rnd(0,1)===0?2:4,shaded=rnd(1,parts-1),targetLabel=`${shaded}/${parts}`;
-  const pool=[];[2,4].forEach(p=>{for(let s=1;s<p;s++)pool.push({p,s});});
-  const distractors=shuffle(pool.filter(o=>!(o.p===parts&&o.s===shaded))).slice(0,3);
-  const options=shuffle([{p:parts,s:shaded,correct:true},...distractors.map(d=>({...d,correct:false}))]);
-  const choices=options.map(o=>({label:pieSliceSvg(o.p,o.s),correct:o.correct}));
-  return{type:'fraction_identify',kind:'multiple_choice',question:`Which shape has <strong>${targetLabel}</strong> shaded?`,choices,hint:hintFractionPie(parts,shaded,targetLabel)};
-}
-
-const ORDINAL_WORDS=['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
-const NUMBER_WORDS=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
-function eqNumberSense(){
-  const t=rnd(0,2);
-  if(t===0){const step=pick([2,5,10]),start=rnd(0,4)*step,seq=[start,start+step,start+2*step];return{type:'number_sense',question:`Skip count: ${seq.join(', ')}, __?`,answer:start+3*step,hint:wrap(MINT,'🔢','Skip counting',bubble(`Add ${step} each time: ${seq[2]} + ${step} = <strong style="color:${MINT};">${start+3*step}</strong>`))};}
-  if(t===1){const n=rnd(1,10);const correct=ORDINAL_WORDS[n-1];const distractors=shuffle(ORDINAL_WORDS.filter(w=>w!==correct)).slice(0,3);const choices=shuffle([{label:correct,correct:true},...distractors.map(l=>({label:l,correct:false}))]);return{type:'ordinal',kind:'multiple_choice',question:`Safia is number ${n} in line. What is her place called?`,choices,hint:hintOrdinal(n,correct)};}
-  const n=rnd(1,20),correct=NUMBER_WORDS[n];return{type:'number_word',kind:'numeric',question:`What number is this word? "<strong>${correct}</strong>"`,answer:n,hint:hintNumberWord(correct,n)};
-}
-
-function eqDataGraphs(){
-  const t=rnd(0,2);
-  if(t===0){const a=rnd(6,15),b=rnd(1,a-1);return{type:'data_graphs',question:`A bar graph shows: Cyan bars = ${a}, Coral bars = ${b}. How many more Cyan than Coral?`,answer:a-b,hint:wrap(AMB,'📊','Reading bars',bubble(`${a} − ${b} = <strong style="color:${MINT};">${a-b}</strong>`))};}
-  const pool=[{label:'Cars',emoji:'🏎️'},{label:'Flags',emoji:'🏁'},{label:'Trophies',emoji:'🏆'},{label:'Gears',emoji:'⚙️'}];
-  let items,g=0;
-  do{items=shuffle(pool).slice(0,rnd(3,4)).map(c=>({...c,value:rnd(1,12)}));g++;}while(new Set(items.map(i=>i.value)).size<items.length&&g<50);
-  const chart=barChartHtml(items);
-  if(t===1){const maxVal=Math.max(...items.map(i=>i.value));const correctItem=items.find(i=>i.value===maxVal);const choices=shuffle(items.map(i=>({label:i.label,correct:i===correctItem})));return{type:'graph_most',kind:'multiple_choice',question:`Which has the MOST?${chart}`,choices,hint:hintGraphMost(correctItem.label,maxVal)};}
-  const roll=rnd(0,1);
-  if(roll===0){const [a,b]=shuffle(items).slice(0,2);const bigger=a.value>b.value?a:b,smaller=a.value>b.value?b:a;return{type:'graph_diff',kind:'numeric',question:`How many more ${bigger.label} than ${smaller.label}?${chart}`,answer:bigger.value-smaller.value,hint:hintGraphDiff(bigger.label,bigger.value,smaller.label,smaller.value)};}
-  const total=items.reduce((s,i)=>s+i.value,0);return{type:'graph_total',kind:'numeric',question:`What is the total of all the bars?${chart}`,answer:total,hint:hintGraphTotal(items.map(i=>i.value),total)};
-}
-
-const SHAPE_SIDES={circle:0,square:4,rectangle:4,triangle:3,pentagon:5,hexagon:6,octagon:8};
-const SHAPE_NAMES={circle:'Circle',square:'Square',rectangle:'Rectangle',triangle:'Triangle',pentagon:'Pentagon',hexagon:'Hexagon',octagon:'Octagon'};
-function eqShapes(){
-  const shapes=Object.keys(SHAPE_SIDES);
-  const t=rnd(0,2);
-  if(t===0){const shape=pick(shapes),sides=SHAPE_SIDES[shape];return{type:'shape_sides',kind:'numeric',question:`How many straight sides does this shape have?${shapeSvg(shape)}`,answer:sides,hint:hintShapeSides(shape,sides,SHAPE_NAMES[shape])};}
-  if(t===1){const shape=pick(shapes);const distractors=shuffle(shapes.filter(s=>s!==shape)).slice(0,3);const choices=shuffle([{label:SHAPE_NAMES[shape],correct:true},...distractors.map(s=>({label:SHAPE_NAMES[s],correct:false}))]);return{type:'shape_name',kind:'multiple_choice',question:`What shape is this?${shapeSvg(shape)}`,choices,hint:hintShapeName(SHAPE_SIDES[shape])};}
-  const n=rnd(3,10);return{type:'length_blocks',kind:'numeric',question:`How many blocks long is this? ${lengthBlocksHtml(n)}`,answer:n,hint:hintLengthBlocks(n)};
-}
-
+function eqLogic(){const step=pick([2,3,4,5]),start=rnd(1,10),seq=[start,start+step,start+2*step,start+3*step];return{type:'logic',question:`What comes next? ${seq.join(', ')}, __?`,answer:start+4*step,hint:wrap(CY,'🧠','Number patterns',bubble(`Each number is <strong>${step}</strong> more than the last: ${seq[3]} + ${step} = <strong style="color:${MINT};">${start+4*step}</strong>`))};}
+function eqMoney(){const pool=shuffle([25,25,10,10,5,5,1,1,1]).slice(0,rnd(3,5));const target=pool.reduce((a,b)=>a+b,0);return{type:'money',kind:'coin_picker',question:`Tap coins that add up to exactly ${formatCents(target)}.`,coins:pool,target,hint:hintMoneyMake(target,pool)};}
+function eqTime(){const hour=rnd(1,11),delta=pick([1,2,3,-1,-2,-3]),answer=((hour+delta-1)%12+12)%12+1;return{type:'time',question:delta>0?`It is ${hour} o'clock. What o'clock will it be in ${delta} hour${delta!==1?'s':''}?`:`It is ${hour} o'clock. What o'clock was it ${-delta} hour${-delta!==1?'s':''} ago?`,answer,hint:hintTime(hour,delta,answer)};}
+function eqCompare(){let a=rnd(5,40),b=rnd(5,40);while(a===b)b=rnd(5,40);const correct=a>b?a:b;return{type:'compare',kind:'multiple_choice',question:`Which is greater: ${a} or ${b}?`,choices:shuffle([{label:String(a),correct:a>b},{label:String(b),correct:b>a}]),hint:hintCompareSymbol(a,b,a>b?'>':'<')};}
+function eqFractions(){const denom=pick([2,4]),num=rnd(1,denom-1),label=`${num}/${denom}`;const others=shuffle(['1/2','1/4','2/4','3/4'].filter(l=>l!==label)).slice(0,3);return{type:'fractions',kind:'multiple_choice',question:`A shape is split into ${denom} equal pieces. ${num} of them are colored. What fraction is that?`,choices:shuffle([{label,correct:true},...others.map(l=>({label:l,correct:false}))]),hint:hintFraction(denom,num,label)};}
+function eqNumberSense(){const step=pick([2,5,10]),start=rnd(0,4)*step,seq=[start,start+step,start+2*step];return{type:'number_sense',question:`Skip count: ${seq.join(', ')}, __?`,answer:start+3*step,hint:wrap(MINT,'🔢','Skip counting',bubble(`Add ${step} each time: ${seq[2]} + ${step} = <strong style="color:${MINT};">${start+3*step}</strong>`))};}
+function eqDataGraphs(){const a=rnd(6,15),b=rnd(1,a-1);return{type:'data_graphs',question:`A bar graph shows: Cyan bars = ${a}, Coral bars = ${b}. How many more Cyan than Coral?`,answer:a-b,hint:wrap(AMB,'📊','Reading bars',bubble(`${a} − ${b} = <strong style="color:${MINT};">${a-b}</strong>`))};}
+function eqShapes(){const shapes=[['triangle',3],['square',4],['pentagon',5],['hexagon',6],['octagon',8]];const [name,sides]=pick(shapes);return{type:'shapes',question:`How many sides does a ${name} have?`,answer:sides,hint:wrap('#B98CFF','🔺','Shapes',bubble(`A ${name} has <strong style="color:${MINT};">${sides}</strong> sides.`))};}
 function eqCalendar(){
   const t=rnd(0,2);
   if(t===0){const i=rnd(0,6),dir=rnd(0,1);const correct=dir===0?DAYS[(i+1)%7]:DAYS[(i+6)%7];const distractors=shuffle(DAYS.filter(d=>d!==correct)).slice(0,3);const choices=shuffle([{label:correct,correct:true},...distractors.map(l=>({label:l,correct:false}))]);
@@ -226,7 +116,7 @@ function eqCalendar(){
 }
 function eqCombo(){const generators=[eqCarryAdd,eqBorrowSub,eqMissingAdd,eqCompare,eqMoney,eqTime];return pick(generators)();}
 
-// ── Word-problem pools (verbatim content, personalized to Safia & Safaan) ──
+// ── Word-problem pools (verbatim content, personalized to Max) ──
 const N='Safia';
 const wordsCounting=[
   {type:'word',question:`${N} has 8 🏎️ toy cars. Dad gives 5 more. How many now?`,answer:13,hint:addColumn(8,5)},
@@ -329,16 +219,16 @@ const wordsCompare=[
 const wordsFractions=[
   {type:'word',kind:'multiple_choice',question:'A pizza is cut into 2 equal pieces and Safia eats 1. What fraction did she eat?',choices:[{label:'1/2',correct:true},{label:'1/4',correct:false},{label:'2/4',correct:false},{label:'3/4',correct:false}],hint:hintFraction(2,1,'1/2')},
   {type:'word',kind:'multiple_choice',question:'A pretzel is cut into 4 equal pieces. Safia eats 1 piece. What fraction is left?',choices:[{label:'3/4',correct:true},{label:'1/4',correct:false},{label:'1/2',correct:false},{label:'2/4',correct:false}],hint:hintFraction(4,3,'3/4')},
-  {type:'word',kind:'multiple_choice',question:'Which is bigger: 1/2 of a track or 1/4 of the same track?',choices:[{label:'1/2',correct:true},{label:'1/4',correct:false}],hint:wrap(PURP,'🍕','Comparing fractions',bubble('Cutting into fewer, bigger pieces (halves) makes each piece bigger than fourths.')+bubble(`<strong style="color:${MINT};">1/2 is bigger than 1/4</strong>`))},
+  {type:'word',kind:'multiple_choice',question:'Which is bigger: 1/2 of a track or 1/4 of the same track?',choices:[{label:'1/2',correct:true},{label:'1/4',correct:false}],hint:wrap('#B98CFF','🍕','Comparing fractions',bubble('Cutting into fewer, bigger pieces (halves) makes each piece bigger than fourths.')+bubble(`<strong style="color:${MINT};">1/2 is bigger than 1/4</strong>`))},
   {type:'word',kind:'multiple_choice',question:'A chocolate bar is split into 4 equal squares. Safia and 3 friends each take 1 square. What fraction does each person get?',choices:[{label:'1/4',correct:true},{label:'1/2',correct:false},{label:'2/4',correct:false},{label:'4/4',correct:false}],hint:hintFraction(4,1,'1/4')},
   {type:'word',kind:'multiple_choice',question:'Safia colors 3 out of 4 equal boxes. What fraction is colored?',choices:[{label:'3/4',correct:true},{label:'1/4',correct:false},{label:'2/4',correct:false},{label:'4/4',correct:false}],hint:hintFraction(4,3,'3/4')}
 ];
 const wordsNumberSense=[
   {type:'word',kind:'numeric',question:'Count by 10s: 20, 30, 40, __?',answer:50,hint:wrap(MINT,'🔢','Skip counting',bubble(`20 → 30 → 40 → <strong style="color:${MINT};">50</strong>`))},
   {type:'word',kind:'numeric',question:'Count by 2s: 6, 8, 10, __?',answer:12,hint:wrap(MINT,'🔢','Skip counting',bubble(`6 → 8 → 10 → <strong style="color:${MINT};">12</strong>`))},
-  {type:'word',kind:'multiple_choice',question:'Safia finished the race in 3rd place. Who finished right before her?',choices:[{label:'2nd place',correct:true},{label:'1st place',correct:false},{label:'4th place',correct:false},{label:'5th place',correct:false}],hint:wrap(CY,'🏅','Ordinal numbers',bubble('2nd comes right before 3rd!'))},
-  {type:'word',kind:'numeric',question:'Write the number for "fifteen".',answer:15,hint:wrap(CY,'🔤','Number words',bubble(`"fifteen" = <strong style="color:${MINT};">15</strong>`))},
-  {type:'word',kind:'numeric',question:'Safia is 7th in line. Safaan is right behind her. What place is Safaan in?',answer:8,hint:wrap(CY,'🏅','Ordinal numbers',bubble(`Right behind 7th is <strong style="color:${MINT};">8th</strong>!`))}
+  {type:'word',kind:'multiple_choice',question:'Safia finished the race in 3rd place. Who finished right before her?',choices:[{label:'2nd place',correct:true},{label:'1st place',correct:false},{label:'4th place',correct:false},{label:'5th place',correct:false}],hint:wrap(MINT,'🏅','Ordinal numbers',bubble('2nd comes right before 3rd!'))},
+  {type:'word',kind:'numeric',question:'Write the number for "fifteen".',answer:15,hint:wrap(MINT,'🔤','Number words',bubble(`"fifteen" = <strong style="color:${MINT};">15</strong>`))},
+  {type:'word',kind:'numeric',question:'Safia is 7th in line. Safaan is right behind her. What place is Safaan in?',answer:8,hint:wrap(MINT,'🏅','Ordinal numbers',bubble(`Right behind 7th is <strong style="color:${MINT};">8th</strong>!`))}
 ];
 const wordsDataGraphs=[
   {type:'word',kind:'numeric',question:'A tally shows 5 cars and 3 flags. How many items in total?',answer:8,hint:wrap(AMB,'📊','Tally marks',bubble(`5 + 3 = <strong style="color:${MINT};">8</strong>`))},
@@ -348,11 +238,11 @@ const wordsDataGraphs=[
   {type:'word',kind:'numeric',question:'A picture graph shows 7 red cars and 2 blue cars. How many more red than blue?',answer:5,hint:wrap(AMB,'📊','Comparing rows',bubble(`7 − 2 = <strong style="color:${MINT};">5</strong>`))}
 ];
 const wordsShapes=[
-  {type:'word',kind:'numeric',question:'A square has how many corners?',answer:4,hint:wrap(PURP,'🔺','Corners',bubble(`A square has 4 straight sides and <strong style="color:${MINT};">4</strong> corners.`))},
-  {type:'word',kind:'multiple_choice',question:'Which shape has 3 sides?',choices:[{label:'Triangle',correct:true},{label:'Square',correct:false},{label:'Hexagon',correct:false},{label:'Circle',correct:false}],hint:wrap(PURP,'🔺','Shapes',bubble(`A triangle has <strong style="color:${MINT};">3</strong> sides.`))},
-  {type:'word',kind:'numeric',question:"Safia's track piece is 9 blocks long. Safaan's is 6 blocks long. How much longer is Safia's?",answer:3,hint:wrap(PURP,'📏','Comparing lengths',bubble(`9 − 6 = <strong style="color:${MINT};">3</strong>`))},
-  {type:'word',kind:'multiple_choice',question:'Which shape has NO straight sides?',choices:[{label:'Circle',correct:true},{label:'Square',correct:false},{label:'Triangle',correct:false},{label:'Pentagon',correct:false}],hint:wrap(PURP,'🔺','Circles',bubble('A circle is round all the way around — no straight sides.'))},
-  {type:'word',kind:'numeric',question:'A toy train is 7 cubes long. It grows 2 more cubes. How long is it now?',answer:9,hint:wrap(PURP,'📏','Measuring',bubble(`7 + 2 = <strong style="color:${MINT};">9</strong>`))}
+  {type:'word',kind:'numeric',question:'A square has how many corners?',answer:4,hint:wrap('#B98CFF','🔺','Corners',bubble(`A square has 4 straight sides and <strong style="color:${MINT};">4</strong> corners.`))},
+  {type:'word',kind:'multiple_choice',question:'Which shape has 3 sides?',choices:[{label:'Triangle',correct:true},{label:'Square',correct:false},{label:'Hexagon',correct:false},{label:'Circle',correct:false}],hint:wrap('#B98CFF','🔺','Shapes',bubble(`A triangle has <strong style="color:${MINT};">3</strong> sides.`))},
+  {type:'word',kind:'numeric',question:"Safia's track piece is 9 blocks long. Safaan's is 6 blocks long. How much longer is Safia's?",answer:3,hint:wrap('#B98CFF','📏','Comparing lengths',bubble(`9 − 6 = <strong style="color:${MINT};">3</strong>`))},
+  {type:'word',kind:'multiple_choice',question:'Which shape has NO straight sides?',choices:[{label:'Circle',correct:true},{label:'Square',correct:false},{label:'Triangle',correct:false},{label:'Pentagon',correct:false}],hint:wrap('#B98CFF','🔺','Circles',bubble('A circle is round all the way around — no straight sides.'))},
+  {type:'word',kind:'numeric',question:'A toy train is 7 cubes long. It grows 2 more cubes. How long is it now?',answer:9,hint:wrap('#B98CFF','📏','Measuring',bubble(`7 + 2 = <strong style="color:${MINT};">9</strong>`))}
 ];
 const wordsCalendar=[
   {type:'word',kind:'multiple_choice',question:'How many days are in a week?',choices:[{label:'7',correct:true},{label:'5',correct:false},{label:'10',correct:false},{label:'12',correct:false}],hint:wrap('#FF85C8','📅','Weeks',bubble(`A week has <strong style="color:${MINT};">7</strong> days.`))},
@@ -382,7 +272,7 @@ function buildLevel(eqFn,pool){
          ...words.slice(2,5).map(p=>({...p,category:'word',hasHint:false}))];
 }
 
-const LEVELS=[
+export const LEVELS=[
   {id:'counting',    name:'Counting',       icon:'🏁'},
   {id:'grouping',    name:'Tens & Ones',    icon:'📦'},
   {id:'missing_add', name:'Missing Number', icon:'❓'},
@@ -405,7 +295,7 @@ const LEVELS=[
   {id:'combo',       name:'Grand Finale',   icon:'🏆'}
 ];
 
-const LEVEL_VIDEOS={
+export const LEVEL_VIDEOS={
   counting:{url:'https://www.youtube.com/results?search_query=jack+hartmann+count+to+20+kids',title:'Count to 20 – Jack Hartmann'},
   grouping:{url:'https://www.youtube.com/results?search_query=tens+and+ones+place+value+song+kids',title:'Tens & Ones Place Value Song'},
   missing_add:{url:'https://www.youtube.com/results?search_query=missing+number+addition+kids+math',title:'Finding the Missing Number'},
@@ -428,7 +318,7 @@ const LEVEL_VIDEOS={
   combo:{url:'https://www.youtube.com/results?search_query=mixed+math+practice+kids+addition+subtraction',title:'Mixed Maths Practice'}
 };
 
-const TROPHIES=[
+export const TROPHIES=[
   {id:'first_correct', icon:'🏁', name:'First Lap',        check:(sc)=>sc>=1},
   {id:'five_stars',    icon:'⭐', name:'Rising Star',       check:(sc)=>sc>=5},
   {id:'ten_stars',     icon:'🥇', name:'Track Champion',    check:(sc)=>sc>=10},
@@ -447,7 +337,7 @@ const TROPHIES=[
   {id:'streak',        icon:'🔥', name:'Streak Champion',   check:(sc)=>sc>=3},
 ];
 
-const BADGES_DEF=[
+export const BADGES_DEF=[
   {key:'counting',icon:'🏁',name:'Counting Racer',check:p=>p.counting?.completed},
   {key:'addition',icon:'➕',name:'Addition Champion',check:p=>p.missing_add?.completed&&p.add_three?.completed},
   {key:'subtraction',icon:'➖',name:'Subtraction Star',check:p=>p.borrow_sub?.completed&&p.sub_three?.completed},
@@ -460,23 +350,23 @@ const BADGES_DEF=[
   {key:'wordWizard',icon:'🏆',name:'Word Problem Wizard',check:p=>p.combo?.completed}
 ];
 
-function generateLevel(id){
+export function generateLevel(id){
   const map={counting:{eqFn:eqCounting,pool:wordsCounting},grouping:{eqFn:eqGrouping,pool:wordsGrouping},missing_add:{eqFn:eqMissingAdd,pool:wordsMissingAdd},carry_add:{eqFn:eqCarryAdd,pool:wordsCarryAdd},borrow_sub:{eqFn:eqBorrowSub,pool:wordsBorrowSub},add_three:{eqFn:eqAddThree,pool:wordsAddThree},sub_three:{eqFn:eqSubThree,pool:wordsSubThree},compose_add:{eqFn:eqComposeAdd,pool:wordsComposeAdd},compose_sub:{eqFn:eqComposeSub,pool:wordsComposeSub},fact_family:{eqFn:eqFactFamily,pool:wordsFactFamily},logic:{eqFn:eqLogic,pool:wordsLogic},money:{eqFn:eqMoney,pool:wordsMoney},time:{eqFn:eqTime,pool:wordsTime},compare_numbers:{eqFn:eqCompare,pool:wordsCompare},fractions:{eqFn:eqFractions,pool:wordsFractions},number_sense:{eqFn:eqNumberSense,pool:wordsNumberSense},data_graphs:{eqFn:eqDataGraphs,pool:wordsDataGraphs},shapes_measurement:{eqFn:eqShapes,pool:wordsShapes},calendar:{eqFn:eqCalendar,pool:wordsCalendar},combo:{eqFn:eqCombo,pool:wordsCombo}};
   const d=map[id];return d?buildLevel(d.eqFn,d.pool):[];
 }
 
-const KIND_BY_TYPE={fact_family:'fact_family',compose_add:'compose_pair',compose_sub:'compose_pair',money:'coin_picker',compare:'multiple_choice',fractions:'multiple_choice',calendar_day:'multiple_choice',calendar_month:'multiple_choice',calendar_season:'multiple_choice'};
-function kindOf(q){return q.kind||KIND_BY_TYPE[q.type]||'numeric';}
-function friendlyAnswer(q){
+export const KIND_BY_TYPE={fact_family:'fact_family',compose_add:'compose_pair',compose_sub:'compose_pair',money:'coin_picker',compare:'multiple_choice',fractions:'multiple_choice',calendar_day:'multiple_choice',calendar_month:'multiple_choice',calendar_season:'multiple_choice'};
+export function kindOf(q){return q.kind||KIND_BY_TYPE[q.type]||'numeric';}
+export function friendlyAnswer(q){
   if(q.type==='compose_add')return'e.g. 7+8 and 6+9';
   if(q.type==='compose_sub')return'e.g. 12−4 and 13−5';
   if(q.type==='fact_family')return`${q.a}+${q.b}=${q.total}, ${q.b}+${q.a}=${q.total}, ${q.total}−${q.a}=${q.b}, ${q.total}−${q.b}=${q.a}`;
   return String(q.answer);
 }
-const TYPE_LABELS={counting_objects:'Counting',counting_add:'Counting',counting_sub:'Counting',grouping:'Tens & Ones',missing_add:'Missing',carry_add:'Carry',borrow_sub:'Borrow',add_three:'Add Three',sub_three:'Sub Three',compose_add:'Make a Sum',compose_sub:'Find the Gap',fact_family:'Fact Family',logic:'Logic',word:'Word Problem',money:'Money',money_count:'Money',money_make:'Money',money_equiv:'Money',time:'Clock',time_read:'Clock',compare:'Compare',compare_symbol:'Compare',compare_truefalse:'Compare',compare_double:'Compare',fractions:'Fractions',fraction_identify:'Fractions',number_sense:'Number Sense',skip_count:'Number Sense',ordinal:'Number Sense',number_word:'Number Sense',data_graphs:'Graphs',graph_most:'Graphs',graph_diff:'Graphs',graph_total:'Graphs',shapes:'Shapes',shape_sides:'Shapes',shape_name:'Shapes',length_blocks:'Shapes',calendar_day:'Calendar',calendar_month:'Calendar',calendar_season:'Calendar'};
+export const TYPE_LABELS={counting_add:'Counting',grouping:'Tens & Ones',missing_add:'Missing',carry_add:'Carry',borrow_sub:'Borrow',add_three:'Add Three',sub_three:'Sub Three',compose_add:'Make a Sum',compose_sub:'Find the Gap',fact_family:'Fact Family',logic:'Logic',word:'Word Problem',money:'Money',time:'Clock',compare:'Compare',fractions:'Fractions',number_sense:'Number Sense',data_graphs:'Graphs',shapes:'Shapes',calendar_day:'Calendar',calendar_month:'Calendar',calendar_season:'Calendar'};
 
 // ── SOAR activities (56, verbatim content, personalized) ─────
-const SOAR_VIDEOS_BY_ID={
+export const SOAR_VIDEOS_BY_ID={
   beatClock:{url:'https://www.youtube.com/results?search_query=counting+fast+kids+how+many+timer',title:'Counting – Beat the Clock'},
   canYouBuild:{url:'https://www.youtube.com/results?search_query=3d+shapes+building+blocks+kids',title:'3D Shapes & Building'},
   howLongAreYou:{url:'https://www.youtube.com/results?search_query=measuring+length+kids+non+standard+units',title:'Measuring Length for Kids'},
@@ -534,10 +424,10 @@ const SOAR_VIDEOS_BY_ID={
   lessMore:{url:'https://www.youtube.com/results?search_query=greater+less+than+comparing+numbers+kids',title:'Less or More'},
   play37:{url:'https://www.youtube.com/results?search_query=addition+subtraction+strategy+game+kids+37',title:'Play 37'}
 };
-const NRICH_LINKS_BY_ID={
+export const NRICH_LINKS_BY_ID={
   beatClock:'https://nrich.maths.org/eyfs-activities/beat-clock',canYouBuild:'https://nrich.maths.org/eyfs-activities/can-you-build',howLongAreYou:'https://nrich.maths.org/eyfs-activities/how-long-are-you',makingFootprints:'https://nrich.maths.org/eyfs-activities/making-footprints',longCreatures:'https://nrich.maths.org/eyfs-activities/long-creatures',packing:'https://nrich.maths.org/eyfs-activities/packing',tubesTunnels:'https://nrich.maths.org/eyfs-activities/tubes-and-tunnels',dice:'https://nrich.maths.org/eyfs-activities/dice',mudKitchen:'https://nrich.maths.org/eyfs-activities/mud-kitchen',patternMaking:'https://nrich.maths.org/eyfs-activities/pattern-making',cooking:'https://nrich.maths.org/eyfs-activities/cooking-children',numberBook:'https://nrich.maths.org/eyfs-activities/number-book',smallWorld:'https://nrich.maths.org/eyfs-activities/small-world-play',shutTheBox:'https://nrich.maths.org/games/shut-the-box-two',strikeItOut:'https://nrich.maths.org/games/strike-it-out-two',seeingSquares:'https://nrich.maths.org/games/seeing-squares-two',boardBlock:'https://nrich.maths.org/games/board-block-two',sameLengthTrains:'https://nrich.maths.org/problems/same-length-trains',sortTheStreet:'https://nrich.maths.org/problems/sort-the-street',hundredSquareJigsaw:'https://nrich.maths.org/problems/100-square-jigsaw',polyPlugRectangles:'https://nrich.maths.org/problems/poly-plug-rectangles',matchingNumbers:'https://nrich.maths.org/games/matching-numbers-two',tablesTeaser:'https://nrich.maths.org/problems/tables-teaser',stopTheClock:'https://nrich.maths.org/games/stop-the-clock-two',fourTriangles:'https://nrich.maths.org/problems/four-triangles-puzzle',oneBigTriangle:'https://nrich.maths.org/problems/one-big-triangle',cuisenaireCounting:'https://nrich.maths.org/problems/cuisenaire-counting',alwaysSometimesNever:'https://nrich.maths.org/problems/always-sometimes-or-never-ks1',inceyWincey:'https://nrich.maths.org/games/incey-wincey-spider-two',butterflyFlowers:'https://nrich.maths.org/problems/butterfly-flowers',robotMonsters:'https://nrich.maths.org/problems/robot-monsters',guessTheHouses:'https://nrich.maths.org/games/guess-the-houses-two',totality:'https://nrich.maths.org/games/totality-two',wallpaper:'https://nrich.maths.org/problems/wallpaper',nim7:'https://nrich.maths.org/games/nim-7-two',breakItUp:'https://nrich.maths.org/problems/break-it-up',enCounters:'https://nrich.maths.org/games/en-counters-two',paperPatchwork:'https://nrich.maths.org/problems/paper-patchwork-1',eightnessOfEight:'https://nrich.maths.org/problems/eightness-of-eight',ladybirdBox:'https://nrich.maths.org/problems/ladybird-box',niceOrNasty:'https://nrich.maths.org/games/nice-or-nasty-two',factorsMultiples:'https://nrich.maths.org/games/factors-and-multiples-game-two',trainTactics:'https://nrich.maths.org/games/train-tactics-two',dottySix:'https://nrich.maths.org/games/dotty-six-two',diceyOperations:'https://nrich.maths.org/games/dicey-operations-line-two',fourGo:'https://nrich.maths.org/games/four-go-two',firstConnectThree:'https://nrich.maths.org/games/first-connect-three-two',whatShape:'https://nrich.maths.org/problems/what-shape-two',guessDominoes:'https://nrich.maths.org/problems/guess-dominoes-two',spirallingDecimals:'https://nrich.maths.org/problems/spiralling-decimals-two',gotIt:'https://nrich.maths.org/games/got-it-two',boardBlockChallenge:'https://nrich.maths.org/problems/board-block-challenge-two',makingSticks:'https://nrich.maths.org/problems/making-sticks',doughnutPercents:'https://nrich.maths.org/problems/doughnut-percents',lessMore:'https://nrich.maths.org/problems/less-more',play37:'https://nrich.maths.org/problems/play-37'
 };
-const SOAR_ACTIVITIES=[
+export const SOAR_ACTIVITIES=[
 {id:'beatClock',icon:'⏰🏁',title:'Beat the Clock',age:'3-5',desc:'How many jumps in one minute?',aim:'Compare quantities and talk about time',instructions:['Set a timer for 1 minute.','Do star jumps, hops, or write your name as many times as you can!','Count how many you did.','Try again – can you do more?'],illustration:'🕐⭐ ➔ 🏃 1️⃣2️⃣3️⃣',hint:'Quick actions = lots more! Slow actions = fewer.',questions:['What can you do more of in a minute – star jumps or hops?','Can you put on your helmet in under a minute?']},
 {id:'canYouBuild',icon:'🏗️🔧',title:'Can You Build This?',age:'3-5',desc:'Copy a model with blocks',aim:'Explore shapes and positions',instructions:['An adult builds a simple model with 4-5 blocks.','Look closely! Can you make yours exactly the same?','Use the same pieces in the same place.','Check – is your model the same?'],illustration:'🟦🟥 ➔ 🏎️ (copy the car!)',hint:'Look at where each block goes – on top, next to, behind.',questions:['Which block is on top? Which is underneath?','How do you turn that brick to match?']},
 {id:'howLongAreYou',icon:'📏🏁',title:'How Long Are You?',age:'3-5',desc:'Measure yourself with everyday things',aim:'Compare length using non-standard units',instructions:['Lie down and have an adult mark your head and feet.','Measure with pencils or crayons – end to end, no gaps!','Count how many you are tall.','Try with LEGO bricks or toy cars!'],illustration:'🧍 ➔ 🖍️🖍️🖍️🖍️ (20 crayons tall!)',hint:'If things are shorter, you need more of them.',questions:['How many LEGO bricks tall are you?','Are you taller than the toy garage?']},
