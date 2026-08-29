@@ -292,13 +292,41 @@ suite('integration — save/load', () => {
       assert.ok(k in bundle, `save bundle missing "${k}"`);
     });
   });
+
+  test('buildSaveBundle includes tensRecord and the redesigned hub\'s gymSpeedRound/gymDaily fields', () => {
+    const bundle = JSON.parse(run('JSON.stringify(buildSaveBundle())'));
+    ['tensRecord', 'gymSpeedRound', 'gymDaily'].forEach(k => {
+      assert.ok(k in bundle, `save bundle missing "${k}"`);
+    });
+  });
+
+  test('handleLoadFile merges gymSpeedRound and gymDaily, each individually guarded', async () => {
+    const bundleJson = run(`
+      JSON.stringify({version:1, progress:{}, soarProgress:{}, trophyData:{}, badges:{}, totalStarsEarned:0,
+        gymSpeedRound:false, gymDaily:{key:'x',done:9,correct:7}})
+    `);
+    run(`(function(){
+      gymSpeedRound = true; gymDaily = {key:null,done:0,correct:0};
+      const file = new File([${JSON.stringify(bundleJson)}], 'save.json', {type:'application/json'});
+      handleLoadFile({target:{files:[file]}});
+    })()`);
+    await sleep(200);
+    assert.equal(run('gymSpeedRound'), false);
+    assert.equal(run('gymDaily.done'), 9);
+    assert.equal(run('gymDaily.correct'), 7);
+  });
 });
 
 suite('integration — Mental Math Gym: navigation', () => {
   test('every Gym screen maps to the correct back target and QuickNav tab', () => {
+    // gymScreen's own back button is history-stack driven (see gymBack()), so
+    // reset the gym's internal nav state first — it is not part of the DOM
+    // snapshot showScreen() alone would give us, and other tests in this file
+    // share one long-lived iframe.
+    run(`(function(){ gymNav='hub'; gymHistory=[]; })()`);
     const cases = [
-      ['gymScreen', 'homeScreen'], ['drillScreen', 'gymScreen'], ['flashScreen', 'gymScreen'],
-      ['trainerScreen', 'gymScreen'], ['dailyScreen', 'gymScreen'], ['columnScreen', 'gymScreen'],
+      ['gymScreen', 'homeScreen'], ['drillScreen', 'gymScreen'],
+      ['dailyScreen', 'gymScreen'], ['columnScreen', 'gymScreen'],
       ['gymResultScreen', 'gymScreen'], ['sheetResultScreen', 'gymScreen'],
     ];
     cases.forEach(([from, expectedBack]) => {
@@ -315,15 +343,120 @@ suite('integration — Mental Math Gym: navigation', () => {
     run('showGym()');
     assert.equal(appDoc().querySelector('.screen.active').id, 'gymScreen');
   });
+
+  test('the hub\'s own back button is hidden at the root and appears once nested, and gymBack() pops the history stack', () => {
+    run('showGym()');
+    assert.equal(getComputedStyle($('#gymContent .gym-back')).visibility, 'hidden', 'hub root: own back button should be hidden');
+    run(`gymOpen('trick')`);
+    assert.equal($('#gymContent .gym-back').style.visibility, '', 'nested screen: own back button should be visible (no forced hidden style)');
+    run('gymBack()');
+    assert.equal(run('gymNav'), 'hub', 'gymBack() from a nested screen with empty history should return to hub');
+  });
 });
 
-suite('integration — Mental Math Gym: play one problem in each section', () => {
-  test('Gym hub renders 6 tiles (including Tens & Ones) and the fact-set chip picker', () => {
+suite('integration — Mental Math Gym hub redesign', () => {
+  test('Gym hub renders 3 featured cards, a Random mix row, and the 11-set chip picker', () => {
     run('showGym()');
-    assert.equal($$('.gym-tile').length, 6);
-    assert.ok($$('.chip').length > 0);
+    assert.equal($$('.gym-card').length, 3);
+    assert.equal($$('.gym-random-row').length, 1);
+    assert.equal($$('.chip').length, 11);
   });
 
+  test('toggling a chip changes the Daily assignment breakdown shown on its detail screen', () => {
+    run(`(function(){ mmSets=['add20','sub20']; persistMM(); showGym(); })()`);
+    run(`gymOpen('daily')`);
+    assert.equal($$('.gym-set-row').length, 2, 'expected one row per picked set');
+    const firstCount = $('.gym-set-row__count').textContent;
+    run('gymBack()'); // back to hub
+    run(`gymToggleChip('bridge')`); // now 3 sets picked
+    run(`gymOpen('daily')`);
+    assert.equal($$('.gym-set-row').length, 3, 'adding a set should add a row');
+    assert.ok($('.gym-set-row__count').textContent !== firstCount, 'the per-set problem count should change when the set count changes');
+  });
+
+  test('an empty selection dims and disables the Start button instead of allowing an empty run', () => {
+    run(`(function(){ mmSets=['add20']; persistMM(); showGym(); gymOpen('daily'); gymToggleChip('add20'); })()`);
+    assert.equal(run('mmSets.length'), 0);
+    run('renderGymNav()');
+    const btn = [...appDoc().querySelectorAll('#gymContent button')].find(b => /Start daily assignment/.test(b.textContent));
+    assert.ok(btn.disabled, 'Start button should be disabled with nothing picked');
+    run('gymStartPlay(\'daily\')');
+    assert.equal(run('gymNav'), 'daily', 'gymStartPlay must not navigate when no set is picked');
+  });
+
+  test('the speed round toggle flips gymSpeedRound without opening the Daily assignment card', () => {
+    run(`(function(){ mmSets=['add20']; gymSpeedRound=true; persistGym(); showGym(); })()`);
+    // a real dispatched click, so the toggle's own stopPropagation() has a bubble to stop
+    run(`document.querySelector('.gym-speed-toggle').click()`);
+    assert.equal(run('gymSpeedRound'), false);
+    assert.equal(run('gymNav'), 'hub', 'clicking the speed toggle must not open the Daily assignment card');
+  });
+
+  test('Daily assignment: playing through to done awards a completion and returns via Done', () => {
+    run(`(function(){ mmSets=['add20','sub20']; gymSpeedRound=false; gymDaily={key:todayKey(),done:0,correct:0}; showGym(); gymStartPlay('daily'); })()`);
+    assert.equal(run('gymPlay.queue.length'), 16);
+    for (let i = 0; i < 16; i++) {
+      const answer = run('gymPlay.queue[gymPlay.idx].answer');
+      run(`gymSetPlayInput('${answer}')`);
+      run('gymCheckPlay()');
+      run('gymNextPlay()');
+    }
+    assert.equal(run('gymPlay.done'), true);
+    assert.equal(run('gymPlay.score'), 16);
+    assert.equal(run('gymDaily.done'), 16);
+    run('gymFinishPlay()');
+    assert.equal(run('gymNav'), 'hub');
+  });
+
+  test('Random mix pulls 12 problems and a wrong answer still advances via Next', () => {
+    run(`(function(){ mmSets=['tensOnes','carry']; showGym(); gymStartPlay('random'); })()`);
+    assert.equal(run('gymPlay.queue.length'), 12);
+    run(`gymSetPlayInput('-99999')`);
+    run('gymCheckPlay()');
+    assert.equal(run('gymPlay.feedback.ok'), false);
+    run('gymNextPlay()');
+    assert.equal(run('gymPlay.idx'), 1);
+  });
+
+  test('Learn a trick: shows an intro card until Start is tapped, then stacks every step; a wrong answer does not advance', () => {
+    run(`(function(){ gymTrick=null; showGym(); gymOpen('trick'); })()`);
+    assert.ok(/Start/.test($('#gymContent').textContent), 'expected the intro card before Start is tapped');
+    run('gymStartTrick()');
+    const stepCount = run('trainerSteps(gymTrick.f).length');
+    assert.equal(run('gymTrick.doneSteps.length'), 0);
+    run(`gymPressTrickKey('9');gymPressTrickKey('9');gymPressTrickKey('9')`); // near-certainly wrong
+    run('gymCommitTrickStep()');
+    assert.equal(run('gymTrick.doneSteps.length'), 0, 'a wrong answer must not advance to the next step');
+    assert.equal(run('gymTrick.wrongFlash'), true);
+    const correct = run('trainerSteps(gymTrick.f)[0].answer');
+    run(`(function(){ gymTrick.entry='${correct}'; })()`);
+    run('gymCommitTrickStep()');
+    assert.equal(run('gymTrick.doneSteps.length'), 1);
+    assert.equal(run('gymTrick.wrongFlash'), false);
+    if (stepCount === 1) assert.equal(run('gymTrick.done'), true);
+  });
+
+  test('Flash cards: a fresh deck is capped at 5 cards, and grading updates the Leitner box', () => {
+    run(`(function(){ mmSets=['add20','sub20','doubles']; showGym(); gymOpen('flash'); gymStartFlash(); })()`);
+    assert.ok(run('gymFlash.cards.length') <= 5);
+    run('gymFlipFlash()');
+    assert.equal(run('gymFlash.flipped'), true);
+    const cardId = run('gymFlash.cards[gymFlash.idx].id');
+    run('gymGradeFlash(true)');
+    const box = run(`mmCards[${JSON.stringify(cardId)}] ? mmCards[${JSON.stringify(cardId)}].box : -1`);
+    assert.ok(box >= 1, 'grading "Got it" should advance the card\'s Leitner box');
+  });
+
+  test('Grown-up summary is reached from the hub footer and reuses the tens strategy tally', () => {
+    run('showGym()');
+    run('gymOpen(\'summary\')');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'gymScreen');
+    assert.ok(/Grown-up summary/.test($('#gymContent').textContent));
+    assert.equal($$('#gymContent .progress-bar--thin').length, 5, 'expected one row per tens strategy');
+  });
+});
+
+suite('integration — Mental Math Gym: dormant screens (unlinked from the hub, still fully functional)', () => {
   test('Speed drill: answering a keypad question correctly increments the score', () => {
     run(`(function(){ mmSets=[...ALL_SET_IDS]; mmMisses={}; startDrill(); })()`);
     // force question 0 (never the every-3rd multiple-choice slot) so a keypad exists
@@ -334,26 +467,6 @@ suite('integration — Mental Math Gym: play one problem in each section', () =>
     // scoped to #drillContent: the static quiz screen also has a class="feedback" div
     // in the DOM at all times, so a bare .feedback selector would match the wrong one.
     assert.equal($('#drillContent .feedback').classList.contains('ok'), true);
-  });
-
-  test('Flash cards: flipping and grading a card updates mmCards', () => {
-    run('startFlash()');
-    assert.equal(appDoc().querySelector('.screen.active').id, 'flashScreen');
-    run('flipFlashCard()');
-    assert.equal(run('mmFlipped'), true);
-    const cardId = run('mmDeck[mmIdx].id');
-    run('gradeFlashCard(true)');
-    const box = run(`mmCards[${JSON.stringify(cardId)}] ? mmCards[${JSON.stringify(cardId)}].box : -1`);
-    assert.ok(box >= 1, 'grading "Got it" should advance the card\'s Leitner box');
-  });
-
-  test('Learn a trick: submitting the first step\'s correct answer advances mmStep', () => {
-    run('startTrainer()');
-    assert.equal(appDoc().querySelector('.screen.active').id, 'trainerScreen');
-    const before = run('mmStep');
-    const answer = run('mmSteps[mmStep].answer');
-    run(`mmEntry='${answer}'; submitTrainerStep();`);
-    assert.ok(run('mmStep') > before || run('mmTrainerDone') === true);
   });
 
   test("Today's sheet: submitting the first problem's correct answer marks it solved", () => {

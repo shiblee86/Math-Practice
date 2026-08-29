@@ -1,21 +1,35 @@
 // mentalmath.js — Mental Math Gym content & logic.
 // Classic script (no ES modules): loaded with <script src="mentalmath.js"></script>
 // after mathdata.js. Everything below is global, matching the mathdata.js pattern.
+// Order matches the Gym hub's "Pick what to practise" chip list — tens & ones
+// and carry & borrow lead (they're the two former top-level destinations that
+// became problem sets), then the original quick-recall fact sets.
 const FACT_SETS = [
+  { id: 'tensOnes', icon: '🔟',  label: 'Tens & ones',   desc: 'Two-digit adding' },
+  { id: 'carry',    icon: '🧮',  label: 'Carry & borrow', desc: '68+47, 92−48' },
   { id: 'add20',   icon: '➕',  label: 'Add to 20',     desc: 'Sums up to 20' },
   { id: 'sub20',   icon: '➖',  label: 'Take away',     desc: 'Differences to 20' },
   { id: 'bridge',  icon: '🌉',  label: 'Bridging ten',  desc: '12−5, 17−8, 8+5' },
-  { id: 'doubles', icon: '👟',  label: 'Doubles',       desc: '7+7, 7+8' },
+  { id: 'doubles', icon: '🔷',  label: 'Doubles',       desc: '7+7, 7+8' },
   { id: 'makeTen', icon: '🎯',  label: 'Make ten',      desc: '7+?=10' },
   { id: 'nine',    icon: '⚡',  label: 'Nines',         desc: '+9 and −9' },
   { id: 'missing', icon: '❓',  label: 'Missing number', desc: '17−?=10' },
   { id: 'tables',  icon: '✖️', label: 'Times tables',  desc: '2s to 10s' },
-  { id: 'sameTens', icon: '🔟', label: 'Same tens',    desc: '17−12, 26−23' },
-  { id: 'tensOnes', icon: '🏗️', label: 'Tens & ones',  desc: 'Two-digit adding' },
+  { id: 'sameTens', icon: '🔢', label: 'Same tens',    desc: '17−12, 26−23' },
 ];
 
 const SET_LABEL = FACT_SETS.reduce((m, s) => (m[s.id] = s.label, m), {});
 const ALL_SET_IDS = FACT_SETS.map(s => s.id);
+// The Gym hub's chip picker defaults to the first five sets on a fresh install.
+const DEFAULT_GYM_SETS = ['tensOnes', 'carry', 'add20', 'sub20', 'bridge'];
+// Static, designed sample problems shown on the Daily assignment / Random mix
+// detail screens — one per set, matching the fidelity spec exactly rather than
+// a live-random draw (which would look inconsistent between renders).
+const GYM_SET_SAMPLE = {
+  tensOnes: '45 + 32 = ?', carry: '68 + 47 = ?', add20: '7 + 8 = ?', sub20: '15 − 6 = ?',
+  bridge: '9 + 6 = ?', doubles: '7 + 7 = ?', makeTen: '6 + ? = 10', nine: '9 + 5 = ?',
+  missing: '? + 4 = 11', tables: '3 × 4 = ?', sameTens: '23 + 5 = ?',
+};
 
 const r = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 const mmPick = a => a[Math.floor(Math.random() * a.length)]; // named mmPick: mathdata.js already declares a top-level pick()
@@ -89,9 +103,36 @@ const GEN = {
     const a = a10 * 10 + a1, b = b10 * 10 + b1;
     return fact('tensOnes', `${a} + ${b}`, a + b, { a, b, op: '+' });
   },
+  // Quick two-digit carry/borrow facts for the Gym hub's "Carry & borrow" set —
+  // the fast-recall companion to the full guided column-method sheet (columnSheet).
+  carry() {
+    if (Math.random() < 0.5) {
+      const a1 = r(4, 9), b1 = r(10 - a1, 9), a = r(1, 6) * 10 + a1, b = r(1, 6) * 10 + b1;
+      return fact('carry', `${a} + ${b}`, a + b, { a, b, op: '+' });
+    }
+    const a1 = r(0, 5), b1 = r(a1 + 1, 9), a10 = r(3, 9);
+    const a = a10 * 10 + a1, b = r(1, Math.max(1, a10 - 1)) * 10 + b1;
+    return fact('carry', `${a} ${MINUS} ${b}`, a - b, { a, b, op: '-' });
+  },
 };
 
 function randFact(setId) { return (GEN[setId] || GEN.add20)(); }
+
+// Flash cards cap adding, taking-away and tens & ones facts at 30 so a 7-year-old
+// isn't stuck on three-digit mental sums during a "flip and say it out loud" drill.
+// Enforced here with a bounded retry + safe fallback, not by filtering afterwards.
+const FLASH_CAP_SETS = ['add20', 'sub20', 'tensOnes'];
+function cappedFact(setId, cap) {
+  cap = cap || 30;
+  if (FLASH_CAP_SETS.indexOf(setId) === -1) return randFact(setId);
+  for (let i = 0; i < 40; i++) {
+    const f = randFact(setId);
+    const nums = [f.a, f.b, f.answer].filter(n => typeof n === 'number');
+    if (nums.every(n => Math.abs(n) <= cap)) return f;
+  }
+  const a = r(1, Math.min(20, cap - 1)), b = r(1, Math.max(1, cap - a));
+  return fact(setId, `${a} + ${b}`, a + b, { a, b, op: '+' });
+}
 
 // Weighted draw: missed facts' sets come up more often.
 function buildDrill(count, sets, misses) {
@@ -124,6 +165,7 @@ function choicesFor(f) {
 // ── strategy coaching ────────────────────────────────────────
 function strategyFor(f) {
   const { a, b, c, op, answer } = f;
+  if (f.set === 'carry') return { name: 'Column method', line: op === '+' ? `Add the ones, then the tens: ${a} + ${b} = ${answer}` : `Take the ones, then the tens: ${a} ${MINUS} ${b} = ${answer}` };
   if (f.set === 'nine' && op === '+') return { name: 'Add ten, take one', line: `${a} + 10 = ${a + 10}, then ${MINUS}1 → ${answer}` };
   if (f.set === 'nine' && op === '-') return { name: 'Take ten, add one', line: `${a} ${MINUS} 10 = ${a - 10}, then +1 → ${answer}` };
   if (f.set === 'makeTen') return { name: 'Make ten', line: `${a} needs ${answer} more to fill the ten.` };
@@ -180,14 +222,17 @@ function trainerFact() {
   return fact('missing', `? ${MINUS} ${mb} = ${mc}`, mb + mc, { b: mb, c: mc, op: '-', missing: 'a' });
 }
 
-// steps: [{ text, answer }] — the child fills each blank in turn.
+// steps: [{ text, answer }] — the child fills each blank in turn. Rewritten for
+// plain-language comprehension (the previous wording — e.g. "Split the 9 into
+// 8 and" — tested badly with adults, let alone 7-year-olds). Answers and the
+// underlying math are unchanged; only the copy and, for the two "missing
+// number, adding" cases, the step count (now hop/hop/together like the other
+// missing-number branch, instead of a single combined step).
 function trainerSteps(f) {
   const { a, b, c, op, answer } = f;
   if (f.sameTens) {
     const t = Math.floor(a / 10);
-    return [
-      { text: `${a} and ${b} both have ${t} ten${t === 1 ? '' : 's'}. The tens are the same, so leave them. Now take the ones: ${a % 10} ${MINUS} ${b % 10} is`, answer },
-    ];
+    return [{ text: `${a} and ${b} both have ${t} ten${t === 1 ? '' : 's'}. The tens match, so just take the ones: ${a % 10} ${MINUS} ${b % 10} = ?`, answer }];
   }
   if (f.countUp) return [
     { text: `We start at ${b}. What number comes next?`, answer: b + 1 },
@@ -200,35 +245,36 @@ function trainerSteps(f) {
   if (f.set === 'bridge' && op === '-') {
     const p = a - 10, rest = b - p;
     return [
-      { text: `Split the ${b} into ${p} and`, answer: rest },
-      { text: `${a} ${MINUS} ${p} lands on`, answer: 10 },
-      { text: `10 ${MINUS} ${rest} is`, answer },
+      { text: `First get down to ten. ${a} ${MINUS} ? = 10`, answer: p },
+      { text: `You took away ${p} of the ${b}. How many are still left to take?`, answer: rest },
+      { text: `Now take those off ten. 10 ${MINUS} ${rest} = ?`, answer },
     ];
   }
   if (f.set === 'bridge' && op === '+') {
     const p = 10 - a, rest = b - p;
     return [
-      { text: `${a} needs how many to make ten?`, answer: p },
-      { text: `Split the ${b} into ${p} and`, answer: rest },
-      { text: `10 + ${rest} is`, answer },
+      { text: `First make ten. ${a} + ? = 10`, answer: p },
+      { text: `You used ${p} of the ${b}. How many are left over?`, answer: rest },
+      { text: `Now add those to ten. 10 + ${rest} = ?`, answer },
     ];
   }
   if (f.missing === 'b' && op === '-') {
     if (c < 10 && a > 10) return [
-      { text: `Count up from ${c} to ten. How many?`, answer: 10 - c },
-      { text: `Now from ten up to ${a}. How many?`, answer: a - 10 },
-      { text: `${10 - c} and ${a - 10} together make`, answer },
+      { text: `Hop up from ${c} to ten. How many hops?`, answer: 10 - c },
+      { text: `Now hop from ten up to ${a}. How many hops?`, answer: a - 10 },
+      { text: `Put the hops together: ${10 - c} + ${a - 10} = ?`, answer },
     ];
-    return [{ text: `Count back from ${a} to ${c}. How many steps?`, answer }];
+    return [{ text: `Count back from ${a} down to ${c}. How many steps?`, answer }];
   }
   if (f.missing === 'a' && op === '-') return [
-    { text: `We took ${b} away and ${c} was left. Put the ${b} back:`, answer },
+    { text: `We took ${b} away and ${c} was left. Put the ${b} back: ${c} + ${b} = ?`, answer },
   ];
   if (f.missing === 'b' && op === '+') return [
-    { text: `${a} needs how many to reach ten?`, answer: Math.max(0, 10 - a) },
-    { text: `So ${a} + ? = ${c} means ?  is`, answer },
+    { text: `Hop up from ${a} to ten. How many hops?`, answer: Math.max(0, 10 - a) },
+    { text: `Now hop from ten up to ${c}. How many hops?`, answer: c - 10 },
+    { text: `Put the hops together: ${Math.max(0, 10 - a)} + ${c - 10} = ?`, answer },
   ];
-  return [{ text: `${c} ${MINUS} ${b} is`, answer }];
+  return [{ text: `Take the ${b} off the ${c}: ${c} ${MINUS} ${b} = ?`, answer }];
 }
 
 // ── spaced repetition (Leitner boxes) ────────────────────────

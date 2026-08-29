@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/styles.css">
+  <script src="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/_ds_bundle.js"></script>
+  <style>
+    body{margin:0;background:var(--bg-app);font-family:var(--font-body);}
+    a{color:var(--cyan-300);}
+    a:hover{color:var(--cyan-200);}
+  </style>
+</helmet>
+<div style="min-height:100vh;display:flex;justify-content:center;padding:32px 16px;box-sizing:border-box;">
+  <div style="width:100%;max-width:640px;">
+
+    <sc-if value="{{ isHub }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="{{ hubHeaderStyle }}">
+          <button type="button" onClick="{{ back }}" style="{{ hubBackStyle }}">‹</button>
+          <div style="flex:1;text-align:center;">
+            <div style="font-size:30px;line-height:1;">🧠</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-xl);color:var(--text-primary);margin-top:6px;">Mental Math Gym</div>
+            <div style="color:var(--text-secondary);font-size:var(--text-sm);margin-top:2px;">Fast facts, in your head. No paper, no fingers.</div>
+          </div>
+          <div style="width:40px;flex-shrink:0;"></div>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:14px;">
+          <div onClick="{{ openDaily }}" style="flex:1 1 190px;background:var(--surface-1);border:3px solid var(--color-primary);border-radius:var(--radius-lg);padding:20px 18px;cursor:pointer;box-shadow:0 8px 0 var(--shadow-primary);">
+            <div style="font-size:32px;line-height:1;">📋</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);margin-top:8px;">Daily assignment</div>
+            <div style="font-size:var(--text-sm);color:var(--text-secondary);margin-top:4px;min-height:40px;">Number and word problems from the sets you pick below.</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-sm);color:var(--cyan-300);margin-top:10px;">{{ dailyStatText }}</div>
+            <div onClick="{{ toggleSpeed }}" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;">
+              <span style="font-size:var(--text-xs);color:var(--text-muted);font-weight:700;">⚡ Speed round</span>
+              <span style="{{ speedSwitchStyle }}"><span style="{{ speedKnobStyle }}"></span></span>
+            </div>
+          </div>
+
+          <div onClick="{{ openTrick }}" style="flex:1 1 190px;background:var(--surface-1);border:3px solid var(--amber-500);border-radius:var(--radius-lg);padding:20px 18px;cursor:pointer;box-shadow:0 8px 0 var(--shadow-reward);">
+            <div style="font-size:32px;line-height:1;">🌉</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);margin-top:8px;">Learn a trick</div>
+            <div style="font-size:var(--text-sm);color:var(--text-secondary);margin-top:4px;min-height:40px;">A hard sum, broken into little steps.</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-sm);color:var(--amber-400);margin-top:10px;">go</div>
+          </div>
+
+          <div onClick="{{ openFlash }}" style="flex:1 1 190px;background:var(--surface-1);border:3px solid var(--color-accent);border-radius:var(--radius-lg);padding:20px 18px;cursor:pointer;box-shadow:0 8px 0 var(--shadow-accent);">
+            <div style="font-size:32px;line-height:1;">🃏</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);margin-top:8px;">Flash cards</div>
+            <div style="font-size:var(--text-sm);color:var(--text-secondary);margin-top:4px;min-height:40px;">Flip a card. Say the answer out loud.</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-sm);color:var(--coral-300);margin-top:10px;">72% mastered</div>
+          </div>
+        </div>
+
+        <div onClick="{{ openRandom }}" style="margin-top:14px;display:flex;align-items:center;gap:14px;background:var(--surface-1);border:2px solid var(--border-strong);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;">
+          <div style="font-size:24px;">🎲</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:var(--font-display);font-size:var(--text-base);color:var(--text-primary);">Random mix</div>
+            <div style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:2px;">{{ randomStatText }}</div>
+          </div>
+          <div style="color:var(--text-muted);font-size:var(--text-lg);">›</div>
+        </div>
+
+        <div style="margin-top:20px;background:var(--surface-1);border:2px solid var(--border-subtle);border-radius:var(--radius-lg);padding:18px;">
+          <div style="font-family:var(--font-display);color:var(--cyan-300);font-size:var(--text-base);">Pick what to practise</div>
+          <div style="color:var(--text-muted);font-size:var(--text-xs);font-weight:700;margin-top:2px;">Tap to turn a set on or off — it changes what shows up in Daily assignment and Random.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
+            <sc-for list="{{ chipList }}" as="chip" hint-placeholder-count="11">
+              <button type="button" onClick="{{ chip.onToggle }}" style="{{ chip.style }}">{{ chip.icon }} {{ chip.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <button type="button" onClick="{{ openSummary }}" style="width:100%;margin-top:16px;background:transparent;border:2px solid var(--border-subtle);border-radius:var(--radius-md);padding:10px;color:var(--text-secondary);font-family:var(--font-body);font-weight:700;font-size:var(--text-sm);cursor:pointer;">👪 Grown-up summary</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTrick }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="{{ detailHeaderStyle }}">
+          <button type="button" onClick="{{ back }}" style="{{ detailBackStyle }}">‹</button>
+          <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);">🌉 Learn a trick</div>
+        </div>
+
+        <sc-if value="{{ trickIntro }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ detailCardStyle }}">
+            <div style="font-size:40px;">🌉</div>
+            <div style="color:var(--text-secondary);font-size:var(--text-base);margin-top:12px;">A hard sum, broken into little steps, until it clicks.</div>
+            <button type="button" onClick="{{ startTrick }}" style="{{ primaryBtnStyle }}">Start ▶</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ trickDone }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ detailCardStyle }}">
+            <div style="font-size:40px;">✅</div>
+            <div style="color:var(--text-secondary);font-size:var(--text-base);margin-top:12px;">{{ trickFinalText }}</div>
+            <button type="button" onClick="{{ startTrick }}" style="{{ primaryBtnStyle }}">Try another ▶</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ trickStepping }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="{{ detailCardStyle }}">
+              <div style="font-family:var(--font-display);font-size:var(--text-xl);color:var(--text-primary);text-align:center;margin-bottom:14px;">{{ trickFact }}</div>
+              <sc-for list="{{ trickStepsList }}" as="s" hint-placeholder-count="3">
+                <div style="{{ s.rowStyle }}">
+                  <span>{{ s.text }}</span>
+                  <span style="{{ s.badgeStyle }}">{{ s.badge }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ trickWrongFlash }}" hint-placeholder-val="{{ false }}">
+              <div style="color:var(--coral-300);font-size:var(--text-sm);font-weight:700;text-align:center;margin-top:8px;">Not quite — try again ✏️</div>
+            </sc-if>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;">
+              <sc-for list="{{ trickKeypad }}" as="k" hint-placeholder-count="12">
+                <button type="button" onClick="{{ k.onClick }}" style="{{ k.style }}">{{ k.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFlash }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="{{ detailHeaderStyle }}">
+          <button type="button" onClick="{{ back }}" style="{{ detailBackStyle }}">‹</button>
+          <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);">🃏 Flash cards</div>
+        </div>
+
+        <sc-if value="{{ flashIntro }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ detailCardStyle }}">
+            <div style="font-size:40px;">🃏</div>
+            <div style="color:var(--text-secondary);font-size:var(--text-base);margin-top:12px;">Flip a card, say the answer out loud, grade yourself.</div>
+            <button type="button" onClick="{{ startFlash }}" style="{{ primaryBtnStyle }}">Start ▶</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ flashDone }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ detailCardStyle }}">
+            <div style="font-size:40px;">🏁</div>
+            <div style="color:var(--text-secondary);font-size:var(--text-base);margin-top:12px;">Deck done! Shuffle in a new one whenever you like.</div>
+            <button type="button" onClick="{{ startFlash }}" style="{{ primaryBtnStyle }}">New deck ▶</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ flashActive }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="color:var(--text-muted);font-size:var(--text-xs);font-weight:700;margin-bottom:8px;">{{ flashProgressText }}</div>
+            <div onClick="{{ flipFlashCard }}" style="{{ detailCardStyle }}">
+              <sc-if value="{{ flashNotFlipped }}" hint-placeholder-val="{{ true }}">
+                <div style="font-family:var(--font-display);font-size:var(--text-2xl);color:var(--text-primary);">{{ flashCardFront }}</div>
+                <div style="color:var(--text-muted);font-size:var(--text-xs);margin-top:14px;">Tap to flip</div>
+              </sc-if>
+              <sc-if value="{{ flashFlipped }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--font-display);font-size:var(--text-3xl);color:var(--coral-300);">{{ flashCardBack }}</div>
+                <div style="color:var(--text-muted);font-size:var(--text-xs);margin-top:10px;">{{ flashCardLabel }}</div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ flashFlipped }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:10px;margin-top:14px;">
+                <button type="button" onClick="{{ gradeFlash }}" style="flex:1;padding:14px;border-radius:var(--radius-md);border:none;background:var(--color-success);color:var(--text-on-primary);font-family:var(--font-body);font-weight:var(--weight-black);font-size:var(--text-base);cursor:pointer;">Got it ✅</button>
+                <button type="button" onClick="{{ gradeFlash }}" style="flex:1;padding:14px;border-radius:var(--radius-md);border:none;background:var(--surface-2);color:var(--text-primary);font-family:var(--font-body);font-weight:var(--weight-black);font-size:var(--text-base);cursor:pointer;">Tricky 🔁</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="{{ detailHeaderStyle }}">
+          <button type="button" onClick="{{ back }}" style="{{ detailBackStyle }}">‹</button>
+          <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);">{{ detailIcon }} {{ detailTitle }}</div>
+        </div>
+        <div style="{{ detailCardStyle }}">
+          <div style="font-size:40px;">{{ detailIcon }}</div>
+          <div style="color:var(--text-secondary);font-size:var(--text-base);margin-top:12px;line-height:var(--leading-normal);">{{ detailDescText }}</div>
+        </div>
+
+        <sc-if value="{{ showSetList }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;">
+            <div style="color:var(--text-muted);font-size:var(--text-xs);font-weight:700;margin-bottom:8px;">Problems will come from:</div>
+            <sc-for list="{{ selectedSetsList }}" as="s" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;background:var(--surface-1);border:2px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:8px;">
+                <div style="font-size:20px;">{{ s.icon }}</div>
+                <div style="flex:1;">
+                  <div style="font-family:var(--font-display);font-size:var(--text-sm);color:var(--text-primary);">{{ s.label }}</div>
+                  <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:2px;">{{ s.count }} problems</div>
+                </div>
+                <div style="font-family:var(--font-display);font-size:var(--text-base);color:var(--cyan-300);">{{ s.sample }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <button type="button" onClick="{{ startCurrentPlay }}" style="{{ startBtnStyle }}">{{ startPlayLabel }}</button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPlay }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="{{ detailHeaderStyle }}">
+          <button type="button" onClick="{{ back }}" style="{{ detailBackStyle }}">‹</button>
+          <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);">{{ playTitle }}</div>
+        </div>
+
+        <sc-if value="{{ playDone }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ detailCardStyle }}">
+            <div style="font-size:40px;">🏁</div>
+            <div style="font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-primary);margin-top:10px;">All done!</div>
+            <div style="color:var(--text-secondary);margin-top:8px;">You got {{ playScoreText }}</div>
+            <button type="button" onClick="{{ finishPlay }}" style="{{ primaryBtnStyle }}">Done</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ playActive }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="color:var(--text-muted);font-size:var(--text-xs);font-weight:700;margin-bottom:8px;">{{ playProgressText }}</div>
+            <div style="{{ detailCardStyle }}">
+              <div style="font-family:var(--font-display);font-size:var(--text-2xl);color:var(--text-primary);">{{ playQuestionText }}</div>
+              <input type="number" value="{{ playInputValue }}" onChange="{{ playOnInput }}" placeholder="Type your answer" style="{{ playInputStyle }}" />
+              <sc-if value="{{ playHasFeedback }}" hint-placeholder-val="{{ false }}">
+                <div style="{{ playFeedbackStyle }}">{{ playFeedbackMsg }}</div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ playHasFeedback }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ nextPlay }}" style="{{ primaryBtnStyle }}">Next ▶</button>
+            </sc-if>
+            <sc-if value="{{ playNoFeedback }}" hint-placeholder-val="{{ true }}">
+              <button type="button" onClick="{{ checkPlay }}" style="{{ primaryBtnStyle }}">Check</button>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CHIP_DEFS = [
+  {id:'tens', icon:'🔟', label:'Tens & ones', sample:'45 + 32 = ?'},
+  {id:'carry', icon:'🧮', label:'Carry & borrow', sample:'68 + 47 = ?'},
+  {id:'add20', icon:'➕', label:'Add to 20', sample:'7 + 8 = ?'},
+  {id:'takeaway', icon:'➖', label:'Take away', sample:'15 − 6 = ?'},
+  {id:'bridge', icon:'🌉', label:'Bridging ten', sample:'9 + 6 = ?'},
+  {id:'doubles', icon:'🔷', label:'Doubles', sample:'7 + 7 = ?'},
+  {id:'maketen', icon:'🎯', label:'Make ten', sample:'6 + ? = 10'},
+  {id:'nines', icon:'⚡', label:'Nines', sample:'9 + 5 = ?'},
+  {id:'missing', icon:'❓', label:'Missing number', sample:'? + 4 = 11'},
+  {id:'times', icon:'✖️', label:'Times tables', sample:'3 × 4 = ?'},
+  {id:'sametens', icon:'🔢', label:'Same tens', sample:'23 + 5 = ?'}
+];
+
+function rnd(n){ return Math.floor(Math.random()*n); }
+
+// ── ported verbatim from the real app's mentalmath.js (trainerFact/trainerSteps
+// and their small helpers) so "Learn a trick" coaches the same way the shipped app does.
+const MINUS = '−';
+const r = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
+const mmPick = a => a[Math.floor(Math.random() * a.length)];
+function fact(set, display, answer, extra) { return Object.assign({ set, display, answer, id: set + ':' + display }, extra || {}); }
+function countList(from, to) { const out = []; for (let i = from; i <= to && out.length < 12; i++) out.push(i); return out.join(', '); }
+function hopList(from, to) { const out = []; for (let i = from; i < to && out.length < 10; i++) out.push(`${i} → ${i + 1}`); return out.join(', '); }
+function sameTensGen() {
+  const t = r(1, 4), a1 = r(3, 9), b1 = r(1, a1 - 1);
+  const a = t * 10 + a1, b = t * 10 + b1;
+  return fact('sameTens', `${a} ${MINUS} ${b}`, a - b, { a, b, op: '-', sameTens: true });
+}
+function trainerFact() {
+  const kind = mmPick(['subBridge', 'addBridge', 'missing', 'sameTens', 'countUp', 'countOn']);
+  if (kind === 'sameTens') return sameTensGen();
+  if (kind === 'countUp') { const a = r(11, 15), b = a - r(2, 5); return fact('sub20', `${a} ${MINUS} ${b}`, a - b, { a, b, op: '-', countUp: true }); }
+  if (kind === 'countOn') { const a = r(10, 14), b = r(4, 8); return fact('add20', `${a} + ${b}`, a + b, { a, b, op: '+', countOn: true }); }
+  if (kind === 'subBridge') { const a = r(11, 18), b = r(a - 9, 9); return fact('bridge', `${a} ${MINUS} ${b}`, a - b, { a, b, op: '-', bridging: true }); }
+  if (kind === 'addBridge') { const a = r(6, 9), b = r(11 - a, 9); return fact('bridge', `${a} + ${b}`, a + b, { a, b, op: '+', bridging: true }); }
+  const mflavor = mmPick(['subB', 'addB', 'subA']);
+  if (mflavor === 'subB') { const a = r(12, 18), c = r(2, 9); return fact('missing', `${a} ${MINUS} ? = ${c}`, a - c, { a, c, op: '-', missing: 'b' }); }
+  if (mflavor === 'addB') { const a = r(6, 9), c = r(12, 17); return fact('missing', `${a} + ? = ${c}`, c - a, { a, c, op: '+', missing: 'b' }); }
+  const mb = r(2, 9), mc = r(2, 9);
+  return fact('missing', `? ${MINUS} ${mb} = ${mc}`, mb + mc, { b: mb, c: mc, op: '-', missing: 'a' });
+}
+function trainerSteps(f) {
+  const { a, b, c, op, answer } = f;
+  if (f.sameTens) {
+    const t = Math.floor(a / 10);
+    return [{ text: `${a} and ${b} both have ${t} ten${t === 1 ? '' : 's'}. The tens match, so just take the ones: ${a % 10} ${MINUS} ${b % 10} = ?`, answer }];
+  }
+  if (f.countUp) return [
+    { text: `We start at ${b}. What number comes next?`, answer: b + 1 },
+    { text: `Now hop up to ${a}: ${hopList(b, a)}. How many hops was that?`, answer }
+  ];
+  if (f.countOn) return [
+    { text: `Start at the bigger number, ${a}. What comes next?`, answer: a + 1 },
+    { text: `Count on ${b} more: ${countList(a + 1, answer)}. What number do you land on?`, answer }
+  ];
+  if (f.set === 'bridge' && op === '-') {
+    const p = a - 10, rest = b - p;
+    return [
+      { text: `First get down to ten. ${a} ${MINUS} ? = 10`, answer: p },
+      { text: `You took away ${p} of the ${b}. How many are still left to take?`, answer: rest },
+      { text: `Now take those off ten. 10 ${MINUS} ${rest} = ?`, answer }
+    ];
+  }
+  if (f.set === 'bridge' && op === '+') {
+    const p = 10 - a, rest = b - p;
+    return [
+      { text: `First make ten. ${a} + ? = 10`, answer: p },
+      { text: `You used ${p} of the ${b}. How many are left over?`, answer: rest },
+      { text: `Now add those to ten. 10 + ${rest} = ?`, answer }
+    ];
+  }
+  if (f.missing === 'b' && op === '-') {
+    if (c < 10 && a > 10) return [
+      { text: `Hop up from ${c} to ten. How many hops?`, answer: 10 - c },
+      { text: `Now hop from ten up to ${a}. How many hops?`, answer: a - 10 },
+      { text: `Put the hops together: ${10 - c} + ${a - 10} = ?`, answer }
+    ];
+    return [{ text: `Count back from ${a} down to ${c}. How many steps?`, answer }];
+  }
+  if (f.missing === 'a' && op === '-') return [{ text: `We took ${b} away and ${c} was left. Put the ${b} back: ${c} + ${b} = ?`, answer }];
+  if (f.missing === 'b' && op === '+') return [
+    { text: `Hop up from ${a} to ten. How many hops?`, answer: Math.max(0, 10 - a) },
+    { text: `Now hop from ten up to ${c}. How many hops?`, answer: c - 10 },
+    { text: `Put the hops together: ${Math.max(0, 10 - a)} + ${c - 10} = ?`, answer }
+  ];
+  return [{ text: `Take the ${b} off the ${c}: ${c} ${MINUS} ${b} = ?`, answer }];
+}
+
+const QGEN = {
+  tens:()=>{const a=(2+rnd(7))*10+(1+rnd(8)), b=(1+rnd(6))*10+(1+rnd(8)); return {text:`${a} + ${b} = ?`, answer:a+b};},
+  carry:()=>{const a=20+rnd(70), b=20+rnd(70); return {text:`${a} + ${b} = ?`, answer:a+b};},
+  add20:()=>{const a=1+rnd(12), b=1+rnd(Math.max(1,20-a)); return {text:`${a} + ${b} = ?`, answer:a+b};},
+  takeaway:()=>{const a=5+rnd(15), b=1+rnd(a-1); return {text:`${a} − ${b} = ?`, answer:a-b};},
+  bridge:()=>{const a=7+rnd(3), b=2+rnd(6); return {text:`${a} + ${b} = ?`, answer:a+b};},
+  doubles:()=>{const n=1+rnd(9); return {text:`${n} + ${n} = ?`, answer:n*2};},
+  maketen:()=>{const a=1+rnd(9); return {text:`${a} + ? = 10`, answer:10-a};},
+  nines:()=>{const n=1+rnd(9); return {text:`9 + ${n} = ?`, answer:9+n};},
+  missing:()=>{const a=1+rnd(10), b=a+1+rnd(10); return {text:`? + ${a} = ${b}`, answer:b-a};},
+  times:()=>{const a=2+rnd(8), b=2+rnd(8); return {text:`${a} × ${b} = ?`, answer:a*b};},
+  sametens:()=>{const t=(1+rnd(8))*10, o=1+rnd(9); return {text:`${t} + ${o} = ?`, answer:t+o};}
+};
+
+const DETAIL_META = {
+  daily:{title:'Daily assignment', icon:'📋', color:'var(--color-primary)', shadow:'var(--shadow-primary)'},
+  trick:{title:'Learn a trick', icon:'🌉', color:'var(--amber-500)', shadow:'var(--shadow-reward)'},
+  flash:{title:'Flash cards', icon:'🃏', color:'var(--color-accent)', shadow:'var(--shadow-accent)'},
+  random:{title:'Random mix', icon:'🎲', color:'var(--border-strong)', shadow:'var(--shadow-neutral)'},
+  summary:{title:'Grown-up summary', icon:'👪', color:'var(--border-strong)', shadow:'var(--shadow-neutral)'}
+};
+
+class Component extends DCLogic {
+  state = {
+    screen:'hub',
+    history:[],
+    speedRound:true,
+    chips:{tens:true,carry:true,add20:true,takeaway:true,bridge:true,doubles:false,maketen:false,nines:false,missing:false,times:false,sametens:false}
+  };
+
+  toggleChip = (id) => { this.setState(s=>({chips:{...s.chips,[id]:!s.chips[id]}})); };
+  toggleSpeed = (e) => { if(e&&e.stopPropagation)e.stopPropagation(); this.setState(s=>({speedRound:!s.speedRound})); };
+  open = (screen) => { this.setState(s=>({history:[...s.history, s.screen], screen})); };
+  back = () => { this.setState(s=>{ const h=s.history.slice(); const prev=h.pop(); return {history:h, screen:prev||'hub'}; }); };
+
+  detailDescription(screen, selectedCount){
+    if(screen==='daily') return `16 problems today — number and word problems, split evenly across the ${selectedCount} set${selectedCount===1?'':'s'} you picked below${this.state.speedRound?', with a speed round mixed in':''}.`;
+    if(screen==='trick') return 'A hard sum, broken into little steps, until it clicks.';
+    if(screen==='flash') return 'Flip a card, say the answer out loud, grade yourself.';
+    if(screen==='random') return `12 problems, a surprise mix pulled from the ${selectedCount} set${selectedCount===1?'':'s'} you picked below — numbers and word problems both.`;
+    if(screen==='summary') return 'A quick look at which strategies are clicking and which need another go.';
+    return '';
+  }
+
+  problemsPerSet(total, count){
+    if(!count) return [];
+    const base = Math.floor(total/count), extra = total%count;
+    return Array.from({length:count},(_,i)=>base+(i<extra?1:0));
+  }
+
+  startPlay = (kind) => {
+    const ids = Object.keys(this.state.chips).filter(id=>this.state.chips[id]);
+    if(!ids.length) return;
+    const total = kind==='random' ? 12 : 16;
+    const counts = this.problemsPerSet(total, ids.length);
+    let queue = [];
+    ids.forEach((id,i)=>{ for(let k=0;k<counts[i];k++) queue.push({setId:id,...QGEN[id]()}); });
+    queue = queue.sort(()=>Math.random()-0.5);
+    this.setState(s=>({history:[...s.history, s.screen], screen:'play', play:{kind, queue, idx:0, score:0, wrong:0, inputValue:'', feedback:null, done:false}}));
+  };
+  startCurrentPlay = () => { this.startPlay(this.state.screen==='random' ? 'random' : 'daily'); };
+  setPlayInput = (v) => { this.setState(s=>({play:{...s.play, inputValue:v}})); };
+  checkPlay = () => {
+    const p = this.state.play; if(!p || p.feedback) return;
+    const q = p.queue[p.idx];
+    const ok = parseInt(p.inputValue) === q.answer;
+    this.setState(s=>({play:{...s.play, feedback:{ok, msg: ok?'✅ Correct!':`Answer: ${q.answer}`}, score:s.play.score+(ok?1:0), wrong:s.play.wrong+(ok?0:1)}}));
+  };
+  nextPlay = () => {
+    const p = this.state.play; if(!p) return;
+    const nextIdx = p.idx+1;
+    if(nextIdx>=p.queue.length) this.setState(s=>({play:{...s.play, done:true}}));
+    else this.setState(s=>({play:{...s.play, idx:nextIdx, inputValue:'', feedback:null}}));
+  };
+  finishPlay = () => { this.setState({screen:'hub', history:[], play:null}); };
+
+  startTrick = () => {
+    this.setState({trick:{f:trainerFact(), entry:'', doneSteps:[], done:false}});
+  };
+  trickSteps(){ const t=this.state.trick; return t && t.f ? trainerSteps(t.f) : []; }
+  pressTrickKey = (k) => {
+    this.setState(s=>{
+      let entry = s.trick.entry||'';
+      if(k==='del') entry = entry.slice(0,-1);
+      else if(entry.length<3) entry += k;
+      return {trick:{...s.trick, entry, wrongFlash:false}};
+    });
+  };
+  commitTrickStep = () => {
+    const t = this.state.trick; if(!t || !t.f) return;
+    const steps = trainerSteps(t.f);
+    const curIdx = t.doneSteps.length;
+    const step = steps[curIdx]; if(!step) return;
+    const given = t.entry||'';
+    if(parseInt(given)!==step.answer){ this.setState({trick:{...t, entry:'', wrongFlash:true}}); return; }
+    const doneSteps = [...t.doneSteps, {given: given||'—', ok:true}];
+    this.setState({trick:{...t, doneSteps, entry:'', wrongFlash:false, done: doneSteps.length>=steps.length}});
+  };
+
+  // Flash cards stay small: adding, taking away and tens & ones never go past 30.
+  flashFact(id){
+    const capped = id!=='times';
+    for(let i=0;i<40;i++){
+      const q = QGEN[id]();
+      if(!capped) return q;
+      const nums = (q.text.match(/\d+/g)||[]).map(Number).concat(q.answer);
+      if(Math.max(...nums) <= 30) return q;
+    }
+    const a = 1+rnd(20), b = 1+rnd(30-a);
+    return {text:`${a} + ${b} = ?`, answer:a+b};
+  }
+  startFlash = () => {
+    const ids = Object.keys(this.state.chips).filter(id=>this.state.chips[id]);
+    const useIds = ids.length ? ids : ['add20','takeaway','doubles','bridge','tens'];
+    const counts = this.problemsPerSet(5, useIds.length);
+    let cards = [];
+    useIds.forEach((id,i)=>{ for(let k=0;k<counts[i];k++){ const q=this.flashFact(id); const label=(CHIP_DEFS.find(c=>c.id===id)||{}).label||''; cards.push({...q,label}); } });
+    cards = cards.sort(()=>Math.random()-0.5).slice(0,5);
+    if(!cards.length) cards=[{...QGEN.add20(), label:'Add to 20'}];
+    this.setState({flash:{cards, idx:0, flipped:false, done:false}});
+  };
+  flipFlashCard = () => { this.setState(s=>({flash:{...s.flash, flipped:true}})); };
+  gradeFlash = () => {
+    this.setState(s=>{
+      const nextIdx = s.flash.idx+1;
+      if(nextIdx>=s.flash.cards.length) return {flash:{...s.flash, done:true}};
+      return {flash:{...s.flash, idx:nextIdx, flipped:false}};
+    });
+  };
+
+  renderVals(){
+    const chips = this.state.chips;
+    const selectedCount = Object.values(chips).filter(Boolean).length;
+
+    const chipList = CHIP_DEFS.map(c=>{
+      const active = chips[c.id];
+      return {
+        id:c.id, icon:c.icon, label:c.label,
+        onToggle:()=>this.toggleChip(c.id),
+        style:{
+          display:'inline-flex',alignItems:'center',gap:'6px',
+          fontFamily:'var(--font-body)',fontWeight:'var(--weight-bold)',fontSize:'var(--text-sm)',
+          padding:'9px 15px',borderRadius:'var(--radius-pill)',cursor:'pointer',
+          border:active?'2px solid var(--color-primary)':'2px solid var(--border-strong)',
+          background:active?'var(--color-primary)':'var(--surface-2)',
+          color:active?'var(--text-on-primary)':'var(--text-secondary)'
+        }
+      };
+    });
+
+    const meta = DETAIL_META[this.state.screen] || DETAIL_META.daily;
+    const play = this.state.play;
+    const primaryBtnStyle = { width:'100%', marginTop:'14px', padding:'14px', borderRadius:'var(--radius-md)', border:'none', background:'var(--color-primary)', color:'var(--text-on-primary)', fontFamily:'var(--font-body)', fontWeight:'var(--weight-black)', fontSize:'var(--text-base)', cursor:'pointer', boxShadow:'0 5px 0 var(--shadow-primary)' };
+
+    return {
+      isHub: this.state.screen==='hub',
+      isDetail: this.state.screen==='daily' || this.state.screen==='random' || this.state.screen==='summary',
+      isPlay: this.state.screen==='play',
+      isTrick: this.state.screen==='trick',
+      isFlash: this.state.screen==='flash',
+      trickIntro: !(this.state.trick && this.state.trick.f),
+      trickStepping: !!(this.state.trick && this.state.trick.f) && !this.state.trick.done,
+      trickDone: !!(this.state.trick && this.state.trick.f) && this.state.trick.done,
+      trickFact: this.state.trick && this.state.trick.f ? this.state.trick.f.display : '',
+      trickStepsList: this.state.trick && this.state.trick.f ? this.trickSteps().map((step,i)=>{
+        const t = this.state.trick;
+        const isDone = i < t.doneSteps.length;
+        const isActive = i === t.doneSteps.length && !t.done;
+        let badge = '', color = 'var(--text-muted)';
+        if(isDone){ const ds=t.doneSteps[i]; badge = ds.given; color = ds.ok ? 'var(--mint-400)' : 'var(--coral-300)'; }
+        else if(isActive){ badge = t.entry || '·'; color = 'var(--amber-400)'; }
+        return {
+          text: step.text, badge,
+          rowStyle:{
+            display:'flex', justifyContent:'space-between', gap:'12px', alignItems:'center',
+            padding:'12px 14px', borderRadius:'var(--radius-md)', marginBottom:'8px',
+            background: isActive ? 'var(--surface-2)' : 'transparent',
+            border: isActive ? '2px solid var(--amber-500)' : '2px solid transparent',
+            opacity: (!isActive && !isDone) ? 0.5 : 1,
+            fontSize:'var(--text-base)', color:'var(--text-primary)', fontWeight: isActive?'700':'400'
+          },
+          badgeStyle:{fontFamily:'var(--font-display)', fontSize:'var(--text-lg)', color, minWidth:'40px', textAlign:'right', flexShrink:0}
+        };
+      }) : [],
+      trickKeypad: this.state.trick ? ['1','2','3','4','5','6','7','8','9','⌫','0','✓'].map(k=>({
+        label:k,
+        onClick: k==='⌫' ? ()=>this.pressTrickKey('del') : k==='✓' ? this.commitTrickStep : ()=>this.pressTrickKey(k),
+        style:{
+          padding:'16px 0',borderRadius:'var(--radius-md)',border:'none',fontFamily:'var(--font-display)',fontSize:'var(--text-lg)',cursor:'pointer',
+          background: k==='✓' ? 'var(--color-primary)' : 'var(--surface-2)',
+          color: k==='✓' ? 'var(--text-on-primary)' : 'var(--text-primary)'
+        }
+      })) : [],
+      trickFinalText: this.state.trick && this.state.trick.f ? `Nailed it! ${this.state.trick.f.display} = ${this.state.trick.f.answer}.` : '',
+      trickWrongFlash: !!(this.state.trick && this.state.trick.wrongFlash),
+      startTrick:this.startTrick,
+      flashIntro: !this.state.flash,
+      flashActive: !!this.state.flash && !this.state.flash.done,
+      flashDone: !!this.state.flash && this.state.flash.done,
+      flashProgressText: this.state.flash ? `Card ${this.state.flash.idx+1} of ${this.state.flash.cards.length}` : '',
+      flashCardFront: this.state.flash ? this.state.flash.cards[this.state.flash.idx].text : '',
+      flashCardBack: this.state.flash ? String(this.state.flash.cards[this.state.flash.idx].answer) : '',
+      flashCardLabel: this.state.flash ? this.state.flash.cards[this.state.flash.idx].label : '',
+      flashFlipped: !!(this.state.flash && this.state.flash.flipped),
+      flashNotFlipped: !(this.state.flash && this.state.flash.flipped),
+      startFlash:this.startFlash, flipFlashCard:this.flipFlashCard, gradeFlash:this.gradeFlash,
+      canStart: selectedCount>0,
+      startPlayLabel: this.state.screen==='random' ? 'Start random mix ▶' : 'Start daily assignment ▶',
+      startCurrentPlay: this.startCurrentPlay,
+      startBtnStyle: { ...primaryBtnStyle, opacity:selectedCount>0?1:0.4, cursor:selectedCount>0?'pointer':'default' },
+      playDone: play ? play.done : false,
+      playActive: play ? !play.done : false,
+      playHasFeedback: play ? !!play.feedback : false,
+      playNoFeedback: play ? !play.feedback : true,
+      playTitle: play ? (play.kind==='random'?'🎲 Random mix':'📋 Daily assignment') : '',
+      playProgressText: play ? `Question ${play.idx+1} of ${play.queue.length} · ${play.score} correct` : '',
+      playQuestionText: play ? play.queue[play.idx].text : '',
+      playInputValue: play ? play.inputValue : '',
+      playOnInput: (e)=>this.setPlayInput(e.target.value),
+      playFeedbackMsg: play && play.feedback ? play.feedback.msg : '',
+      playFeedbackStyle: play && play.feedback ? {marginTop:'14px',fontFamily:'var(--font-display)',fontSize:'var(--text-base)',color:play.feedback.ok?'var(--mint-400)':'var(--coral-300)'} : {},
+      playScoreText: play ? `${play.score} of ${play.queue.length} correct` : '',
+      playInputStyle: { marginTop:'18px', width:'160px', textAlign:'center', fontSize:'var(--text-lg)', fontFamily:'var(--font-display)', padding:'10px', borderRadius:'var(--radius-md)', border:'2px solid var(--border-strong)', background:'var(--surface-2)', color:'var(--text-primary)' },
+      primaryBtnStyle,
+      checkPlay:this.checkPlay, nextPlay:this.nextPlay, finishPlay:this.finishPlay,
+      openDaily:()=>this.open('daily'),
+      openTrick:()=>this.open('trick'),
+      openFlash:()=>this.open('flash'),
+      openRandom:()=>this.open('random'),
+      openSummary:()=>this.open('summary'),
+      back:this.back,
+      toggleSpeed:this.toggleSpeed,
+      chipList,
+      dailyStatText:`${selectedCount} sets picked · 0/16 today`,
+      randomStatText:`Mixes ${selectedCount} sets you picked`,
+      speedSwitchStyle:{
+        width:'38px',height:'20px',borderRadius:'var(--radius-pill)',
+        background:this.state.speedRound?'var(--color-primary)':'var(--surface-2)',
+        border:this.state.speedRound?'2px solid var(--color-primary)':'2px solid var(--border-strong)',
+        position:'relative',cursor:'pointer',display:'inline-block',verticalAlign:'middle'
+      },
+      speedKnobStyle:{
+        position:'absolute',top:'1px',left:this.state.speedRound?'17px':'1px',
+        width:'14px',height:'14px',borderRadius:'50%',background:'var(--text-primary)',
+        transition:'left .15s var(--ease-out)'
+      },
+      detailTitle:meta.title,
+      detailIcon:meta.icon,
+      hubHeaderStyle:{ display:'flex',alignItems:'center',gap:'10px',marginBottom:'22px' },
+      hubBackStyle:{
+        width:'40px',height:'40px',borderRadius:'var(--radius-md)',background:'var(--surface-2)',
+        border:'2px solid var(--border-strong)',color:'var(--text-primary)',fontSize:'18px',
+        cursor:this.state.history.length?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,
+        visibility:this.state.history.length?'visible':'hidden'
+      },
+      detailHeaderStyle:{ display:'flex',alignItems:'center',gap:'10px',marginBottom:'16px' },
+      detailBackStyle:{
+        width:'40px',height:'40px',borderRadius:'var(--radius-md)',background:'var(--surface-2)',
+        border:'2px solid var(--border-strong)',color:'var(--text-primary)',fontSize:'18px',
+        cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0
+      },
+      detailCardStyle:{
+        background:'var(--surface-1)',border:`3px solid ${meta.color}`,borderRadius:'var(--radius-lg)',
+        padding:'28px 22px',textAlign:'center',boxShadow:`0 8px 0 ${meta.shadow}`
+      },
+      detailDescText: this.detailDescription(this.state.screen, selectedCount),
+      showSetList: this.state.screen==='daily' || this.state.screen==='random',
+      selectedSetsList: (()=>{
+        const total = this.state.screen==='random' ? 12 : 16;
+        const counts = this.problemsPerSet(total, selectedCount);
+        return CHIP_DEFS.filter(c=>chips[c.id]).map((c,i)=>({icon:c.icon,label:c.label,sample:c.sample,count:counts[i]}));
+      })()
+    };
+  }
+}
+
+</script>
+</body>
+</html>

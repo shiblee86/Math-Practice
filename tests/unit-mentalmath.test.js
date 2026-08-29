@@ -53,6 +53,53 @@ suite('mentalmath.js — fact generators', () => {
       }
     });
   });
+
+  test('FACT_SETS gained a "carry" set (Carry & borrow) and DEFAULT_GYM_SETS picks the first five', () => {
+    assert.ok(ALL_SET_IDS.includes('carry'), 'expected a "carry" fact set for the Gym hub picker');
+    assert.equal(ALL_SET_IDS.length, 11);
+    assert.deepEqual(DEFAULT_GYM_SETS, ['tensOnes', 'carry', 'add20', 'sub20', 'bridge']);
+    assert.equal(new Set(DEFAULT_GYM_SETS).size, DEFAULT_GYM_SETS.length, 'defaults must be unique ids');
+    DEFAULT_GYM_SETS.forEach(id => assert.ok(ALL_SET_IDS.includes(id), `default set "${id}" is not a real FACT_SETS id`));
+  });
+
+  test('GYM_SET_SAMPLE has a sample problem for every set the Gym hub picker offers', () => {
+    ALL_SET_IDS.forEach(id => assert.ok(GYM_SET_SAMPLE[id], `missing a sample problem for "${id}"`));
+  });
+});
+
+suite('mentalmath.js — flash-card 30 cap (cappedFact)', () => {
+  test('capped sets (add20, sub20, tensOnes) never produce a number above 30, sampled widely', () => {
+    FLASH_CAP_SETS.forEach(id => {
+      for (let i = 0; i < 300; i++) {
+        const f = cappedFact(id);
+        [f.a, f.b, f.answer].forEach(n => {
+          if (typeof n === 'number') assert.ok(Math.abs(n) <= 30, `${id}: ${JSON.stringify(f)} exceeds the 30 cap`);
+        });
+      }
+    });
+  });
+
+  test('cappedFact still returns a fact for the given set id (no silent fallback to a different set)', () => {
+    FLASH_CAP_SETS.forEach(id => {
+      for (let i = 0; i < 20; i++) assert.equal(cappedFact(id).set, id);
+    });
+  });
+
+  test('an uncapped set (e.g. carry) is returned untouched by cappedFact, numbers above 30 allowed', () => {
+    let sawAbove30 = false;
+    for (let i = 0; i < 60; i++) {
+      const f = cappedFact('carry');
+      assert.equal(f.set, 'carry');
+      if (Math.max(f.a, f.b) > 30) sawAbove30 = true;
+    }
+    assert.ok(sawAbove30, 'expected at least one uncapped carry fact above 30 in 60 samples');
+  });
+
+  test('the bounded-retry fallback (cap so tight normal generation can\'t satisfy it) still returns a valid, in-cap fact', () => {
+    const f = cappedFact('tensOnes', 5);
+    assert.ok(Number.isFinite(f.answer));
+    assert.ok(f.a <= 5 && f.b <= 5 && f.answer <= 5);
+  });
 });
 
 suite('mentalmath.js — buildDrill / trainer / flashDeck', () => {
@@ -77,6 +124,32 @@ suite('mentalmath.js — buildDrill / trainer / flashDeck', () => {
       assert.ok(steps.length > 0, `trainerSteps returned no steps for ${JSON.stringify(f)}`);
       steps.forEach(st => assert.ok(Number.isFinite(st.answer), `step missing a finite answer: ${JSON.stringify(st)}`));
     }
+  });
+
+  test('trainerSteps uses the Gym hub redesign\'s rewritten, plain-language copy (not the old "Split the 9 into 8 and" wording)', () => {
+    // bridge subtract, e.g. 18 - 9: get-down-to-ten / how-many-still-to-take / take-off-ten
+    const bs = trainerSteps({ a: 18, b: 9, op: '-', set: 'bridge', answer: 9 });
+    assert.equal(bs.length, 3);
+    assert.equal(bs[0].text, 'First get down to ten. 18 − ? = 10');
+    assert.equal(bs[0].answer, 8);
+    assert.equal(bs[1].text, 'You took away 8 of the 9. How many are still left to take?');
+    assert.equal(bs[1].answer, 1);
+    assert.equal(bs[2].text, 'Now take those off ten. 10 − 1 = ?');
+    assert.equal(bs[2].answer, 9);
+
+    // bridge add, e.g. 8 + 8: make-ten / left-over / add-to-ten
+    const ba = trainerSteps({ a: 8, b: 8, op: '+', set: 'bridge', answer: 16 });
+    assert.equal(ba[0].text, 'First make ten. 8 + ? = 10');
+    assert.equal(ba[1].text, 'You used 2 of the 8. How many are left over?');
+    assert.equal(ba[2].text, 'Now add those to ten. 10 + 6 = ?');
+
+    // missing minuend now shows the reconstructing equation, not a bare "put it back"
+    const mm = trainerSteps({ b: 4, c: 6, op: '-', missing: 'a', answer: 10 });
+    assert.equal(mm.length, 1);
+    assert.equal(mm[0].text, 'We took 4 away and 6 was left. Put the 4 back: 6 + 4 = ?');
+
+    // none of the old wording survives anywhere it could still show up
+    [bs, ba, mm].flat().forEach(st => assert.ok(!/Split the/.test(st.text), `old scaffold wording leaked into: "${st.text}"`));
   });
 
   test('gradeCard advances the Leitner box on easy, resets to 0 on hard', () => {
