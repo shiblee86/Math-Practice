@@ -1,9 +1,12 @@
 name: CI/CD
 
-# Runs the full unit/integration/regression suite (tests/run.py) on every push
-# and pull request. On a successful push to main, publishes the app (a plain
-# static site, no build step) to GitHub Pages — so a broken push never goes
-# live; only a commit that passes the suite does.
+# Three stages, run in order: Build (syntax-check the shipped JS and package
+# the static site as a Pages artifact — this app has no bundler/build step by
+# design, see README's Contributing notes) -> Test (the full unit/integration
+# /regression suite, tests/run.py) -> Deploy (publish the Build stage's
+# artifact to GitHub Pages, only on a push to main, only if both prior stages
+# passed). A broken push never goes live; only a commit that builds clean and
+# passes the suite does.
 
 on:
   push:
@@ -15,8 +18,36 @@ permissions:
   contents: read
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node (syntax-check only — no bundler, no npm install)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax-check every shipped JS file
+        run: |
+          for f in mathdata.js mentalmath.js script.js; do
+            echo "node --check $f"
+            node --check "$f"
+          done
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Package the static site as a build artifact (repo root — no build step)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
   test:
-    name: Run test suite
+    name: Test
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -37,9 +68,9 @@ jobs:
         run: python3 tests/run.py
 
   deploy:
-    name: Deploy to GitHub Pages
+    name: Deploy
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: test
+    needs: [build, test]
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -48,17 +79,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload the site (repo root — no build step)
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
