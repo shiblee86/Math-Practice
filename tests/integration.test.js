@@ -704,3 +704,86 @@ suite('integration — Quiz: stepped hint panel', () => {
     assert.ok(!$('#hintDisplay').textContent.includes('Step'), 'no stepper chrome for a plain-prose hint');
   });
 });
+
+suite('integration — Trophies screen', () => {
+  test('renders all 16 trophies and all 10 badges as tiles, none earned yet', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); trophyData={}; badges={}; showTrophies(); })()`);
+    assert.equal($('#trophiesScreen').classList.contains('active'), true);
+    assert.equal($$('#trophiesGrid .trophy-tile').length, 16);
+    assert.equal($$('#badgesGrid .trophy-tile').length, 10);
+    assert.equal($$('#trophiesGrid .trophy-tile--earned').length, 0, 'nothing earned yet');
+    assert.match($('#trophiesHeadingTitle').textContent, "Safia's trophy case");
+  });
+
+  test('an earned trophy shows its real icon instead of the lock, and the heading count updates', () => {
+    run(`(function(){
+      activeRacer='safia'; loadRacerState();
+      trophyData={}; trophyData[TROPHIES[0].id]=true;
+      showTrophies();
+    })()`);
+    const tile = $$('#trophiesGrid .trophy-tile')[0];
+    assert.equal(tile.classList.contains('trophy-tile--earned'), true);
+    assert.ok(!tile.textContent.includes('🔒'), 'an earned tile must not still show the lock icon');
+    assert.match($('#trophiesHeadingSub').textContent, '1 of 16 earned');
+  });
+
+  test('nav tab is "trophies" while here, and back returns Home', () => {
+    run('showTrophies()');
+    assert.equal($('.nav-item--active')?.dataset.tab, 'trophies');
+    run('handleBack()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'homeScreen');
+  });
+});
+
+suite('integration — Grown-up summary (both racers, independent of which is active)', () => {
+  test('shows one card per racer, each reflecting that racer\'s own stored stars — not the active racer\'s live state bleeding over', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); totalStarsEarned=9; persistAll(); })()`);
+    run('swapRacer()');
+    run(`(function(){ totalStarsEarned=21; persistAll(); })()`);
+    run('swapRacer()'); // back to safia as the active racer
+    run('showGrownup()');
+    assert.equal($('#grownupScreen').classList.contains('active'), true);
+    const cards = $$('.grownup-card');
+    assert.equal(cards.length, 2, 'one card per racer, always both, regardless of which is active');
+    const safiaCard = cards.find(c => c.textContent.includes('Safia'));
+    const safaanCard = cards.find(c => c.textContent.includes('Safaan'));
+    assert.ok(safiaCard && safaanCard, 'expected one card naming each racer');
+    assert.match(safiaCard.textContent, '★ 9');
+    assert.match(safaanCard.textContent, '★ 21');
+  });
+
+  test('Save/Load live in the footer here, and no nav tab lights up (it is a pinned rail link, not one of the 5 tabs)', () => {
+    run('showGrownup()');
+    assert.equal($$('.grownup-footer button').length, 2, 'expected exactly Save and Load');
+    assert.equal($('.nav-item--active'), null, 'grownupScreen deliberately has no TAB_FOR_SCREEN entry');
+    run('handleBack()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'homeScreen');
+  });
+});
+
+suite('integration — racer chip click actually swaps (not just calling swapRacer() directly)', () => {
+  test('clicking either the rail chip or the narrow top-strip chip fires the real onclick wiring', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); showHome(); })()`);
+    assert.match($('#railRacerChip').textContent, 'Safia');
+    assert.match($('#topStripRacer').textContent, 'Safia');
+    $('#railRacerChip').click();
+    assert.equal(run('activeRacer'), 'safaan');
+    assert.match($('#railRacerChip').textContent, 'Safaan');
+    assert.match($('#topStripRacer').textContent, 'Safaan');
+    $('#topStripRacer').click();
+    assert.equal(run('activeRacer'), 'safia', 'the narrow chip must swap too, not just the rail one');
+  });
+});
+
+suite('integration — status column visibility (wide-layout companion panel)', () => {
+  test('#statusCol shows on Home/Levels/Trophies and hides on every other screen', () => {
+    ['homeScreen', 'practiceMenuScreen', 'trophiesScreen'].forEach(id => {
+      run(`showScreen('${id}')`);
+      assert.ok($('#statusCol').style.display !== 'none', `${id}: status column should be visible`);
+    });
+    ['soarMenuScreen', 'quizScreen', 'resultScreen'].forEach(id => {
+      run(`showScreen('${id}')`);
+      assert.equal($('#statusCol').style.display, 'none', `${id}: status column should be hidden`);
+    });
+  });
+});

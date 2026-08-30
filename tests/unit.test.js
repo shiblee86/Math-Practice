@@ -324,3 +324,38 @@ suite('mathdata.js — stepped worked-example hints (columnSteps / stripSteps / 
     assert.equal(workSteps(null), null);
   });
 });
+
+suite('mathdata.js — RACERS (two-racer lanes)', () => {
+  test('both racers exist with the exact prototype-sourced fields', () => {
+    assert.deepEqual(Object.keys(RACERS).sort(), ['safaan', 'safia']);
+    assert.equal(RACERS.safia.age, 6);
+    assert.equal(RACERS.safia.band, '3-5');
+    assert.equal(RACERS.safaan.age, 9);
+    assert.equal(RACERS.safaan.band, '7-11');
+  });
+
+  test('safia\'s lane is levels 1-8 (Counting through Make a Sum) and safaan\'s is 4-20 (Carry Addition through Grand Finale)', () => {
+    const safiaLane = LEVELS.slice(RACERS.safia.from, RACERS.safia.to);
+    const safaanLane = LEVELS.slice(RACERS.safaan.from, RACERS.safaan.to);
+    assert.equal(safiaLane.length, 8);
+    assert.equal(safaanLane.length, 17);
+    assert.equal(safiaLane[0].id, LEVELS[0].id);
+    assert.equal(safaanLane[safaanLane.length - 1].id, LEVELS[LEVELS.length - 1].id);
+  });
+
+  test('the two lanes deliberately overlap on levels 4-8 (index 3-7), shared practice ground for both racers', () => {
+    const safiaLane = LEVELS.slice(RACERS.safia.from, RACERS.safia.to);
+    const safaanLane = LEVELS.slice(RACERS.safaan.from, RACERS.safaan.to);
+    const sharedIds = LEVELS.slice(3, 8).map(l => l.id);
+    sharedIds.forEach(id => {
+      assert.ok(safiaLane.some(l => l.id === id), `expected shared level "${id}" in Safia's lane`);
+      assert.ok(safaanLane.some(l => l.id === id), `expected shared level "${id}" in Safaan's lane`);
+    });
+  });
+
+  test('no level is ever locked for either racer (RACERS carries no lock data)', () => {
+    Object.values(RACERS).forEach(r => {
+      assert.equal('locked' in r, false);
+    });
+  });
+});

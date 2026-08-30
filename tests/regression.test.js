@@ -179,3 +179,32 @@ suite('regression — the vestigial mistakePatterns mechanism was retired, not l
     assert.match($('#patternTags').innerHTML, '2 + 2');
   });
 });
+
+suite('regression — the four ambient (infinite-loop) animations are gone; one-shot celebrations survive', () => {
+  test('mascotFloat/dailyPulse/trophyGlow/resultPulse no longer exist as CSS keyframes', async () => {
+    const res = await fetch('../style.css');
+    const css = await res.text();
+    ['mascotFloat', 'dailyPulse', 'trophyGlow', 'resultPulse'].forEach(name => {
+      assert.ok(!css.includes(name), `"${name}" keyframe should have been removed with its ambient-loop animation`);
+    });
+  });
+
+  test('the #mascot element and mascotReact() are gone entirely, not just hidden', () => {
+    assert.equal($('#mascot'), null);
+    assert.equal(run('typeof mascotReact'), 'undefined');
+  });
+
+  test('the result screen\'s one-shot star-drop celebration is still wired up (only the ambient pulse was removed)', () => {
+    // Mirrors the "level completion" suite's own idiom above: synthesize the
+    // finished-quiz state directly rather than playing through 15 real
+    // questions of possibly-mixed kinds, then jump straight to showResults().
+    run(`(function(){
+      const l = LEVELS.find(l => l.id === 'carry_add');
+      startLevel(l);
+      qIndex = questions.length; score = questions.length; wrong = 0;
+      showResults();
+    })()`);
+    assert.equal($('#resultScreen').classList.contains('active'), true);
+    assert.equal($('#resultStars').classList.contains('animate'), true, 'result stars must still carry the one-shot starDrop trigger class');
+  });
+});
