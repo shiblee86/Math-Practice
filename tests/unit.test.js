@@ -258,3 +258,69 @@ suite('mathdata.js — kindOf / friendlyAnswer / TYPE_LABELS', () => {
     assert.equal([...missing].join(','), '', `TYPE_LABELS missing entries for: ${[...missing].join(', ')}`);
   });
 });
+
+suite('mathdata.js — stepped worked-example hints (columnSteps / stripSteps / workSteps)', () => {
+  // The result is spelled out digit-by-digit in a row of cells; reconstruct
+  // the number from whichever row a step reveals it in, the same way the
+  // Tens & Ones/Carry & Borrow tests already do for columnPlan().
+  function digitsToNumber(row) {
+    return parseInt(row.slice(1).map(c => c.v).join('').trim() || 'NaN', 10);
+  }
+
+  test('columnSteps(+) reconstructs the sum correctly with and without carrying', () => {
+    const noCarry = columnSteps(23, 14, '+');
+    assert.equal(digitsToNumber(noCarry[noCarry.length - 1].res), 37);
+    const carry = columnSteps(28, 34, '+');
+    assert.equal(digitsToNumber(carry[carry.length - 1].res), 62);
+    assert.equal(carry.length, 5, 'a carrying addition has 5 steps (vs 4 without carrying)');
+  });
+
+  test('columnSteps(+) never truncates a 3-digit carry result (e.g. 69 + 69 = 138)', () => {
+    const steps = columnSteps(69, 69, '+');
+    const final = steps[steps.length - 1];
+    assert.equal(digitsToNumber(final.res), 138);
+    assert.equal(final.res.length, 4, 'a 3-digit result needs a 4-cell row (sign + 3 digits)');
+  });
+
+  test('columnSteps(-) reconstructs the difference for same-tens, no-borrow, and borrow branches', () => {
+    const sameTens = columnSteps(17, 14, '-');
+    assert.equal(digitsToNumber(sameTens[sameTens.length - 1].res), 3);
+    const noBorrow = columnSteps(58, 23, '-');
+    assert.equal(digitsToNumber(noBorrow[noBorrow.length - 1].res), 35);
+    const borrow = columnSteps(35, 27, '-');
+    assert.equal(digitsToNumber(borrow[borrow.length - 1].res), 8);
+    assert.equal(borrow.length, 6, 'a borrowing subtraction has 6 steps');
+  });
+
+  test('columnSteps never gives away the answer on the very first "line them up" step', () => {
+    // The answer legitimately becomes visible once both digits are computed
+    // (that's the point of a worked example) — but step 0 is pure setup and
+    // must not spoil it upfront.
+    [columnSteps(28, 34, '+'), columnSteps(35, 27, '-'), columnSteps(17, 14, '-')].forEach(steps => {
+      const shown = digitsToNumber(steps[0].res);
+      assert.ok(Number.isNaN(shown), `step 0 (line them up) should reveal nothing yet, got ${shown}`);
+    });
+  });
+
+  test('stripSteps always returns exactly 4 steps and the last step\'s chip count matches the answer', () => {
+    const add = stripSteps('cup', 11, 8);
+    assert.equal(add.length, 4);
+    assert.equal(add[3].chips.length, 8, 'count-on strip shows one chip per number counted (the smaller addend)');
+    const sub = stripSteps('cdown', 15, 7);
+    assert.equal(sub.length, 4);
+    assert.equal(sub[3].chips.length, 8, '15 − 7 = 8, one chip per number counted up');
+  });
+
+  test('workSteps expands a chained (array) work descriptor into one continuous step sequence', () => {
+    const steps = workSteps([{ k: 'add', a: 19, b: 21 }, { k: 'add', a: 40, b: 30 }]);
+    const partOneSteps = columnSteps(19, 21, '+').length;
+    assert.equal(steps.length, partOneSteps + columnSteps(40, 30, '+').length);
+    assert.equal(digitsToNumber(steps[partOneSteps - 1].res), 40, 'first chained part ends with its own subtotal');
+    assert.equal(digitsToNumber(steps[steps.length - 1].res), 70, 'second chained part ends with the final total');
+  });
+
+  test('workSteps returns null when a question has no work descriptor (prose-hint fallback)', () => {
+    assert.equal(workSteps(undefined), null);
+    assert.equal(workSteps(null), null);
+  });
+});

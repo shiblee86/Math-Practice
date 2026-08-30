@@ -61,6 +61,113 @@ function addColumn(a,b){
 }
 const hintAdd=addColumn, hintSub=subtractColumn, hintCarryAdd=addColumn, hintBorrowSub=subtractColumn;
 
+// ── Stepped worked-example generators (pure data — no HTML/DOM) ───────────
+// These replace the old single-shot prose/HTML hints with an interactive,
+// one-step-at-a-time drawing: a column-method grid for two-digit add/
+// subtract, or a number-strip for count-on/count-up addition/subtraction.
+// A generator sets a `work` descriptor on its question ({k,a,b} or, for
+// chained two-operation problems, [{...},{...}]) alongside its existing
+// `hint` string — script.js's renderHintPanel() prefers `work` when present
+// and falls back to the plain-prose `hint` otherwise, exactly like the
+// design prototype's hintDrawn/hintPlain split. A "cell" is {v,color,strike}
+// and a "row" is an array of cells (sign column first); a "chip" is
+// {v,count,hl}. Colors are token names resolved to CSS vars in script.js.
+function hCell(v,color,strike){return {v:(v===''||v==null)?'':String(v),color:color||'ink',strike:!!strike};}
+function hRow3(a,b,c){return [a,b,c];}
+function hBlank3(){return hRow3(hCell(''),hCell(''),hCell(''));}
+
+// Column method for two-digit addition/subtraction. Ported from the redesign
+// prototype's addSteps/subSteps, with one fix: the prototype assumed an
+// always-2-digit result and would silently mis-render a 3-digit carry total
+// (reachable here via eqCarryAdd's 15-69 range, e.g. 69+69=138) — the result
+// row below pads/spills to however many digits the total actually has.
+function columnSteps(a,b,op){
+  const at=Math.floor(a/10),ao=a%10,bt=Math.floor(b/10),bo=b%10;
+  const top=(hl,strike)=>hRow3(hCell(''),hCell(at,hl==='tens'?'amber':'ink',strike),hCell(ao,hl==='ones'?'amber':'ink'));
+  const bot=(hl)=>hRow3(hCell(op==='+'?'+':'−','coral'),hCell(bt,hl==='tens'?'amber':'ink'),hCell(bo,hl==='ones'?'amber':'ink'));
+
+  if(op==='+'){
+    const onesSum=ao+bo,carried=onesSum>9?1:0,onesDigit=onesSum%10;
+    const tensSum=at+bt+carried,total=a+b,totalStr=String(total);
+    const resultRow=()=>{
+      const pad=Math.max(0,2-totalStr.length); // digit-portion width 2, same as every other row — grows only past 2 digits
+      const cells=[hCell('')];
+      for(let i=0;i<pad;i++)cells.push(hCell(''));
+      for(const d of totalStr)cells.push(hCell(d,'cyan'));
+      return cells;
+    };
+    const S=[];
+    S.push({say:'Line the numbers up. Ones under ones, tens under tens.',side:'',carry:hBlank3(),top:top(),bot:bot(),res:hBlank3()});
+    S.push({say:`Start with the ones. What is ${ao} + ${bo}?`,side:`${ao} + ${bo} = ${onesSum}`,carry:hBlank3(),top:top('ones'),bot:bot('ones'),res:hBlank3()});
+    if(carried){
+      S.push({say:`${onesSum} is more than 9. Keep the ${onesDigit} down in the ones, and move the 1 ten over to the tens.`,side:`${onesSum} = 1 ten and ${onesDigit} ones`,carry:hRow3(hCell(''),hCell(1,'cyan'),hCell('')),top:top('ones'),bot:bot('ones'),res:hRow3(hCell(''),hCell(''),hCell(onesDigit,'amber'))});
+      S.push({say:`Now the tens. ${at} + ${bt}, and add the 1 we carried.`,side:`${at} + ${bt} + 1 = ${tensSum}`,carry:hRow3(hCell(''),hCell(1,'cyan'),hCell('')),top:top('tens'),bot:bot('tens'),res:tensSum<10?hRow3(hCell(''),hCell(tensSum,'amber'),hCell(onesDigit,'cyan')):resultRow()});
+    }else{
+      S.push({say:`${onesSum} is 9 or less, so there is nothing to carry. Write ${onesDigit} in the ones.`,side:'',carry:hBlank3(),top:top('ones'),bot:bot('ones'),res:hRow3(hCell(''),hCell(''),hCell(onesDigit,'amber'))});
+      S.push({say:`Now the tens. ${at} + ${bt}.`,side:`${at} + ${bt} = ${tensSum}`,carry:hBlank3(),top:top('tens'),bot:bot('tens'),res:hRow3(hCell(''),hCell(tensSum,'amber'),hCell(onesDigit,'cyan'))});
+    }
+    S.push({say:`So ${a} + ${b} = ${total}.`,side:'',carry:carried?hRow3(hCell(''),hCell(1,'cyan'),hCell('')):hBlank3(),top:top(),bot:bot(),res:resultRow()});
+    return S;
+  }
+
+  // Subtraction — every generator that calls columnSteps for '-' keeps the
+  // minuend at or below 95, so the result never exceeds 2 digits.
+  const ans=a-b;
+  const S=[{say:'Line them up. Ones under ones, tens under tens.',side:'',carry:hBlank3(),top:top(),bot:bot(),res:hBlank3()}];
+
+  if(at===bt){
+    S.push({say:`Look at the tens. Both numbers have ${at} ten${at===1?'':'s'}. Same tens take each other away, so the tens make 0.`,side:`${at*10} − ${bt*10} = 0`,carry:hBlank3(),top:top('tens'),bot:bot('tens'),res:hRow3(hCell(''),hCell(0,'cyan'),hCell(''))});
+    S.push({say:`That leaves just the ones. ${ao} take away ${bo}.`,side:`${ao} − ${bo} = ${ao-bo}`,carry:hBlank3(),top:top('ones'),bot:bot('ones'),res:hRow3(hCell(''),hCell(0,'cyan'),hCell(ao-bo,'amber'))});
+    S.push({say:`So ${a} − ${b} = ${ans}. When the tens match, you only have to do the ones.`,side:'',carry:hBlank3(),top:top(),bot:bot(),res:hRow3(hCell(''),hCell(''),hCell(ans,'cyan'))});
+    return S;
+  }
+
+  if(ao>=bo){
+    S.push({say:`Look at the ones. Is ${ao} bigger than ${bo}? Yes, so we can take it away right away.`,side:`${ao} − ${bo} = ${ao-bo}`,carry:hBlank3(),top:top('ones'),bot:bot('ones'),res:hRow3(hCell(''),hCell(''),hCell(ao-bo,'amber'))});
+    S.push({say:`Now the tens. ${at} take away ${bt}.`,side:`${at} − ${bt} = ${at-bt}`,carry:hBlank3(),top:top('tens'),bot:bot('tens'),res:hRow3(hCell(''),hCell(at-bt,'amber'),hCell(ao-bo,'cyan'))});
+  }else{
+    S.push({say:`Look at the ones. Is ${ao} bigger than ${bo}? No. So we need to borrow a ten.`,side:`${ao} is smaller than ${bo}`,carry:hBlank3(),top:top(),bot:bot(),res:hBlank3()});
+    S.push({say:`Take one ten from the ${at}. Cross the ${at} out and write ${at-1} above it. Give that ten to the ones, so ${ao} becomes ${ao+10}.`,side:`${ao} + 10 = ${ao+10}`,carry:hRow3(hCell(''),hCell(at-1,'cyan'),hCell('')),top:hRow3(hCell(''),hCell(at,'muted',true),hCell(ao+10,'amber')),bot:bot(),res:hBlank3()});
+    S.push({say:`Now the ones are easy. ${ao+10} take away ${bo}.`,side:`${ao+10} − ${bo} = ${ao+10-bo}`,carry:hRow3(hCell(''),hCell(at-1,'cyan'),hCell('')),top:hRow3(hCell(''),hCell(at,'muted',true),hCell(ao+10,'ink')),bot:bot('ones'),res:hRow3(hCell(''),hCell(''),hCell(ao+10-bo,'amber'))});
+    S.push({say:`Then the tens. We have ${at-1} left, take away ${bt}.`,side:`${at-1} − ${bt} = ${at-1-bt}`,carry:hRow3(hCell(''),hCell(at-1,'cyan'),hCell('')),top:hRow3(hCell(''),hCell(at,'muted',true),hCell(ao+10,'ink')),bot:bot('tens'),res:hRow3(hCell(''),hCell(at-1-bt,'amber'),hCell(ao+10-bo,'cyan'))});
+  }
+  S.push({say:ans<10?`The tens made 0, so we do not write it. ${a} − ${b} = ${ans}.`:`So ${a} − ${b} = ${ans}.`,side:'',carry:hBlank3(),top:top(),bot:bot(),res:ans<10?hRow3(hCell(''),hCell(''),hCell(ans,'cyan')):hRow3(hCell(''),hCell(String(ans)[0],'cyan'),hCell(String(ans)[1],'cyan'))});
+  return S;
+}
+
+// Number-strip method for single-digit/teen addition or subtraction with no
+// regrouping, and for missing-number problems (count up from the known
+// small number to the target). kind 'cup' = count on (addition); 'cdown' =
+// count up to find a difference (subtraction or "how many more to reach").
+function hChip(v,count,hl){return {v:String(v),count:count==null?'':String(count),hl:!!hl};}
+function stripSteps(kind,a,b){
+  const isAdd=kind==='cup';
+  const big=isAdd?Math.max(a,b):a, small=isAdd?Math.min(a,b):b;
+  const answer=isAdd?a+b:a-b;
+  const howMany=isAdd?small:answer;
+  const start=isAdd?big+1:small+1;
+  const all=(hlLast)=>Array.from({length:howMany},(_,i)=>hChip(start+i,i+1,hlLast&&i===howMany-1));
+  const sign=isAdd?'+':'−';
+  const S=[];
+  S.push({mode:'strip',say:`Which number is bigger? ${big} is the big number. ${small} is the small number.`,side:`${a} ${sign} ${b}`,chips:[]});
+  S.push({mode:'strip',say:isAdd?`Start at the number after the big number. After ${big} comes ${start}.`:`Start at the number after the small number. After ${small} comes ${start}.`,side:`start at ${start}`,chips:[hChip(start,1,true)]});
+  S.push({mode:'strip',say:isAdd?`Now count on ${small} numbers — one for every one in ${small}. Say them out loud and count on your fingers.`:`Now keep counting until you reach ${big}. Count how many numbers you say.`,side:'',chips:all(false)});
+  S.push({mode:'strip',say:isAdd?`The last number we said is the answer. ${a} + ${b} = ${answer}.`:`We said ${answer} numbers, so ${a} − ${b} = ${answer}.`,side:`${a} ${sign} ${b} = ${answer}`,chips:all(true)});
+  return S;
+}
+// Dispatcher: expands a question's `work` descriptor (single or chained)
+// into one continuous step sequence for the hint panel.
+function workSteps(work){
+  if(!work)return null;
+  const list=Array.isArray(work)?work:[work];
+  let steps=[];
+  list.forEach(w=>{
+    const part=(w.k==='cup'||w.k==='cdown')?stripSteps(w.k,w.a,w.b):columnSteps(w.a,w.b,w.k==='add'?'+':'-');
+    steps=steps.concat(part);
+  });
+  return steps;
+}
+
 function hintMissingAddSimple(total,a){const ans=total-a;return wrap(MINT,'❓','MISSING NUMBER — ADDITION',bubble(`We have: ${a} + ? = ${total}`)+subtractColumn(total,a)+bubble(`<strong style="color:${MINT};">The missing number is ${ans}. Check: ${a} + ${ans} = ${total} ✓</strong>`));}
 function hintMissingSubSmall(total,result){const ans=total-result;return wrap(COR,'❓','MISSING NUMBER — SUBTRACTION',bubble(`We have: ${total} − ? = ${result}`)+subtractColumn(total,result)+bubble(`<strong style="color:${MINT};">The missing number is ${ans}. Check: ${total} − ${ans} = ${result} ✓</strong>`));}
 function hintMissingThreeAdd(total,a,b){const known=a+b,ans=total-known;return wrap(MINT,'❓','MISSING NUMBER — THREE ADDENDS',bubble(`Step 1 — add what we know: ${a} + ${b}`)+addColumn(a,b)+bubble(`Step 2 — subtract from the total: ${total} − ${known}`)+subtractColumn(total,known)+bubble(`<strong style="color:${MINT};">Missing number: ${ans}. Check: ${a} + ${b} + ${ans} = ${total} ✓</strong>`));}
@@ -106,15 +213,15 @@ const SEASONS=['Winter','Spring','Summer','Autumn'];
 function eqCounting(){
   const t=rnd(0,2);
   if(t===0){const n=rnd(5,20),obj=pick(['🏎️','🏁','⭐','⚙️']);return{type:'counting_objects',category:'equation',hasHint:true,question:`Count them up:<br>${obj.repeat(n)}<br>How many are there?`,answer:n,hint:wrap(MINT,'🔢','Counting',bubble(`Count one at a time up to <strong style="color:${MINT};">${n}</strong>.`))};}
-  if(t===1){const a=rnd(2,14),b=rnd(1,6);return{type:'counting_add',category:'equation',hasHint:true,question:`${a} + ${b} = ?`,answer:a+b,hint:addColumn(a,b)};}
-  const a=rnd(6,18),b=rnd(1,5);return{type:'counting_sub',category:'equation',hasHint:true,question:`${a} − ${b} = ?`,answer:a-b,hint:subtractColumn(a,b)};
+  if(t===1){const a=rnd(2,14),b=rnd(1,6);return{type:'counting_add',category:'equation',hasHint:true,question:`${a} + ${b} = ?`,answer:a+b,hint:addColumn(a,b),work:{k:'cup',a,b}};}
+  const a=rnd(6,18),b=rnd(1,5);return{type:'counting_sub',category:'equation',hasHint:true,question:`${a} − ${b} = ?`,answer:a-b,hint:subtractColumn(a,b),work:{k:'cdown',a,b}};
 }
 function eqGrouping(){const tens=rnd(1,9),ones=rnd(0,9),total=tens*10+ones;return{type:'grouping',question:`${tens} bundle${tens!==1?'s':''} of 10 + ${ones} loose. How many total?`,answer:total,hint:wrap(MINT,'📦','Tens and Ones',bubble(`${tens} tens = <strong>${tens*10}</strong>, plus ${ones} ones = <strong>${ones}</strong><br>${tens*10} + ${ones} = <strong style="color:${MINT};">${total}</strong>`))};}
-function eqMissingAdd(){const a=rnd(3,15),miss=rnd(2,12),total=a+miss;return{type:'missing_add',question:`${a} + ? = ${total}`,answer:miss,hint:hintMissingAddSimple(total,a)};}
-function eqCarryAdd(){let a,b,g=0;do{a=rnd(15,69);b=rnd(15,69);g++;}while((a%10+b%10)<=9&&g<300);return{type:'carry_add',question:`${a} + ${b} = ?`,answer:a+b,hint:hintCarryAdd(a,b)};}
-function eqBorrowSub(){let a,b,g=0;do{a=rnd(30,89);b=rnd(15,a-1);g++;}while((a%10)>=(b%10)&&g<300);return{type:'borrow_sub',question:`${a} − ${b} = ?`,answer:a-b,hint:hintBorrowSub(a,b)};}
-function eqAddThree(){const a=rnd(5,30),b=rnd(5,30),c=rnd(5,30);return{type:'add_three',question:`${a} + ${b} + ${c} = ?`,answer:a+b+c,hint:hintAddThree(a,b,c)};}
-function eqSubThree(){const total=rnd(50,95),b=rnd(10,Math.floor(total/2)-2),c=rnd(10,total-b-5);return{type:'sub_three',question:`${total} − ${b} − ${c} = ?`,answer:total-b-c,hint:hintSubThree(total,b,c)};}
+function eqMissingAdd(){const a=rnd(3,15),miss=rnd(2,12),total=a+miss;return{type:'missing_add',question:`${a} + ? = ${total}`,answer:miss,hint:hintMissingAddSimple(total,a),work:{k:'cdown',a:total,b:a}};}
+function eqCarryAdd(){let a,b,g=0;do{a=rnd(15,69);b=rnd(15,69);g++;}while((a%10+b%10)<=9&&g<300);return{type:'carry_add',question:`${a} + ${b} = ?`,answer:a+b,hint:hintCarryAdd(a,b),work:{k:'add',a,b}};}
+function eqBorrowSub(){let a,b,g=0;do{a=rnd(30,89);b=rnd(15,a-1);g++;}while((a%10)>=(b%10)&&g<300);return{type:'borrow_sub',question:`${a} − ${b} = ?`,answer:a-b,hint:hintBorrowSub(a,b),work:{k:'sub',a,b}};}
+function eqAddThree(){const a=rnd(5,30),b=rnd(5,30),c=rnd(5,30);return{type:'add_three',question:`${a} + ${b} + ${c} = ?`,answer:a+b+c,hint:hintAddThree(a,b,c),work:[{k:'add',a,b},{k:'add',a:a+b,b:c}]};}
+function eqSubThree(){const total=rnd(50,95),b=rnd(10,Math.floor(total/2)-2),c=rnd(10,total-b-5);return{type:'sub_three',question:`${total} − ${b} − ${c} = ?`,answer:total-b-c,hint:hintSubThree(total,b,c),work:[{k:'sub',a:total,b},{k:'sub',a:total-b,b:c}]};}
 function eqComposeAdd(){const target=rnd(10,20);return{type:'compose_add',kind:'compose_pair',question:`Write two different pairs of numbers that add up to <strong>${target}</strong>.`,target,hint:hintComposeAdd(target)};}
 function eqComposeSub(){const diff=rnd(4,10);return{type:'compose_sub',kind:'compose_pair',question:`Write two pairs where the big number take away the small number leaves <strong>${diff}</strong>.`,target:diff,hint:hintComposeSub(diff)};}
 function eqFactFamily(){let a,b,g=0;do{a=rnd(3,12);b=rnd(3,12);g++;}while(a===b&&g<200);const total=a+b;return{type:'fact_family',question:`<strong>${a}</strong>, <strong>${b}</strong> and <strong>${total}</strong> are a number family.<br>Rows 1 and 2: make a plus fact. Rows 3 and 4: make a take-away fact.`,a,b,total,hint:hintFactFamily(a,b,total)};}
@@ -165,10 +272,10 @@ function eqCompare(){
   const t=rnd(0,3);
   if(t===0){let a=rnd(5,40),b=rnd(5,40);while(a===b)b=rnd(5,40);const correct=a>b?a:b;return{type:'compare',kind:'multiple_choice',question:`Which is greater: ${a} or ${b}?`,choices:shuffle([{label:String(a),correct:a>b},{label:String(b),correct:b>a}]),hint:hintCompareSymbol(a,b,a>b?'>':'<')};}
   if(t===1){const a=rnd(1,50);const b=rnd(0,3)===0?a:rnd(1,50);const sym=a<b?'<':a>b?'>':'=';const choices=shuffle(['<','>','='].map(s=>({label:s,correct:s===sym})));return{type:'compare_symbol',kind:'multiple_choice',question:`${a} ___ ${b}`,choices,hint:hintCompareSymbol(a,b,sym)};}
-  if(t===2){const a=rnd(2,15),b=rnd(2,15),sum=a+b;const showFalse=rnd(0,1)===0;let shown=sum;if(showFalse){let g=0;do{shown=sum+(rnd(1,3)*(rnd(0,1)?1:-1));g++;}while((shown===sum||shown<0)&&g<50);}const correct=shown===sum;const choices=[{label:'True',correct:correct},{label:'False',correct:!correct}];return{type:'compare_truefalse',kind:'multiple_choice',question:`${a} + ${b} = ${shown}. True or False?`,choices,hint:hintTrueFalse(a,b,shown,sum)};}
+  if(t===2){const a=rnd(2,15),b=rnd(2,15),sum=a+b;const showFalse=rnd(0,1)===0;let shown=sum;if(showFalse){let g=0;do{shown=sum+(rnd(1,3)*(rnd(0,1)?1:-1));g++;}while((shown===sum||shown<0)&&g<50);}const correct=shown===sum;const choices=[{label:'True',correct:correct},{label:'False',correct:!correct}];return{type:'compare_truefalse',kind:'multiple_choice',question:`${a} + ${b} = ${shown}. True or False?`,choices,hint:hintTrueFalse(a,b,shown,sum),work:{k:'cup',a,b}};}
   const n=rnd(1,10);
-  if(rnd(0,1)===0)return{type:'compare_double',kind:'numeric',question:`Double ${n} = ${n} + ${n} = ?`,answer:2*n,hint:hintDouble(n)};
-  return{type:'compare_double',kind:'numeric',question:`${n} + ${n+1} = ? <br><span style="font-size:.8em;color:${MUT};">(near double!)</span>`,answer:n+(n+1),hint:hintNearDouble(n)};
+  if(rnd(0,1)===0)return{type:'compare_double',kind:'numeric',question:`Double ${n} = ${n} + ${n} = ?`,answer:2*n,hint:hintDouble(n),work:{k:'cup',a:n,b:n}};
+  return{type:'compare_double',kind:'numeric',question:`${n} + ${n+1} = ? <br><span style="font-size:.8em;color:${MUT};">(near double!)</span>`,answer:n+(n+1),hint:hintNearDouble(n),work:{k:'cup',a:n,b:n+1}};
 }
 
 function eqFractions(){
@@ -193,14 +300,14 @@ function eqNumberSense(){
 
 function eqDataGraphs(){
   const t=rnd(0,2);
-  if(t===0){const a=rnd(6,15),b=rnd(1,a-1);return{type:'data_graphs',question:`A bar graph shows: Cyan bars = ${a}, Coral bars = ${b}. How many more Cyan than Coral?`,answer:a-b,hint:wrap(AMB,'📊','Reading bars',bubble(`${a} − ${b} = <strong style="color:${MINT};">${a-b}</strong>`))};}
+  if(t===0){const a=rnd(6,15),b=rnd(1,a-1);return{type:'data_graphs',question:`A bar graph shows: Cyan bars = ${a}, Coral bars = ${b}. How many more Cyan than Coral?`,answer:a-b,hint:wrap(AMB,'📊','Reading bars',bubble(`${a} − ${b} = <strong style="color:${MINT};">${a-b}</strong>`)),work:{k:'cdown',a,b}};}
   const pool=[{label:'Cars',emoji:'🏎️'},{label:'Flags',emoji:'🏁'},{label:'Trophies',emoji:'🏆'},{label:'Gears',emoji:'⚙️'}];
   let items,g=0;
   do{items=shuffle(pool).slice(0,rnd(3,4)).map(c=>({...c,value:rnd(1,12)}));g++;}while(new Set(items.map(i=>i.value)).size<items.length&&g<50);
   const chart=barChartHtml(items);
   if(t===1){const maxVal=Math.max(...items.map(i=>i.value));const correctItem=items.find(i=>i.value===maxVal);const choices=shuffle(items.map(i=>({label:i.label,correct:i===correctItem})));return{type:'graph_most',kind:'multiple_choice',question:`Which has the MOST?${chart}`,choices,hint:hintGraphMost(correctItem.label,maxVal)};}
   const roll=rnd(0,1);
-  if(roll===0){const [a,b]=shuffle(items).slice(0,2);const bigger=a.value>b.value?a:b,smaller=a.value>b.value?b:a;return{type:'graph_diff',kind:'numeric',question:`How many more ${bigger.label} than ${smaller.label}?${chart}`,answer:bigger.value-smaller.value,hint:hintGraphDiff(bigger.label,bigger.value,smaller.label,smaller.value)};}
+  if(roll===0){const [a,b]=shuffle(items).slice(0,2);const bigger=a.value>b.value?a:b,smaller=a.value>b.value?b:a;return{type:'graph_diff',kind:'numeric',question:`How many more ${bigger.label} than ${smaller.label}?${chart}`,answer:bigger.value-smaller.value,hint:hintGraphDiff(bigger.label,bigger.value,smaller.label,smaller.value),work:{k:'cdown',a:bigger.value,b:smaller.value}};}
   const total=items.reduce((s,i)=>s+i.value,0);return{type:'graph_total',kind:'numeric',question:`What is the total of all the bars?${chart}`,answer:total,hint:hintGraphTotal(items.map(i=>i.value),total)};
 }
 
@@ -243,39 +350,39 @@ const wordsGrouping=[
   {type:'word',question:'38 has how many ones?',answer:8,hint:wrap(MINT,'📦','Tens and Ones',bubble(`38 = 3 tens and <strong>8</strong> ones. The ones digit is <strong style="color:${MINT};">8</strong>`))}
 ];
 const wordsMissingAdd=[
-  {type:'word',question:`${N} has some 🏎️ toy cars. Gets 5 more → now 13. How many did he start with?`,answer:8,hint:hintMissingAddSimple(13,5)},
-  {type:'word',question:'? + 9 = 15. What is the missing number?',answer:6,hint:hintMissingAddSimple(15,9)},
-  {type:'word',question:'17 − ? = 8. What is the missing number?',answer:9,hint:hintMissingSubSmall(17,8)},
-  {type:'word',question:`${N} had some 🏁 flags. He gave away 6 and has 9 left. How many did he start with?`,answer:15,hint:addColumn(6,9)},
+  {type:'word',question:`${N} has some 🏎️ toy cars. Gets 5 more → now 13. How many did he start with?`,answer:8,hint:hintMissingAddSimple(13,5),work:{k:'cdown',a:13,b:5}},
+  {type:'word',question:'? + 9 = 15. What is the missing number?',answer:6,hint:hintMissingAddSimple(15,9),work:{k:'cdown',a:15,b:9}},
+  {type:'word',question:'17 − ? = 8. What is the missing number?',answer:9,hint:hintMissingSubSmall(17,8),work:{k:'cdown',a:17,b:8}},
+  {type:'word',question:`${N} had some 🏁 flags. He gave away 6 and has 9 left. How many did he start with?`,answer:15,hint:addColumn(6,9),work:{k:'cup',a:6,b:9}},
   {type:'word',question:'5 + ? + 3 = 12. What is the missing number?',answer:4,hint:hintMissingThreeAdd(12,5,3)}
 ];
 const wordsCarryAdd=[
-  {type:'word',question:'37 red 🏎️ + 45 blue 🏎️ cars. Total?',answer:82,hint:hintCarryAdd(37,45)},
-  {type:'word',question:'28 gold 🏆 trophies + 34 silver trophies. Total?',answer:62,hint:hintCarryAdd(28,34)},
-  {type:'word',question:'56 ⚙️ gears + 27 more. Total?',answer:83,hint:hintCarryAdd(56,27)},
-  {type:'word',question:`${N} has 49 stickers. He gets 26 more. How many now?`,answer:75,hint:hintCarryAdd(49,26)},
-  {type:'word',question:'17 + 68 = ?',answer:85,hint:hintCarryAdd(17,68)}
+  {type:'word',question:'37 red 🏎️ + 45 blue 🏎️ cars. Total?',answer:82,hint:hintCarryAdd(37,45),work:{k:'add',a:37,b:45}},
+  {type:'word',question:'28 gold 🏆 trophies + 34 silver trophies. Total?',answer:62,hint:hintCarryAdd(28,34),work:{k:'add',a:28,b:34}},
+  {type:'word',question:'56 ⚙️ gears + 27 more. Total?',answer:83,hint:hintCarryAdd(56,27),work:{k:'add',a:56,b:27}},
+  {type:'word',question:`${N} has 49 stickers. He gets 26 more. How many now?`,answer:75,hint:hintCarryAdd(49,26),work:{k:'add',a:49,b:26}},
+  {type:'word',question:'17 + 68 = ?',answer:85,hint:hintCarryAdd(17,68),work:{k:'add',a:17,b:68}}
 ];
 const wordsBorrowSub=[
-  {type:'word',question:`${N} had 52 🏁 flags. He shared 27. How many left?`,answer:25,hint:hintBorrowSub(52,27)},
-  {type:'word',question:`63 🏁 flags. ${N} gives away 28. How many left?`,answer:35,hint:hintBorrowSub(63,28)},
-  {type:'word',question:'81 − 47 = ?',answer:34,hint:hintBorrowSub(81,47)},
-  {type:'word',question:`${N} had 74 stickers. He used 39 for a project. How many left?`,answer:35,hint:hintBorrowSub(74,39)},
-  {type:'word',question:'52 − 18 = ?',answer:34,hint:hintBorrowSub(52,18)}
+  {type:'word',question:`${N} had 52 🏁 flags. He shared 27. How many left?`,answer:25,hint:hintBorrowSub(52,27),work:{k:'sub',a:52,b:27}},
+  {type:'word',question:`63 🏁 flags. ${N} gives away 28. How many left?`,answer:35,hint:hintBorrowSub(63,28),work:{k:'sub',a:63,b:28}},
+  {type:'word',question:'81 − 47 = ?',answer:34,hint:hintBorrowSub(81,47),work:{k:'sub',a:81,b:47}},
+  {type:'word',question:`${N} had 74 stickers. He used 39 for a project. How many left?`,answer:35,hint:hintBorrowSub(74,39),work:{k:'sub',a:74,b:39}},
+  {type:'word',question:'52 − 18 = ?',answer:34,hint:hintBorrowSub(52,18),work:{k:'sub',a:52,b:18}}
 ];
 const wordsAddThree=[
-  {type:'word',question:'19 🏎️ + 21 🏁 + 30 🏆 = Total?',answer:70,hint:hintAddThree(19,21,30)},
-  {type:'word',question:'12 🏎️ + 15 🏁 + 20 🏆 = Total?',answer:47,hint:hintAddThree(12,15,20)},
-  {type:'word',question:`${N} collects 8 shells, 11 shells, and 14 shells on three days. Total?`,answer:33,hint:hintAddThree(8,11,14)},
-  {type:'word',question:'25 + 13 + 9 = ?',answer:47,hint:hintAddThree(25,13,9)},
-  {type:'word',question:`${N} has 17 medals, 6 medals, and 22 medals in three boxes. Total?`,answer:45,hint:hintAddThree(17,6,22)}
+  {type:'word',question:'19 🏎️ + 21 🏁 + 30 🏆 = Total?',answer:70,hint:hintAddThree(19,21,30),work:[{k:'add',a:19,b:21},{k:'add',a:40,b:30}]},
+  {type:'word',question:'12 🏎️ + 15 🏁 + 20 🏆 = Total?',answer:47,hint:hintAddThree(12,15,20),work:[{k:'add',a:12,b:15},{k:'add',a:27,b:20}]},
+  {type:'word',question:`${N} collects 8 shells, 11 shells, and 14 shells on three days. Total?`,answer:33,hint:hintAddThree(8,11,14),work:[{k:'add',a:8,b:11},{k:'add',a:19,b:14}]},
+  {type:'word',question:'25 + 13 + 9 = ?',answer:47,hint:hintAddThree(25,13,9),work:[{k:'add',a:25,b:13},{k:'add',a:38,b:9}]},
+  {type:'word',question:`${N} has 17 medals, 6 medals, and 22 medals in three boxes. Total?`,answer:45,hint:hintAddThree(17,6,22),work:[{k:'add',a:17,b:6},{k:'add',a:23,b:22}]}
 ];
 const wordsSubThree=[
-  {type:'word',question:'75 🏎️ stickers. Gave away 28 and 19. How many left?',answer:28,hint:hintSubThree(75,28,19)},
-  {type:'word',question:'60 ⚙️ stickers. Gave away 15 and 12. How many left?',answer:33,hint:hintSubThree(60,15,12)},
-  {type:'word',question:'88 − 30 − 25 = ?',answer:33,hint:hintSubThree(88,30,25)},
-  {type:'word',question:`${N} had 50 coins. He spent 14 then 9 more. How many left?`,answer:27,hint:hintSubThree(50,14,9)},
-  {type:'word',question:'72 − 18 − 21 = ?',answer:33,hint:hintSubThree(72,18,21)}
+  {type:'word',question:'75 🏎️ stickers. Gave away 28 and 19. How many left?',answer:28,hint:hintSubThree(75,28,19),work:[{k:'sub',a:75,b:28},{k:'sub',a:47,b:19}]},
+  {type:'word',question:'60 ⚙️ stickers. Gave away 15 and 12. How many left?',answer:33,hint:hintSubThree(60,15,12),work:[{k:'sub',a:60,b:15},{k:'sub',a:45,b:12}]},
+  {type:'word',question:'88 − 30 − 25 = ?',answer:33,hint:hintSubThree(88,30,25),work:[{k:'sub',a:88,b:30},{k:'sub',a:58,b:25}]},
+  {type:'word',question:`${N} had 50 coins. He spent 14 then 9 more. How many left?`,answer:27,hint:hintSubThree(50,14,9),work:[{k:'sub',a:50,b:14},{k:'sub',a:36,b:9}]},
+  {type:'word',question:'72 − 18 − 21 = ?',answer:33,hint:hintSubThree(72,18,21),work:[{k:'sub',a:72,b:18},{k:'sub',a:54,b:21}]}
 ];
 const wordsComposeAdd=[
   {type:'compose_add',kind:'compose_pair',question:'Write two different pairs of 🏎️ cars that add up to <strong>15</strong>.',target:15,hint:hintComposeAdd(15)},
@@ -362,14 +469,14 @@ const wordsCalendar=[
   {type:'word',kind:'multiple_choice',question:'Which month comes right after December?',choices:[{label:'January',correct:true},{label:'November',correct:false},{label:'February',correct:false},{label:'March',correct:false}],hint:wrap('#FF85C8','📅','Months',bubble('After December, the year starts over with January.'))}
 ];
 const wordsCombo=[
-  {type:'word',kind:'numeric',question:'Safia has 15 stickers. Safaan has 9. How many MORE does Safia have?',answer:6,hint:hintCompareSymbol(15,9,'>')},
-  {type:'word',kind:'numeric',question:'There are 8 red cars and 13 green cars. How many FEWER red cars are there?',answer:5,hint:hintCompareSymbol(8,13,'<')},
-  {type:'word',kind:'numeric',question:'Safia had 6 trophies. She won 7 more at the race. How many now?',answer:13,hint:addColumn(6,7)},
-  {type:'word',kind:'numeric',question:'Safia had 9 flags. After giving some to Safaan, she has 4 left. How many did she give away?',answer:5,hint:hintMissingSubSmall(9,4)},
-  {type:'word',kind:'numeric',question:'Safia had some toy cars. She got 5 more and now has 12. How many did she start with?',answer:7,hint:hintMissingAddSimple(12,5)},
-  {type:'word',kind:'numeric',question:'Safia wants to put 10 flags into two pit stops with a different amount in each. If one gets 4, how many go in the other?',answer:6,hint:hintMissingAddSimple(10,4)},
-  {type:'word',kind:'numeric',question:'Safia drove 14 laps. Her goal was 20 laps. How many more laps does she need?',answer:6,hint:hintMissingAddSimple(20,14)},
-  {type:'word',kind:'numeric',question:'A trophy has 45¢ of value. Safia has 3 dimes and 1 nickel (35¢). How many more cents does she need?',answer:10,hint:hintMissingAddSimple(45,35)}
+  {type:'word',kind:'numeric',question:'Safia has 15 stickers. Safaan has 9. How many MORE does Safia have?',answer:6,hint:hintCompareSymbol(15,9,'>'),work:{k:'cdown',a:15,b:9}},
+  {type:'word',kind:'numeric',question:'There are 8 red cars and 13 green cars. How many FEWER red cars are there?',answer:5,hint:hintCompareSymbol(8,13,'<'),work:{k:'cdown',a:13,b:8}},
+  {type:'word',kind:'numeric',question:'Safia had 6 trophies. She won 7 more at the race. How many now?',answer:13,hint:addColumn(6,7),work:{k:'cup',a:6,b:7}},
+  {type:'word',kind:'numeric',question:'Safia had 9 flags. After giving some to Safaan, she has 4 left. How many did she give away?',answer:5,hint:hintMissingSubSmall(9,4),work:{k:'cdown',a:9,b:4}},
+  {type:'word',kind:'numeric',question:'Safia had some toy cars. She got 5 more and now has 12. How many did she start with?',answer:7,hint:hintMissingAddSimple(12,5),work:{k:'cdown',a:12,b:5}},
+  {type:'word',kind:'numeric',question:'Safia wants to put 10 flags into two pit stops with a different amount in each. If one gets 4, how many go in the other?',answer:6,hint:hintMissingAddSimple(10,4),work:{k:'cdown',a:10,b:4}},
+  {type:'word',kind:'numeric',question:'Safia drove 14 laps. Her goal was 20 laps. How many more laps does she need?',answer:6,hint:hintMissingAddSimple(20,14),work:{k:'cdown',a:20,b:14}},
+  {type:'word',kind:'numeric',question:'A trophy has 45¢ of value. Safia has 3 dimes and 1 nickel (35¢). How many more cents does she need?',answer:10,hint:hintMissingAddSimple(45,35),work:{k:'cdown',a:45,b:35}}
 ];
 
 function buildLevel(eqFn,pool){
@@ -404,6 +511,19 @@ const LEVELS=[
   {id:'calendar',    name:'Race Calendar',  icon:'📅'},
   {id:'combo',       name:'Grand Finale',   icon:'🏆'}
 ];
+
+// Two racers share this app; each is scoped to its own slice of LEVELS (index
+// range, not level ids — `from`/`to` are LEVELS.slice() bounds) and its own
+// SOAR age band. The ranges deliberately overlap (levels 3-7): both kids can
+// use the shared middle levels as review/stretch, while the outer edges
+// (counting/tens&ones/missing-number for the younger; compose_sub-through-
+// combo for the older) are exclusive to one racer. Ages/ranges confirmed with
+// the customer per the redesign handoff.
+const RACERS={
+  safia:{id:'safia',name:'Safia',initial:'S',age:6,color:'var(--color-primary)',from:0,to:8,band:'3-5'},
+  safaan:{id:'safaan',name:'Safaan',initial:'S',age:9,color:'var(--color-accent)',from:3,to:20,band:'7-11'},
+};
+const DEFAULT_RACER='safia';
 
 const LEVEL_VIDEOS={
   counting:{url:'https://www.youtube.com/results?search_query=jack+hartmann+count+to+20+kids',title:'Count to 20 – Jack Hartmann'},

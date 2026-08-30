@@ -6,6 +6,18 @@
 document.body.addEventListener('touchstart', ()=>{}, {passive:true});
 
 // ============================================================
+//  RACER PROFILES — two kids share this app. Every mathdojo-*/tm-mm-*
+//  localStorage key is namespaced per racer via nk(); RACERS/DEFAULT_RACER
+//  come from mathdata.js. loadRacerState() (defined further down, once all
+//  the state variables it populates have been declared) does the actual
+//  per-racer (re)load and is called once at boot and again on every swap.
+// ============================================================
+let activeRacer=DEFAULT_RACER;
+try{const s=localStorage.getItem('mathdojo-active-racer'); if(s&&RACERS[s])activeRacer=s;}catch(e){}
+function nkFor(base,racerId){ return base+'-'+racerId; }
+function nk(base){ return nkFor(base,activeRacer); }
+
+// ============================================================
 //  CONFETTI
 // ============================================================
 const confCanvas=document.getElementById('confettiCanvas');
@@ -44,24 +56,6 @@ function runConf(){
   else{confRunning=false;confCtx.clearRect(0,0,confCanvas.width,confCanvas.height);}
 }
 
-// ============================================================
-//  MASCOT
-// ============================================================
-const mascotEl=document.getElementById('mascot');
-// Cycle mascots: MMA fighter 🥋, racer 🏎️, champion 🏆, Labubu 🧸
-const mascots=['🥋','🏎️','🏆','🧸'];
-let mascotIdx=0;
-mascotEl.addEventListener('click',()=>{
-  mascotIdx=(mascotIdx+1)%mascots.length;
-  mascotEl.textContent=mascots[mascotIdx];
-  mascotReact('cheer');
-  doSpeak(['Hi-ya! Kick that problem!','Vroom vroom, keep going!','You are a champion!','Keep training, you got this!'][mascotIdx]);
-});
-function mascotReact(type){
-  mascotEl.classList.remove('cheer','oops');
-  void mascotEl.offsetWidth;
-  mascotEl.classList.add(type);
-}
 
 // ============================================================
 //  POP TEXT
@@ -90,14 +84,6 @@ function updateStreakBadge(){
     streakEl.classList.add('fire');
   } else streakEl.style.display='none';
 }
-function buildStreakDots(n){
-  const row=document.getElementById('streakDots');row.innerHTML='';
-  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='streak-dot';d.id='sdot_'+i;row.appendChild(d);}
-}
-function lightDot(idx){
-  const d=document.getElementById('sdot_'+idx);
-  if(d){d.classList.add('lit');setTimeout(()=>d.classList.add('fire'),100);}
-}
 
 // ============================================================
 //  MILESTONE / TROPHIES
@@ -122,37 +108,88 @@ window.closeMilestone=function(){
 };
 
 // TROPHIES comes from mathdata.js (16 racing/dojo-themed trophies).
+// Populated per-racer by loadRacerState() below.
 let trophyData={};
-try{const t=localStorage.getItem('mathdojo-trophies');if(t)trophyData=JSON.parse(t);}catch(e){}
 let totalStarsEarned=0;
-try{const ts=localStorage.getItem('mathdojo-stars');if(ts)totalStarsEarned=parseInt(ts)||0;}catch(e){}
 
 function checkTrophies(prevStars,newStars,prog){
   TROPHIES.forEach(t=>{
     if(!trophyData[t.id]&&t.check(newStars,prog)){
       trophyData[t.id]=true;
-      localStorage.setItem('mathdojo-trophies',JSON.stringify(trophyData));
+      localStorage.setItem(nk('mathdojo-trophies'),JSON.stringify(trophyData));
       showMilestone(t.icon,'Trophy Unlocked!',t.name+' 🎉');
     }
   });
 }
+// Trophies screen: 16 trophies + the 10 badges below them, same tile
+// treatment, no idle glow animation (see style.css).
 function renderTrophyShelf(){
-  const row=document.getElementById('trophyRow');if(!row)return;
-  row.innerHTML='';
-  TROPHIES.forEach(t=>{
-    const div=document.createElement('div');
-    div.className='trophy-item'+(trophyData[t.id]?' earned':'');
-    div.innerHTML=`<span class="trophy-icon">${trophyData[t.id]?t.icon:'🔒'}</span><div class="trophy-name">${t.name}</div>`;
-    row.appendChild(div);
-  });
+  const r=RACERS[activeRacer];
+  const grid=document.getElementById('trophiesGrid');
+  if(grid){
+    grid.innerHTML='';
+    TROPHIES.forEach(t=>{
+      const earned=!!trophyData[t.id];
+      const div=document.createElement('div');
+      div.className='trophy-tile'+(earned?' trophy-tile--earned':'');
+      div.innerHTML=`<div class="trophy-tile__icon">${earned?t.icon:'🔒'}</div><div class="trophy-tile__name">${t.name}</div>`;
+      grid.appendChild(div);
+    });
+  }
+  const badgeGrid=document.getElementById('badgesGrid');
+  if(badgeGrid){
+    badgeGrid.innerHTML='';
+    BADGES_DEF.forEach(b=>{
+      const earned=!!badges[b.key];
+      const div=document.createElement('div');
+      div.className='trophy-tile'+(earned?' trophy-tile--earned':'');
+      div.innerHTML=`<div class="trophy-tile__icon">${earned?b.icon:'🔒'}</div><div class="trophy-tile__name">${b.name}</div>`;
+      badgeGrid.appendChild(div);
+    });
+  }
+  const title=document.getElementById('trophiesHeadingTitle'); if(title)title.textContent=`🏆 ${r.name}'s trophy case`;
+  const earnedCount=TROPHIES.filter(t=>trophyData[t.id]).length;
+  const sub=document.getElementById('trophiesHeadingSub'); if(sub)sub.textContent=`${earnedCount} of 16 earned · one shelf per racer`;
 }
+function showTrophies(){ renderTrophyShelf(); showScreen('trophiesScreen'); }
+window.showTrophies=showTrophies;
+
+// Grown-up summary: the only screen showing both racers at once.
+function renderGrownup(){
+  const lanesHtml=Object.keys(RACERS).map(id=>{
+    const r=RACERS[id];
+    const bundle=id===activeRacer?buildRacerBundle():readRacerBundleFromStorage(id);
+    const lane=laneLevels(id);
+    const masteredCount=lane.filter(l=>bundle.progress[l.id]?.completed).length;
+    const trophyCount=TROPHIES.filter(t=>bundle.trophyData[t.id]).length;
+    const missEntries=weakFacts(bundle.mmMisses,3);
+    const missChips=missEntries.length
+      ? missEntries.map(m=>`<span class="miss-chip">${SET_LABEL[m.set]||m.set} · ${m.count} miss${m.count===1?'':'es'}</span>`).join('')
+      : `<span class="miss-chip miss-chip--none">No misses yet</span>`;
+    const pct=lane.length?Math.round(masteredCount/lane.length*100):0;
+    return `<div class="grownup-card">
+      <div class="grownup-card__header">
+        <div class="racer-avatar" style="width:38px;height:38px;background:${r.color};font-size:14px;">${r.initial}</div>
+        <div class="grownup-card__name">${r.name}</div>
+        <div class="grownup-card__stars">★ ${bundle.totalStarsEarned}</div>
+      </div>
+      <div class="grownup-card__summary">${masteredCount} of ${lane.length} levels mastered, age ${r.age}.</div>
+      <div class="progress-bar progress-bar--thin" style="margin-top:10px;"><div class="progress-bar__fill" style="width:${pct}%;background:var(--color-reward);"></div></div>
+      <div class="grownup-card__meta">${masteredCount} of ${lane.length} levels · ${trophyCount} of 16 trophies</div>
+      <div class="grownup-card__misses">${missChips}</div>
+    </div>`;
+  }).join('');
+  const el=document.getElementById('grownupLanes'); if(el)el.innerHTML=lanesHtml;
+}
+function showGrownup(){ renderGrownup(); showScreen('grownupScreen'); }
+window.showGrownup=showGrownup;
 
 // ============================================================
 //  DAILY BONUS
 // ============================================================
 function checkDailyBonus(){
   const today=new Date().toDateString();
-  if(localStorage.getItem('mathdojo-lastbonus')===today){document.getElementById('dailyBonusWrap').innerHTML='';return;}
+  if(localStorage.getItem(nk('mathdojo-lastbonus'))===today){document.getElementById('dailyBonusWrap').innerHTML='';return;}
   document.getElementById('dailyBonusWrap').innerHTML=`
     <div class="daily-card">
       <div class="daily-title">🎁 Daily Dojo Bonus! Play today for +3 ⭐ bonus stars!</div>
@@ -160,12 +197,12 @@ function checkDailyBonus(){
     </div>`;
 }
 window.claimDaily=function(){
-  localStorage.setItem('mathdojo-lastbonus',new Date().toDateString());
+  localStorage.setItem(nk('mathdojo-lastbonus'),new Date().toDateString());
   totalStarsEarned+=3;
   updateTopBarStars();
   persistAll();
   document.getElementById('dailyBonusWrap').innerHTML='<div style="text-align:center;font-family:var(--font-display);font-size:1.3rem;color:var(--amber-400);padding:10px;">🎁 +3 Stars!</div>';
-  launchConfetti(60);showPop('🏆 +3 Stars!','#FFB020');mascotReact('cheer');
+  launchConfetti(60);showPop('🏆 +3 Stars!','#FFB020');
 };
 
 // ============================================================
@@ -191,35 +228,31 @@ function playCelebrationSound(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=
 //  BADGES — data-driven off BADGES_DEF (mathdata.js)
 // ============================================================
 let badges={};
-BADGES_DEF.forEach(b=>{badges[b.key]=false;});
-try{const s=localStorage.getItem('mathdojo-badges');if(s)Object.assign(badges,JSON.parse(s));}catch(e){}
+// Badges no longer render as a fixed row of 10 hardcoded circles toggled by
+// id convention — they're generated tiles on the Trophies screen
+// (renderTrophyShelf() above). This just keeps the `badges` data current.
 function checkBadges(){
   BADGES_DEF.forEach(b=>{badges[b.key]=!!b.check(progress);});
-  localStorage.setItem('mathdojo-badges',JSON.stringify(badges));
-  Object.entries(badges).forEach(([k,v])=>{
-    const el=document.getElementById('badge'+k.charAt(0).toUpperCase()+k.slice(1));
-    if(el){if(v)el.classList.add('unlocked');else el.classList.remove('unlocked');}
-  });
+  localStorage.setItem(nk('mathdojo-badges'),JSON.stringify(badges));
 }
 
 // ============================================================
 //  PROGRESS STATE — LEVELS comes from mathdata.js
 // ============================================================
 let progress={};
-LEVELS.forEach(l=>{progress[l.id]={completed:false,score:0};});
-try{const s=localStorage.getItem('mathdojo-progress');if(s)progress=Object.assign(progress,JSON.parse(s));}catch(e){}
 
 let currentLevel=null,questions=[],qIndex=0,score=0,wrong=0,answered=false;
 
 // ============================================================
-//  PERSISTENCE — writes every localStorage key in one call
+//  PERSISTENCE — writes every localStorage key (for the active racer) in
+//  one call
 // ============================================================
 function persistAll(){
-  localStorage.setItem('mathdojo-progress',JSON.stringify(progress));
-  localStorage.setItem('mathdojo-soar',JSON.stringify(soarProgress));
-  localStorage.setItem('mathdojo-trophies',JSON.stringify(trophyData));
-  localStorage.setItem('mathdojo-badges',JSON.stringify(badges));
-  localStorage.setItem('mathdojo-stars',String(totalStarsEarned));
+  localStorage.setItem(nk('mathdojo-progress'),JSON.stringify(progress));
+  localStorage.setItem(nk('mathdojo-soar'),JSON.stringify(soarProgress));
+  localStorage.setItem(nk('mathdojo-trophies'),JSON.stringify(trophyData));
+  localStorage.setItem(nk('mathdojo-badges'),JSON.stringify(badges));
+  localStorage.setItem(nk('mathdojo-stars'),String(totalStarsEarned));
 }
 
 // ============================================================
@@ -393,11 +426,71 @@ function lengthBlocksHtml(n){return Array.from({length:n},()=>`<span style="disp
 // ============================================================
 //  RENDER
 // ============================================================
+// ── racer-scoped level lane helpers ──
+function laneLevels(racerId){ const r=RACERS[racerId||activeRacer]; return LEVELS.slice(r.from,r.to); }
+function laneMasteredCount(racerId){ return laneLevels(racerId).filter(l=>progress[l.id]?.completed).length; }
+function nextLaneLevel(){
+  const lane=laneLevels();
+  return lane.find(l=>!progress[l.id]?.completed) || lane[lane.length-1];
+}
+
+// ── Home: "what do I do right now" — next-up card, today card, 3 tiles ──
 function renderHome(){
+  const r=RACERS[activeRacer];
+  const lane=laneLevels();
+  const mastered=laneMasteredCount();
+  const next=nextLaneLevel();
+  const nextIdxInLane=lane.indexOf(next);
+
+  const iconEl=document.getElementById('nextUpIcon'); if(iconEl)iconEl.textContent=next.icon;
+  const eyebrow=document.getElementById('nextUpEyebrow'); if(eyebrow)eyebrow.textContent=`NEXT UP · LEVEL ${nextIdxInLane+1} OF ${lane.length}`;
+  const nameEl=document.getElementById('nextUpName'); if(nameEl)nameEl.textContent=next.name;
+  const startBtn=document.getElementById('nextUpStart'); if(startBtn)startBtn.onclick=()=>startLevel(next);
+
+  const soarList=SOAR_ACTIVITIES.filter(a=>a.age===r.band);
+  const soarSample=soarList[3]||soarList[0];
+  const todayItems=[
+    {icon:'🃏',label:'Flash cards — 5 cards',stat:mastery(mmCards)>=50?'done':'go',go:"showGym()"},
+    {icon:'📋',label:'Daily assignment',stat:`${gymDaily.done}/16`,go:"showGym()"},
+    {icon:'🦅',label:`SOAR quest — ${soarSample?soarSample.title:'Explore'}`,stat:'›',go:"showSoarMenu()"},
+  ];
+  const todayDoneCount=todayItems.filter(t=>t.stat==='done').length;
+  const rowsHtml=todayItems.map(t=>`
+    <div class="today-row${t.stat==='done'?' today-row--done':''}" onclick="${t.go}">
+      <span class="today-row__icon">${t.icon}</span>
+      <span class="today-row__label">${t.label}</span>
+      <span class="today-row__stat">${t.stat}</span>
+    </div>`).join('');
+  const rowsEl=document.getElementById('todayRows'); if(rowsEl)rowsEl.innerHTML=rowsHtml;
+  const noteEl=document.getElementById('todayNote'); if(noteEl)noteEl.textContent=`${todayDoneCount} of 3 done · +3★ daily bonus`;
+
+  const tiles=[
+    {icon:'🏎️',name:'Levels',line:`${mastered} of ${lane.length} mastered`,go:'showPracticeMenu()',cls:'dest-tile--primary'},
+    {icon:'🦅',name:'SOAR',line:`${soarList.length} for ages ${r.band}`,go:'showSoarMenu()',cls:'dest-tile--accent'},
+    {icon:'🧠',name:'Gym',line:`${gymDaily.done}/16 problems today`,go:'showGym()',cls:'dest-tile--reward'},
+  ];
+  const tilesHtml=tiles.map(t=>`
+    <div class="dest-tile ${t.cls}" onclick="${t.go}">
+      <div class="dest-tile__icon">${t.icon}</div>
+      <div class="dest-tile__name">${t.name}</div>
+      <div class="dest-tile__line">${t.line}</div>
+    </div>`).join('');
+  const tilesEl=document.getElementById('destTiles'); if(tilesEl)tilesEl.innerHTML=tilesHtml;
+
+  checkBadges();
+  updateTopBarStars();
+}
+function startNextLevel(){ startLevel(nextLaneLevel()); }
+
+// ── Levels screen: this racer's lane only, every tile unlocked ──
+function renderPracticeMenu(){
+  const r=RACERS[activeRacer];
+  const lane=laneLevels();
+  const mastered=laneMasteredCount();
   const grid=document.getElementById('levelsGrid');
   if(grid){
     grid.innerHTML='';
-    LEVELS.forEach(level=>{
+    lane.forEach(level=>{
       const p=progress[level.id];
       const stars=p.completed?(p.score>=90?'⭐⭐⭐':p.score>=70?'⭐⭐':'⭐'):'';
       const btn=document.createElement('div');
@@ -407,45 +500,51 @@ function renderHome(){
       grid.appendChild(btn);
     });
   }
-  updateProgressStats();
+  const title=document.getElementById('levelsHeadingTitle'); if(title)title.textContent=`🏎️ ${r.name}'s levels`;
+  const sub=document.getElementById('levelsHeadingSub'); if(sub)sub.textContent=`${mastered} of ${lane.length} mastered — tuned to age ${r.age}`;
+  const otherId=activeRacer==='safia'?'safaan':'safia', other=RACERS[otherId];
+  const foot=document.getElementById('laneFootnote');
+  if(foot)foot.textContent=`${other.name}'s lane runs ${LEVELS[other.from].name} → ${LEVELS[other.to-1].name}. Nobody scrolls past levels they can't use.`;
   checkBadges();
-  renderTrophyShelf();
   updateTopBarStars();
-  const gymStat=document.getElementById('gymHomeStat');
-  if(gymStat)gymStat.textContent=`Today ${mmSheet.daily.done}/16`;
 }
-window.showPracticeMenu=function(){renderHome();showScreen('practiceMenuScreen');};
-
-function updateProgressStats(){
-  const m=LEVELS.filter(l=>progress[l.id]?.completed).length;
-  const pct=Math.round(m/LEVELS.length*100)||0;
-  document.getElementById('progressStats').textContent=`${m} of ${LEVELS.length} levels mastered (${pct}%)`;
-  document.getElementById('progressBarFill').style.width=pct+'%';
-}
+window.showPracticeMenu=function(){renderPracticeMenu();showScreen('practiceMenuScreen');};
 
 function startLevel(level){
   currentLevel=level;questions=generateLevel(level.id);
   qIndex=0;score=0;wrong=0;answered=false;currentStreak=0;
-  document.getElementById('quizLevelLabel').textContent=`${level.icon} ${level.name}`;
   const vd=LEVEL_VIDEOS[level.id];
-  if(vd)document.getElementById('quizVideoArea').innerHTML=makeVideoBtn(vd.url,vd.title);
-  buildStreakDots(Math.min(questions.length,5));
-  updateStreakBadge();
+  const watchBtn=document.getElementById('watchButton');
+  if(watchBtn){
+    if(vd){watchBtn.href=vd.url;watchBtn.textContent='▶ Watch';watchBtn.style.display='inline-flex';}
+    else watchBtn.style.display='none'; // clear any previous level's video link — it must not linger
+  }
   showScreen('quizScreen');renderQuestion();
 }
 
+function updateQuizStatRow(){
+  const row=document.getElementById('quizStatRow');
+  if(!row)return;
+  const answeredCount=score+wrong;
+  if(!answeredCount){row.style.display='none';return;}
+  const accuracy=Math.round(score/answeredCount*100);
+  row.style.display='flex';
+  row.innerHTML=`<span class="qs-pill qs-pill--ok">✅ ${score}</span><span class="qs-pill qs-pill--bad">🥊 ${wrong}</span><span class="qs-pill">${accuracy}%</span>`;
+}
+
+let hintStep=0;
 function renderQuestion(){
   const q=questions[qIndex],total=questions.length;
-  document.getElementById('quizQCounter').textContent=`Q${qIndex+1}/${total}`;
-  document.getElementById('scoreCorrect').textContent=score;
-  document.getElementById('scoreWrong').textContent=wrong;
-  document.getElementById('scorePercent').textContent=(score+wrong)?Math.round(score/(score+wrong)*100)+'%':'—';
+  const meta=document.getElementById('quizHeadMeta'); if(meta)meta.textContent=`${currentLevel.icon} ${currentLevel.name} · Q${qIndex+1} of ${total}`;
+  const headStars=document.getElementById('quizHeadStars'); if(headStars)headStars.textContent='★ '+totalStarsEarned;
   document.getElementById('quizProgressBar').style.width=(qIndex/total*100)+'%';
   document.getElementById('feedback').className='feedback';
   document.getElementById('checkButton').style.display='block';
   document.getElementById('nextButton').style.display='none';
   answered=false;
+  hintStep=0;
   const hb=document.getElementById('hintButton');hb.style.display=q.hasHint?'block':'none';hb.disabled=false;
+  updateQuizStatRow();
 
   const badge=TYPE_LABELS[q.type]||'Maths';
   const card=document.getElementById('questionCard');
@@ -458,28 +557,90 @@ function renderQuestion(){
   card.innerHTML=`<div class="q-type-badge">${badge}</div><div class="question-text">${q.question.replace(/\n/g,'<br>')}</div>${inputHtml}<div class="hint-box" id="hintDisplay"></div>`;
 
   // Set hint safely via .innerHTML AFTER the element exists in the DOM
-  const hintDisplay=document.getElementById('hintDisplay');
-  if(hintDisplay&&q.hint) hintDisplay.innerHTML=q.hint;
+  renderHintContent(q);
 
   typeDef.bindEnter(q);
+  // Chromebook keyboard play: the answer field always has focus, so a whole
+  // level runs from the keyboard (see the quiz keydown listener below).
+  if(kindOf(q)==='numeric')document.getElementById('answerInput')?.focus();
 }
 
-function showHint(){document.getElementById('hintDisplay').classList.add('show');document.getElementById('hintButton').disabled=true;}
+function showHint(){
+  document.getElementById('hintDisplay').classList.add('show');
+  document.getElementById('hintButton').disabled=true;
+  document.getElementById('questionCard').classList.add('hint-open');
+}
+
+// ── Stepped worked-example hint panel — a column-method grid or a number
+// strip, advanced one step at a time. Falls back to the plain prose/HTML
+// hint (unchanged from before) when the question has no `work` descriptor —
+// mirrors the design prototype's hintDrawn/hintPlain split exactly.
+const HINT_COLORS={ink:'var(--text-primary)',amber:'var(--amber-400)',cyan:'var(--cyan-300)',muted:'var(--text-muted)',coral:'var(--coral-400)'};
+function renderHintContent(q){
+  const hintDisplay=document.getElementById('hintDisplay');
+  if(!hintDisplay)return;
+  const steps=workSteps(q.work);
+  if(!steps){ if(q.hint)hintDisplay.innerHTML=q.hint; return; }
+  const i=Math.max(0,Math.min(hintStep,steps.length-1));
+  hintDisplay.innerHTML=renderHintStepHtml(steps,i);
+}
+function hintCellHtml(c,tall){
+  const deco=c.strike?'text-decoration:line-through;text-decoration-color:var(--color-error);text-decoration-thickness:3px;':'';
+  return `<div style="height:${tall?38:22}px;display:flex;align-items:${tall?'center':'flex-end'};justify-content:center;font-size:${tall?'2rem':'1.05rem'};color:${HINT_COLORS[c.color]||HINT_COLORS.ink};${deco}">${c.v}</div>`;
+}
+function hintPadRow(row,cols){
+  const pad=cols-row.length;
+  return pad>0 ? [row[0],...Array.from({length:pad},()=>({v:'',color:'ink',strike:false})),...row.slice(1)] : row;
+}
+function renderHintStepHtml(steps,i){
+  const st=steps[i],hasPrev=i>0,hasNext=i<steps.length-1;
+  let drawingHtml;
+  if(st.mode==='strip'){
+    drawingHtml=`<div style="display:flex;flex-wrap:wrap;gap:8px;background:var(--bg-app-deep);border:2px solid var(--border-strong);border-radius:var(--radius-md);padding:10px 14px;min-height:60px;align-items:center;">
+      ${st.chips.map(ch=>`<div style="min-width:44px;text-align:center;"><div style="font-family:var(--font-display);font-size:1.4rem;color:${ch.hl?'var(--amber-400)':'var(--text-primary)'};line-height:1.1;">${ch.v}</div><div style="height:3px;background:${ch.hl?'var(--amber-500)':'var(--border-strong)'};margin:3px 5px;border-radius:2px;"></div><div style="font-size:.78rem;font-weight:900;color:${ch.hl?'var(--amber-400)':'var(--cyan-300)'};">${ch.count}</div></div>`).join('')}
+    </div>`;
+  }else{
+    const cols=Math.max(st.carry.length,st.top.length,st.bot.length,st.res.length);
+    drawingHtml=`<div style="display:grid;grid-template-columns:38px repeat(${cols-1},50px);justify-content:center;font-family:var(--font-display);background:var(--bg-app-deep);border:2px solid var(--border-strong);border-radius:var(--radius-md);padding:8px 14px 10px;">
+      ${hintPadRow(st.carry,cols).map(c=>hintCellHtml(c,false)).join('')}
+      ${hintPadRow(st.top,cols).map(c=>hintCellHtml(c,true)).join('')}
+      ${hintPadRow(st.bot,cols).map(c=>hintCellHtml(c,true)).join('')}
+      <div style="grid-column:1/-1;border-top:4px solid var(--text-primary);margin:3px 0 4px;"></div>
+      ${hintPadRow(st.res,cols).map(c=>hintCellHtml(c,true)).join('')}
+    </div>`;
+  }
+  return `<div style="display:flex;align-items:baseline;gap:10px;">
+      <div style="font-family:var(--font-display);font-size:1.05rem;color:var(--amber-400);">Let's do it together</div>
+      <div style="font-size:.75rem;font-weight:800;color:var(--text-muted);">Step ${i+1} of ${steps.length}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:10px;">
+      ${drawingHtml}
+      ${st.side?`<div style="font-family:var(--font-display);font-size:1.3rem;color:var(--amber-400);background:var(--surface-1);border:2px dashed var(--amber-500);border-radius:var(--radius-md);padding:10px 16px;">${st.side}</div>`:''}
+    </div>
+    <div style="font-size:1rem;color:var(--text-primary);line-height:1.5;margin-top:10px;max-width:560px;">${st.say}</div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      ${hasPrev?`<button class="btn btn--ghost" style="flex:0 0 auto;padding:10px 16px;" onclick="hintStepBack()">◀ Back</button>`:''}
+      ${hasNext?`<button class="btn btn--reward" style="flex:0 0 auto;padding:10px 20px;" onclick="hintStepNext()">Next step ▶</button>`:''}
+      ${hasPrev?`<button class="btn btn--ghost" style="flex:0 0 auto;padding:10px 16px;" onclick="hintStepRestart()">↻ Start again</button>`:''}
+    </div>`;
+}
+function hintStepNext(){ const steps=workSteps(questions[qIndex].work); hintStep=Math.min(hintStep+1,steps.length-1); renderHintContent(questions[qIndex]); }
+function hintStepBack(){ hintStep=Math.max(hintStep-1,0); renderHintContent(questions[qIndex]); }
+function hintStepRestart(){ hintStep=0; renderHintContent(questions[qIndex]); }
 
 function handleCorrect(){
   score++;currentStreak++;
-  updateStreakBadge();lightDot(Math.min(qIndex,4));
+  updateStreakBadge();
   playCorrectSound();
   launchConfetti(currentStreak>=3?55:25);
   const popWord=currentStreak>=4?'🏆 CHAMPION!':currentStreak>=3?'🔥 ON FIRE!':'✅ PERFECT!';
   showPop(popWord,currentStreak>=3?'#FFB020':'#17C7C7');
-  mascotReact('cheer');
   document.getElementById('feedback').className='feedback show ok';
   document.getElementById('feedback').textContent=currentStreak>=3?`🔥 ${currentStreak} in a row!`:'✅ Correct! Great work!';
-  document.getElementById('scoreCorrect').textContent=score;
-  const cv=document.getElementById('scoreCorrect');cv.classList.remove('bump');void cv.offsetWidth;cv.classList.add('bump');
+  updateQuizStatRow();
   totalStarsEarned++;
   updateTopBarStars();
+  const headStars=document.getElementById('quizHeadStars'); if(headStars)headStars.textContent='★ '+totalStarsEarned;
   checkTrophies(totalStarsEarned-1,totalStarsEarned,progress);
   persistAll();
   document.getElementById('checkButton').style.display='none';
@@ -488,10 +649,10 @@ function handleCorrect(){
 }
 function handleWrong(msg){
   wrong++;currentStreak=0;updateStreakBadge();
-  playWrongSound();mascotReact('oops');
-  document.getElementById('scoreWrong').textContent=wrong;
+  playWrongSound();
   document.getElementById('feedback').className='feedback show bad';
   document.getElementById('feedback').textContent=msg||'🥊 Keep fighting!';
+  updateQuizStatRow();
   document.getElementById('checkButton').style.display='none';
   document.getElementById('nextButton').style.display='block';
   document.getElementById('hintButton').disabled=true;
@@ -501,12 +662,23 @@ function checkAnswer(){
   if(answered)return;
   const q=questions[qIndex];
   const result=QUESTION_TYPES[kindOf(q)].check(q);
-  if(result.status==='empty'){alert(result.message);return;}
   answered=true;
+  // An empty answer counts as wrong now — no more alert() blocking keyboard play.
   if(result.status==='correct')handleCorrect();else handleWrong(result.message);
 }
 
 function nextQuestion(){qIndex++;if(qIndex>=questions.length)showResults();else renderQuestion();}
+
+// Chromebook keyboard play: Enter checks when unchecked, advances when
+// checked. One global listener (not per-input) so it works no matter which
+// question kind is on screen.
+window.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const current=document.querySelector('.screen.active');
+  if(!current||current.id!=='quizScreen')return;
+  e.preventDefault();
+  if(answered)nextQuestion();else checkAnswer();
+});
 
 function showResults(){
   const total=questions.length,pct=Math.round(score/total*100),passed=pct>=70;
@@ -519,10 +691,14 @@ function showResults(){
   document.getElementById('resultEmoji').textContent=pct>=90?'🏆':pct>=70?'🏁':'🔧';
   document.getElementById('resultTitle').textContent=pct>=90?'Perfect Run!':pct>=70?'Great Job!':'Keep Training!';
   const starsEl=document.getElementById('resultStars');
-  starsEl.className='result-stars animate';
+  starsEl.className='result-stars animate'; // one-shot star-drop celebration, not an ambient loop
   const starCount=pct>=90?3:pct>=70?2:1;
   starsEl.innerHTML='<span>⭐</span>'.repeat(starCount);
   document.getElementById('resultMessage').innerHTML=`You got ${score}/${total} correct (${pct}%)`;
+  const practise=document.getElementById('resultPractise');
+  if(practise)practise.innerHTML=wrong>0
+    ?`<span class="result-practise__label">🎯 Next session, practise</span> ${currentLevel.name} — ${wrong} missed this run.`
+    :`<span class="result-practise__label">🎯 Next session, practise</span> Nothing missed this run. Move on to the next level.`;
   const idx=LEVELS.findIndex(l=>l.id===currentLevel.id);
   const nb=document.getElementById('nextLevelButton');
   if(passed&&idx<LEVELS.length-1){nb.style.display='block';nb.onclick=()=>startLevel(LEVELS[idx+1]);}
@@ -535,23 +711,26 @@ function showResults(){
 //  NAVIGATION — persistent TopBar back button + QuickNav tabs
 // ============================================================
 const BACK_TARGET={practiceMenuScreen:'homeScreen',soarMenuScreen:'homeScreen',soarActivityScreen:'soarMenuScreen',quizScreen:'practiceMenuScreen',resultScreen:'practiceMenuScreen',
-  gymScreen:'homeScreen',drillScreen:'gymScreen',dailyScreen:'gymScreen',columnScreen:'gymScreen',gymResultScreen:'gymScreen',sheetResultScreen:'gymScreen',tensScreen:'gymScreen'};
+  gymScreen:'homeScreen',drillScreen:'gymScreen',dailyScreen:'gymScreen',columnScreen:'gymScreen',gymResultScreen:'gymScreen',sheetResultScreen:'gymScreen',tensScreen:'gymScreen',
+  trophiesScreen:'homeScreen',grownupScreen:'homeScreen'};
 const TAB_FOR_SCREEN={homeScreen:'home',practiceMenuScreen:'levels',soarMenuScreen:'soar',soarActivityScreen:'soar',quizScreen:'levels',resultScreen:'levels',
-  gymScreen:'gym',drillScreen:'gym',dailyScreen:'gym',columnScreen:'gym',gymResultScreen:'gym',sheetResultScreen:'gym',tensScreen:'gym'};
-const SCREEN_TITLES={homeScreen:"🏁 Safia's & Safaan's Math Dojo",practiceMenuScreen:'🏎️ Practice Math',soarMenuScreen:'🦅 SOAR Adventures',soarActivityScreen:'🦅 SOAR Activity',quizScreen:'🥊 Quiz',resultScreen:'🏆 Result',
-  gymScreen:'🧠 Mental Math Gym',drillScreen:'⏱️ Speed Drill',dailyScreen:"📋 Today's Sheet",columnScreen:'🧮 Carry & Borrow',gymResultScreen:'🏁 Drill Result',sheetResultScreen:'🏆 Sheet Result',tensScreen:'🔟 Tens & Ones'};
+  gymScreen:'gym',drillScreen:'gym',dailyScreen:'gym',columnScreen:'gym',gymResultScreen:'gym',sheetResultScreen:'gym',tensScreen:'gym',
+  trophiesScreen:'trophies'};
+// grownupScreen deliberately has no TAB_FOR_SCREEN entry — it's a pinned rail
+// link, not one of the 5 nav tabs, so no tab highlights while on it.
 
 function updateTopBar(screenId){
-  const t=document.getElementById('topBarTitle');
-  if(t)t.textContent=SCREEN_TITLES[screenId]||"🏁 Safia's & Safaan's Math Dojo";
-  const back=document.getElementById('topBarBack');
-  // The Gym hub renders its own persistent back button (history-stack driven)
-  // inside #gymContent, so the outer TopBar's back button stays hidden there.
+  // The rail (>=900px) has no persistent back button — nav items switch
+  // destinations directly, and nested screens (Quiz, SOAR activity,
+  // Grown-up) draw their own inline back arrow. The narrow top strip
+  // (<900px) keeps one, hidden on Home and on the Gym hub (which renders
+  // its own back button, history-stack driven, inside #gymContent).
+  const back=document.getElementById('topStripBack');
   if(back)back.classList.toggle('is-hidden',screenId==='homeScreen'||screenId==='gymScreen');
 }
 function setActiveQuickNavTab(screenId){
-  const active=TAB_FOR_SCREEN[screenId]||'home';
-  document.querySelectorAll('.quicknav__tab').forEach(el=>el.classList.toggle('quicknav__tab--active',el.dataset.tab===active));
+  const active=TAB_FOR_SCREEN[screenId];
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('nav-item--active',el.dataset.tab===active));
 }
 function handleBack(){
   const current=document.querySelector('.screen.active');
@@ -561,11 +740,44 @@ function handleBack(){
   if(target)showScreen(target);
 }
 function updateTopBarStars(){
-  const el=document.getElementById('topBarStars');
+  const el=document.getElementById('topStripStars');
   if(el)el.textContent='★ '+totalStarsEarned;
+  renderRacerChips();
+  renderStatusColumn();
+}
+// Status column (wide only, shown beside Home/Levels/Trophies): stars +
+// trophy progress, then the (existing) weak-facts "practice these" card,
+// then a clickable teaser into the Trophies screen.
+function renderStatusColumn(){
+  const earned=TROPHIES.filter(t=>trophyData[t.id]).length;
+  const pct=Math.round(earned/16*100);
+  const next=TROPHIES[earned];
+  const starsCard=document.getElementById('statusStarsCard');
+  if(starsCard)starsCard.innerHTML=`<div class="status-card__stars">★ ${totalStarsEarned}</div>
+    <div class="progress-bar progress-bar--thin" style="margin-top:8px;"><div class="progress-bar__fill" style="width:${pct}%;background:var(--color-reward);"></div></div>
+    <div class="status-card__note">${next?`2 ★ to ${next.name} ${next.icon}`:'All 16 trophies earned!'}</div>`;
+  const trophyCard=document.getElementById('statusTrophyCard');
+  if(trophyCard){
+    const recent=TROPHIES.slice(Math.max(0,earned-2),earned+1);
+    const rowHtml=recent.map((t,i)=>{
+      const isEarned=i<recent.length-1||earned>=TROPHIES.length;
+      const show=i<Math.min(2,earned)?t.icon:'🔒';
+      return `<div class="trophy-tile${i<Math.min(2,earned)?' trophy-tile--earned':''}" style="flex:1;"><div class="trophy-tile__icon">${show}</div></div>`;
+    }).join('');
+    trophyCard.innerHTML=`<div class="status-card__title">🏆 Trophies</div><div class="status-card__trophy-row">${rowHtml}</div><div class="status-card__footer">All 16 trophies ›</div>`;
+  }
+}
+function renderRacerChips(){
+  const r=RACERS[activeRacer];
+  const chipHtml=(size)=>`<div class="racer-avatar" style="width:${size}px;height:${size}px;background:${r.color};font-size:${size*0.32}px;">${r.initial}</div>`;
+  const rail=document.getElementById('railRacerChip');
+  if(rail)rail.innerHTML=`${chipHtml(40)}<div class="rail__racer-name">${r.name}</div><div class="rail__racer-stat">★ ${totalStarsEarned} · swap ⇄</div>`;
+  const strip=document.getElementById('topStripRacer');
+  if(strip)strip.innerHTML=`${chipHtml(32)}<div class="topstrip__racer-name">${r.name} ⇄</div>`;
 }
 
-function goHome(){renderHome();showScreen('practiceMenuScreen');}
+function goHome(){renderPracticeMenu();showScreen('practiceMenuScreen');}
+const STATUS_COL_SCREENS=['homeScreen','practiceMenuScreen','trophiesScreen'];
 function showScreen(id){
   const current=document.querySelector('.screen.active');
   if(current&&current.id==='drillScreen'&&id!=='drillScreen')stopDrillTimers();
@@ -573,15 +785,21 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
   updateTopBar(id);
   setActiveQuickNavTab(id);
+  const statusCol=document.getElementById('statusCol');
+  if(statusCol)statusCol.style.display=STATUS_COL_SCREENS.includes(id)?'':'none';
 }
 
 // ============================================================
 //  SAVE / LOAD — covers progress, SOAR completion, trophies,
 //  badges and total stars (a full backup, not just level progress).
 // ============================================================
+// v2: both racers' full bundles in one file (see readRacerBundleFromStorage/
+// writeRacerBundleToStorage above). v1/legacy files stay flat and load into
+// whichever racer is active at load time — see handleLoadFile below.
 function buildSaveBundle(){
-  return {version:1,savedAt:new Date().toISOString(),progress,soarProgress,trophyData,badges,totalStarsEarned,
-    mmCards,mmMisses,mmBest,mmSets,mmSession,mmSheet,tensRecord,gymSpeedRound,gymDaily};
+  const other=activeRacer==='safia'?'safaan':'safia';
+  return {version:2,savedAt:new Date().toISOString(),activeRacer,
+    racers:{[activeRacer]:buildRacerBundle(),[other]:readRacerBundleFromStorage(other)}};
 }
 function saveProgress(){
   const b=new Blob([JSON.stringify(buildSaveBundle(),null,2)],{type:'application/json'});
@@ -595,9 +813,20 @@ function handleLoadFile(e){
     try{
       const data=JSON.parse(ev.target.result);
       if(!data.version){
-        // Legacy save (bare progress object) — merge as level progress only.
+        // Legacy save (bare progress object) — merge as level progress only,
+        // into whichever racer is currently active.
         Object.assign(progress,data);
+      }else if(data.version===2&&data.racers){
+        // Full two-racer backup — write each racer straight to its own
+        // namespaced keys, then reload live state if it touched the active one.
+        Object.keys(RACERS).forEach(id=>{
+          if(data.racers[id])writeRacerBundleToStorage(id,data.racers[id]);
+        });
+        if(data.racers[activeRacer])loadRacerState();
       }else{
+        // v1 (single-profile) bundle — merge into the active racer, same as
+        // ever; persistAll()/persistMM()/persistTens()/persistGym() below
+        // write it under this racer's own namespaced keys.
         if(data.progress)Object.assign(progress,data.progress);
         if(data.soarProgress)Object.assign(soarProgress,data.soarProgress);
         if(data.trophyData)Object.assign(trophyData,data.trophyData);
@@ -626,24 +855,23 @@ function handleLoadFile(e){
 //  all come from mathdata.js.
 // ============================================================
 let soarProgress={};
-try{const s=localStorage.getItem('mathdojo-soar');if(s)soarProgress=JSON.parse(s);}catch(e){}
 
+// SOAR now shows only the active racer's own age band (3-5 or 7-11) — no
+// sticky headers across all 5 buckets. Matches the redesign's SOAR data,
+// which likewise only populates those two bands; activities filed under the
+// other three buckets ('5-7'/'5-11'/'9-14') are unreachable by either racer.
 window.showSoarMenu=function(){
+  const r=RACERS[activeRacer];
   const grid=document.getElementById('soarLevelsGrid');grid.innerHTML='';
-  const groups={'3-5':[],'5-7':[],'5-11':[],'7-11':[],'9-14':[]};
-  SOAR_ACTIVITIES.forEach((act,idx)=>{(groups[act.age]||groups['5-11']).push({act,idx});});
-  const labels={'3-5':'🏎️ Ages 3–5','5-7':'🏁 Ages 5–7','5-11':'🏆 Ages 5–11','7-11':'⚙️ Ages 7–11','9-14':'🥋 Ages 9–14'};
-  ['3-5','5-7','5-11','7-11','9-14'].forEach(age=>{
-    const items=groups[age];if(!items||!items.length)return;
-    const hdr=document.createElement('div');hdr.className='age-group-header';hdr.textContent=labels[age];grid.appendChild(hdr);
-    items.forEach(({act,idx})=>{
-      const btn=document.createElement('div');btn.className='soar-level-btn';
-      const done=soarProgress[idx]?' ✅':'';
-      btn.innerHTML=`<div class="soar-icon">${act.icon}</div><div class="soar-title">${act.title}${done}</div><div class="soar-desc">${act.desc}</div>`;
-      btn.addEventListener('click',()=>showSoarActivity(idx));
-      grid.appendChild(btn);
-    });
+  SOAR_ACTIVITIES.forEach((act,idx)=>{
+    if(act.age!==r.band)return;
+    const btn=document.createElement('div');btn.className='soar-level-btn';
+    const done=soarProgress[idx]?' ✅':'';
+    btn.innerHTML=`<div class="soar-icon">${act.icon}</div><div class="soar-title">${act.title}${done}</div><div class="soar-desc">${act.desc}</div>`;
+    btn.addEventListener('click',()=>showSoarActivity(idx));
+    grid.appendChild(btn);
   });
+  const sub=document.getElementById('soarHeadingSub'); if(sub)sub.textContent=`Showing ages ${r.band} for ${r.name}.`;
   showScreen('soarMenuScreen');
 };
 
@@ -703,39 +931,144 @@ window.showHome=function(){showScreen('homeScreen');renderHome();checkDailyBonus
 //  mastery/weakFacts/todayKey/dailySheet/dailyHint/columnSheet/
 //  columnPlan all come from mentalmath.js.
 // ============================================================
-let mmCards={};    try{const s=localStorage.getItem('tm-mm-cards');  if(s)mmCards=JSON.parse(s);}catch(e){}
-let mmMisses={};   try{const s=localStorage.getItem('tm-mm-misses'); if(s)mmMisses=JSON.parse(s);}catch(e){}
-let mmBest=null;   try{const s=localStorage.getItem('tm-mm-best');   if(s)mmBest=JSON.parse(s);}catch(e){}
-let mmSets=[...DEFAULT_GYM_SETS]; try{const s=localStorage.getItem('tm-mm-sets'); if(s){const p=JSON.parse(s); if(Array.isArray(p))mmSets=p;}}catch(e){}
-let mmSession=0;   try{const s=localStorage.getItem('tm-mm-session');if(s)mmSession=parseInt(s)||0;}catch(e){}
+// State populated per-racer by loadRacerState() below.
+let mmCards={};
+let mmMisses={};
+let mmBest=null;
+let mmSets=[...DEFAULT_GYM_SETS];
+let mmSession=0;
 let mmSheet={key:null,daily:{done:0,correct:0},column:{done:0,correct:0}};
-try{const s=localStorage.getItem('tm-mm-sheet'); if(s)mmSheet=JSON.parse(s);}catch(e){}
-if(mmSheet.key!==todayKey())mmSheet={key:todayKey(),daily:{done:0,correct:0},column:{done:0,correct:0}};
 let tensRecord={key:null,done:0,correct:0,log:[]};
-try{const s=localStorage.getItem('tm-mm-tens'); if(s)tensRecord=JSON.parse(s);}catch(e){}
-if(tensRecord.key!==todayKey())tensRecord={key:todayKey(),done:0,correct:0,log:[]};
 // ── Gym hub redesign state (own tm-mm-* keys, own persist function — see
 // DESIGN.md) — the "speed round" toggle on the Daily assignment card, and the
 // Daily assignment's own resumable-but-daily done/correct counter (distinct
 // from the dormant old dailySheet()-based mmSheet.daily above).
-let gymSpeedRound=true; try{const s=localStorage.getItem('tm-mm-speed'); if(s!==null)gymSpeedRound=s==='1';}catch(e){}
-let gymDaily={key:null,done:0,correct:0}; try{const s=localStorage.getItem('tm-mm-assign'); if(s)gymDaily=JSON.parse(s);}catch(e){}
-if(gymDaily.key!==todayKey())gymDaily={key:todayKey(),done:0,correct:0};
+let gymSpeedRound=true;
+let gymDaily={key:null,done:0,correct:0};
 
 function persistMM(){
-  localStorage.setItem('tm-mm-cards',JSON.stringify(mmCards));
-  localStorage.setItem('tm-mm-misses',JSON.stringify(mmMisses));
-  localStorage.setItem('tm-mm-best',JSON.stringify(mmBest));
-  localStorage.setItem('tm-mm-sets',JSON.stringify(mmSets));
-  localStorage.setItem('tm-mm-session',String(mmSession));
-  localStorage.setItem('tm-mm-sheet',JSON.stringify(mmSheet));
+  localStorage.setItem(nk('tm-mm-cards'),JSON.stringify(mmCards));
+  localStorage.setItem(nk('tm-mm-misses'),JSON.stringify(mmMisses));
+  localStorage.setItem(nk('tm-mm-best'),JSON.stringify(mmBest));
+  localStorage.setItem(nk('tm-mm-sets'),JSON.stringify(mmSets));
+  localStorage.setItem(nk('tm-mm-session'),String(mmSession));
+  localStorage.setItem(nk('tm-mm-sheet'),JSON.stringify(mmSheet));
 }
 function persistTens(){
-  localStorage.setItem('tm-mm-tens',JSON.stringify(tensRecord));
+  localStorage.setItem(nk('tm-mm-tens'),JSON.stringify(tensRecord));
 }
 function persistGym(){
-  localStorage.setItem('tm-mm-speed',gymSpeedRound?'1':'0');
-  localStorage.setItem('tm-mm-assign',JSON.stringify(gymDaily));
+  localStorage.setItem(nk('tm-mm-speed'),gymSpeedRound?'1':'0');
+  localStorage.setItem(nk('tm-mm-assign'),JSON.stringify(gymDaily));
+}
+
+// ============================================================
+//  RACER LOAD / SWAP — (re)populates every piece of per-racer state above
+//  from this racer's namespaced localStorage keys. Called once at boot
+//  (see INIT, bottom of file) and again on every swapRacer().
+// ============================================================
+function loadRacerState(){
+  trophyData={}; try{const t=localStorage.getItem(nk('mathdojo-trophies'));if(t)trophyData=JSON.parse(t);}catch(e){}
+  totalStarsEarned=0; try{const ts=localStorage.getItem(nk('mathdojo-stars'));if(ts)totalStarsEarned=parseInt(ts)||0;}catch(e){}
+  badges={}; BADGES_DEF.forEach(b=>{badges[b.key]=false;});
+  try{const s=localStorage.getItem(nk('mathdojo-badges'));if(s)Object.assign(badges,JSON.parse(s));}catch(e){}
+  progress={}; LEVELS.forEach(l=>{progress[l.id]={completed:false,score:0};});
+  try{const s=localStorage.getItem(nk('mathdojo-progress'));if(s)progress=Object.assign(progress,JSON.parse(s));}catch(e){}
+  soarProgress={}; try{const s=localStorage.getItem(nk('mathdojo-soar'));if(s)soarProgress=JSON.parse(s);}catch(e){}
+
+  mmCards={};    try{const s=localStorage.getItem(nk('tm-mm-cards'));  if(s)mmCards=JSON.parse(s);}catch(e){}
+  mmMisses={};   try{const s=localStorage.getItem(nk('tm-mm-misses')); if(s)mmMisses=JSON.parse(s);}catch(e){}
+  mmBest=null;   try{const s=localStorage.getItem(nk('tm-mm-best'));   if(s)mmBest=JSON.parse(s);}catch(e){}
+  mmSets=[...DEFAULT_GYM_SETS]; try{const s=localStorage.getItem(nk('tm-mm-sets')); if(s){const p=JSON.parse(s); if(Array.isArray(p))mmSets=p;}}catch(e){}
+  mmSession=0;   try{const s=localStorage.getItem(nk('tm-mm-session'));if(s)mmSession=parseInt(s)||0;}catch(e){}
+  mmSheet={key:null,daily:{done:0,correct:0},column:{done:0,correct:0}};
+  try{const s=localStorage.getItem(nk('tm-mm-sheet')); if(s)mmSheet=JSON.parse(s);}catch(e){}
+  if(mmSheet.key!==todayKey())mmSheet={key:todayKey(),daily:{done:0,correct:0},column:{done:0,correct:0}};
+  tensRecord={key:null,done:0,correct:0,log:[]};
+  try{const s=localStorage.getItem(nk('tm-mm-tens')); if(s)tensRecord=JSON.parse(s);}catch(e){}
+  if(tensRecord.key!==todayKey())tensRecord={key:todayKey(),done:0,correct:0,log:[]};
+  gymSpeedRound=true; try{const s=localStorage.getItem(nk('tm-mm-speed')); if(s!==null)gymSpeedRound=s==='1';}catch(e){}
+  gymDaily={key:null,done:0,correct:0}; try{const s=localStorage.getItem(nk('tm-mm-assign')); if(s)gymDaily=JSON.parse(s);}catch(e){}
+  if(gymDaily.key!==todayKey())gymDaily={key:todayKey(),done:0,correct:0};
+}
+
+function swapRacer(){
+  activeRacer=activeRacer==='safia'?'safaan':'safia';
+  try{localStorage.setItem('mathdojo-active-racer',activeRacer);}catch(e){}
+  loadRacerState();
+
+  // reset every transient (non-persisted) piece of play state so nothing
+  // leaks between racers mid-session
+  currentLevel=null;questions=[];qIndex=0;score=0;wrong=0;answered=false;currentStreak=0;
+  mcSelectedIdx=null;selectedCoins=[];currentCoinValues=[];
+  stopDrillTimers();
+  gymNav='hub';gymHistory=[];gymPlay=null;gymTrick=null;gymFlash=null;
+  mmQueue=[];mmIdx=0;mmScore=0;mmWrong=0;mmStreak=0;mmElapsed=0;mmEntry='';mmFeedback=null;mmReview=[];
+  mmSheetKind='daily';mmSheetIdx=0;mmSheetItems=[];mmSheetCorrect=0;mmSheetSolved=false;
+  mmPlan=null;mmPlanStep=0;mmDraw={above:'',aboveOnes:'',strike:false,resTens:'',resOnes:''};
+  tensItems=[];tensView='play';tensIdx=0;tensStep=0;tensSolved=false;tensClean=true;tensFeedback=null;
+  tensBlocks={bt:0,bo:0,rt:0,ro:0,gate:true};tensDraw={};
+
+  renderHome();checkBadges();renderTrophyShelf();updateTopBarStars();renderWeakFactsPanel();checkDailyBonus();
+  const current=document.querySelector('.screen.active');
+  if(current&&(current.id==='quizScreen'||current.id==='resultScreen')){window.showHome();return;}
+  // Refresh whatever racer-scoped screen is already open so it doesn't keep
+  // showing the previous racer's lane/band/hub content.
+  if(current&&current.id==='practiceMenuScreen')renderPracticeMenu();
+  else if(current&&current.id==='soarMenuScreen')window.showSoarMenu();
+  else if(current&&current.id==='trophiesScreen')renderTrophyShelf();
+  else if(current&&current.id==='grownupScreen')renderGrownup();
+  else if(current&&current.id==='gymScreen')showGym();
+}
+window.swapRacer=swapRacer;
+
+// ============================================================
+//  SAVE/LOAD v2 helpers — read/write ONE racer's full bundle directly
+//  against its own namespaced keys, without disturbing the live in-memory
+//  state of whichever racer is not currently active.
+// ============================================================
+function buildRacerBundle(){
+  return {progress,soarProgress,trophyData,badges,totalStarsEarned,
+    mmCards,mmMisses,mmBest,mmSets,mmSession,mmSheet,tensRecord,gymSpeedRound,gymDaily};
+}
+function readRacerBundleFromStorage(racerId){
+  const g=(base,fallback)=>{ try{const s=localStorage.getItem(nkFor(base,racerId)); return s!=null?JSON.parse(s):fallback;}catch(e){return fallback;} };
+  const progress={}; LEVELS.forEach(l=>{progress[l.id]={completed:false,score:0};});
+  const loadedProgress=g('mathdojo-progress',null); if(loadedProgress)Object.assign(progress,loadedProgress);
+  const badges={}; BADGES_DEF.forEach(b=>{badges[b.key]=false;});
+  const loadedBadges=g('mathdojo-badges',null); if(loadedBadges)Object.assign(badges,loadedBadges);
+  let totalStarsEarned=0; try{const ts=localStorage.getItem(nkFor('mathdojo-stars',racerId)); if(ts)totalStarsEarned=parseInt(ts)||0;}catch(e){}
+  let mmSession=0; try{const s=localStorage.getItem(nkFor('tm-mm-session',racerId)); if(s)mmSession=parseInt(s)||0;}catch(e){}
+  let gymSpeedRound=true; try{const s=localStorage.getItem(nkFor('tm-mm-speed',racerId)); if(s!==null)gymSpeedRound=s==='1';}catch(e){}
+  return {
+    progress, badges, totalStarsEarned, mmSession, gymSpeedRound,
+    soarProgress:g('mathdojo-soar',{}),
+    trophyData:g('mathdojo-trophies',{}),
+    mmCards:g('tm-mm-cards',{}),
+    mmMisses:g('tm-mm-misses',{}),
+    mmBest:g('tm-mm-best',null),
+    mmSets:g('tm-mm-sets',[...DEFAULT_GYM_SETS]),
+    mmSheet:g('tm-mm-sheet',{key:null,daily:{done:0,correct:0},column:{done:0,correct:0}}),
+    tensRecord:g('tm-mm-tens',{key:null,done:0,correct:0,log:[]}),
+    gymDaily:g('tm-mm-assign',{key:null,done:0,correct:0}),
+  };
+}
+function writeRacerBundleToStorage(racerId,data){
+  const set=(base,val)=>{ try{localStorage.setItem(nkFor(base,racerId),typeof val==='string'?val:JSON.stringify(val));}catch(e){} };
+  if(data.progress)set('mathdojo-progress',data.progress);
+  if(data.soarProgress)set('mathdojo-soar',data.soarProgress);
+  if(data.trophyData)set('mathdojo-trophies',data.trophyData);
+  if(data.badges)set('mathdojo-badges',data.badges);
+  if(typeof data.totalStarsEarned==='number')set('mathdojo-stars',String(data.totalStarsEarned));
+  if(data.mmCards)set('tm-mm-cards',data.mmCards);
+  if(data.mmMisses)set('tm-mm-misses',data.mmMisses);
+  if(data.mmBest)set('tm-mm-best',data.mmBest);
+  if(Array.isArray(data.mmSets))set('tm-mm-sets',data.mmSets);
+  if(typeof data.mmSession==='number')set('tm-mm-session',String(data.mmSession));
+  if(data.mmSheet)set('tm-mm-sheet',data.mmSheet);
+  if(data.tensRecord)set('tm-mm-tens',data.tensRecord);
+  if(typeof data.gymSpeedRound==='boolean')set('tm-mm-speed',data.gymSpeedRound?'1':'0');
+  if(data.gymDaily)set('tm-mm-assign',data.gymDaily);
 }
 
 // ── the drill's setInterval clock + auto-advance setTimeout — cleaned up
@@ -1730,6 +2063,7 @@ function showTensReport(){
 // ============================================================
 //  INIT
 // ============================================================
+loadRacerState();
 renderWeakFactsPanel();
 checkBadges();
 renderTrophyShelf();

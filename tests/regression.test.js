@@ -13,51 +13,53 @@ suite('regression — theme switcher removal', () => {
   });
 });
 
-suite('regression — persistence key rename (safia-* → mathdojo-*)', () => {
-  test('every write goes through the new mathdojo- prefix, never the old safia- prefix', () => {
+suite('regression — persistence key rename (safia-* → mathdojo-*), now also racer-namespaced', () => {
+  test('every write goes through the new mathdojo-*-<racer> prefix, never the old safia- prefix', () => {
     run(`(function(){
+      activeRacer = 'safia'; loadRacerState();
       progress = {}; LEVELS.forEach(l => progress[l.id] = {completed:false, score:0});
       soarProgress = {}; trophyData = {}; badges = {}; totalStarsEarned = 5;
       persistAll();
     })()`);
     ['progress', 'soar', 'trophies', 'badges', 'stars'].forEach(suffix => {
-      assert.ok(run(`localStorage.getItem('mathdojo-${suffix}') !== null`), `mathdojo-${suffix} was not written`);
+      assert.ok(run(`localStorage.getItem(nk('mathdojo-${suffix}')) !== null`), `mathdojo-${suffix}-safia was not written`);
     });
     // Sweep every key actually present in the iframe's localStorage — none may start with "safia-".
     const keys = JSON.parse(run('JSON.stringify(Object.keys(localStorage))'));
     keys.forEach(k => assert.ok(!k.startsWith('safia-'), `found a stale legacy key: ${k}`));
   });
 
-  test('persistAll() writes all 5 bundle fields in one call, not a subset', () => {
+  test('persistAll() writes all 5 bundle fields (for the active racer) in one call, not a subset', () => {
     run(`(function(){
+      activeRacer = 'safia';
       ['mathdojo-progress','mathdojo-soar','mathdojo-trophies','mathdojo-badges','mathdojo-stars']
-        .forEach(k => localStorage.removeItem(k));
+        .forEach(k => localStorage.removeItem(nk(k)));
       persistAll();
     })()`);
     ['progress', 'soar', 'trophies', 'badges', 'stars'].forEach(suffix => {
-      assert.ok(run(`localStorage.getItem('mathdojo-${suffix}') !== null`), `persistAll skipped mathdojo-${suffix}`);
+      assert.ok(run(`localStorage.getItem(nk('mathdojo-${suffix}')) !== null`), `persistAll skipped mathdojo-${suffix}`);
     });
   });
 });
 
-suite('regression — persistent TopBar back button targets every screen correctly', () => {
-  test('back button is hidden on Home and visible on all 5 other screens', () => {
+suite('regression — persistent back button targets every screen correctly', () => {
+  test('back button is hidden on Home (and the Gym hub) and visible on every other screen', () => {
     const allScreens = ['homeScreen', 'practiceMenuScreen', 'soarMenuScreen', 'soarActivityScreen', 'quizScreen', 'resultScreen'];
     allScreens.forEach(id => {
       run(`showScreen('${id}')`);
       const expected = id === 'homeScreen' ? 'hidden' : 'visible';
-      assert.equal(getComputedStyle($('#topBarBack')).visibility, expected, `${id}: back button visibility wrong`);
+      assert.equal(getComputedStyle($('#topStripBack')).visibility, expected, `${id}: back button visibility wrong`);
     });
   });
 
-  test('QuickNav active tab is correct for all 6 screens (Home/SOAR/Levels)', () => {
+  test('nav tab is correct for all 6 screens (Home/SOAR/Levels)', () => {
     const expected = {
       homeScreen: 'home', practiceMenuScreen: 'levels', soarMenuScreen: 'soar',
       soarActivityScreen: 'soar', quizScreen: 'levels', resultScreen: 'levels'
     };
     Object.entries(expected).forEach(([id, tab]) => {
       run(`showScreen('${id}')`);
-      assert.equal($('.quicknav__tab--active').dataset.tab, tab, `${id}: expected QuickNav tab "${tab}"`);
+      assert.equal($('.nav-item--active').dataset.tab, tab, `${id}: expected nav tab "${tab}"`);
     });
   });
 });

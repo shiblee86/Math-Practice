@@ -10,9 +10,9 @@
 
 <!-- GAMIFICATION OVERLAYS -->
 <canvas id="confettiCanvas"></canvas>
-<div id="mascot" title="Click me!">🥋</div>
 <div id="streakBadge">🔥 3 in a row!</div>
 <div id="popText">WOW!</div>
+<input type="file" id="loadFile" accept=".json" style="display:none" onchange="handleLoadFile(event)">
 
 <div id="milestoneOverlay">
   <div class="milestone-card">
@@ -23,186 +23,201 @@
   </div>
 </div>
 
-<div class="wrap">
+<div class="shell" id="shell">
 
-  <!-- PERSISTENT TOP BAR -->
-  <div class="topbar" id="topBar">
-    <button class="icon-btn icon-btn--ghost topbar__back" id="topBarBack" onclick="handleBack()">←</button>
-    <div class="topbar__title" id="topBarTitle">🏁 Safia's & Safaan's Math Dojo</div>
-    <div class="topbar__actions">
-      <button class="icon-btn" onclick="saveProgress()" title="Save">💾</button>
-      <button class="icon-btn" onclick="loadProgress()" title="Load">📂</button>
-      <input type="file" id="loadFile" accept=".json" style="display:none" onchange="handleLoadFile(event)">
+  <!-- RAIL (>=900px only — see style.css responsive block) -->
+  <nav class="rail" id="rail">
+    <div class="rail__racer" id="railRacerChip" onclick="swapRacer()"></div>
+    <div class="rail__nav" id="railNav">
+      <button class="nav-item rail__nav-item" data-tab="home" onclick="showHome()">🏠 Home</button>
+      <button class="nav-item rail__nav-item" data-tab="levels" onclick="showPracticeMenu()">🏎️ Levels</button>
+      <button class="nav-item rail__nav-item" data-tab="soar" onclick="showSoarMenu()">🦅 SOAR</button>
+      <button class="nav-item rail__nav-item" data-tab="gym" onclick="showGym()">🧠 Gym</button>
+      <button class="nav-item rail__nav-item" data-tab="trophies" onclick="showTrophies()">🏆 Trophies</button>
     </div>
-    <div class="topbar__stars" id="topBarStars">★ 0</div>
-  </div>
+    <div class="rail__spacer"></div>
+    <div class="rail__grownup" onclick="showGrownup()">👪 Grown-up</div>
+  </nav>
 
-  <!-- ACHIEVEMENT BADGES -->
-  <div class="badges-container">
-    <div class="badge badge-tooltip" id="badgeCounting">🏁<span class="tooltip-text">Counting Racer!</span></div>
-    <div class="badge badge-tooltip" id="badgeAddition">➕<span class="tooltip-text">Addition Champion!</span></div>
-    <div class="badge badge-tooltip" id="badgeSubtraction">➖<span class="tooltip-text">Subtraction Star!</span></div>
-    <div class="badge badge-tooltip" id="badgeBorrow">🛠️<span class="tooltip-text">Borrowing Fighter!</span></div>
-    <div class="badge badge-tooltip" id="badgeCarry">🔧<span class="tooltip-text">Carrying Master!</span></div>
-    <div class="badge badge-tooltip" id="badgeLogic">🧠<span class="tooltip-text">Logic Master!</span></div>
-    <div class="badge badge-tooltip" id="badgeMoneyFractions">🪙<span class="tooltip-text">Money &amp; Fractions Star!</span></div>
-    <div class="badge badge-tooltip" id="badgeTimeCalendar">⏰<span class="tooltip-text">Time &amp; Calendar Champ!</span></div>
-    <div class="badge badge-tooltip" id="badgeDataShapes">📊<span class="tooltip-text">Data &amp; Shapes Explorer!</span></div>
-    <div class="badge badge-tooltip" id="badgeWordWizard">🏆<span class="tooltip-text">Word Problem Wizard!</span></div>
-  </div>
+  <div class="main" id="main">
 
-  <!-- HOME -->
-  <div id="homeScreen" class="screen active">
-    <div id="dailyBonusWrap"></div>
-    <div class="home-hero">
-      <span class="crown-decoration">🏁</span>
-      <h1>Safia's &amp; Safaan's Math Dojo!</h1>
-      <p>20 levels · 56 SOAR activities · Train hard, race fast! 🥋</p>
+    <!-- NARROW TOP STRIP (<900px only) -->
+    <div class="topstrip" id="topStrip">
+      <button class="icon-btn icon-btn--ghost topstrip__back" id="topStripBack" onclick="handleBack()">←</button>
+      <div class="topstrip__racer" id="topStripRacer" onclick="swapRacer()"></div>
+      <div class="topstrip__stars" id="topStripStars">★ 0</div>
     </div>
+
+    <!-- HOME -->
+    <div id="homeScreen" class="screen active">
+      <div id="dailyBonusWrap"></div>
+      <div class="next-up-card">
+        <div class="next-up-card__icon" id="nextUpIcon">🏁</div>
+        <div class="next-up-card__body">
+          <div class="next-up-card__eyebrow" id="nextUpEyebrow">NEXT UP · LEVEL 1 OF 8</div>
+          <div class="next-up-card__name" id="nextUpName">Counting</div>
+          <div class="next-up-card__meta">15 questions · about 5 minutes</div>
+        </div>
+        <button class="btn btn--primary btn--lg" id="nextUpStart" onclick="startNextLevel()">Start ▶</button>
+      </div>
+
+      <div class="today-card">
+        <div class="today-card__header">
+          <div class="today-card__title">Today</div>
+          <div class="today-card__note" id="todayNote">0 of 3 done · +3★ daily bonus</div>
+        </div>
+        <div class="today-card__rows" id="todayRows"></div>
+      </div>
+
+      <div class="dest-tiles" id="destTiles"></div>
+    </div>
+
+    <!-- PRACTICE MENU (Levels) -->
+    <div id="practiceMenuScreen" class="screen">
+      <div class="screen-heading">
+        <div class="screen-heading__title" id="levelsHeadingTitle" style="color:var(--cyan-300);">🏎️ Levels</div>
+        <div class="screen-heading__sub" id="levelsHeadingSub"></div>
+      </div>
+      <div class="levels-grid" id="levelsGrid"></div>
+      <div class="lane-footnote" id="laneFootnote"></div>
+    </div>
+
+    <!-- SOAR MENU -->
+    <div id="soarMenuScreen" class="screen">
+      <div class="screen-heading">
+        <div class="screen-heading__title" style="color:var(--cyan-300);">🦅 SOAR quests</div>
+        <div class="screen-heading__sub" id="soarHeadingSub"></div>
+      </div>
+      <div class="soar-levels-grid" id="soarLevelsGrid"></div>
+    </div>
+
+    <!-- SOAR ACTIVITY -->
+    <div id="soarActivityScreen" class="screen">
+      <div class="inline-back-row"><button class="icon-btn icon-btn--ghost" onclick="handleBack()">←</button></div>
+      <div id="soarActivityContent"></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quizScreen" class="screen">
+      <div class="quiz-head-slim">
+        <button class="quiz-back" onclick="handleBack()">←</button>
+        <div class="quiz-head-slim__meta" id="quizHeadMeta">Level · Q1 of 15</div>
+        <div class="quiz-head-slim__stars" id="quizHeadStars">★ 0</div>
+      </div>
+      <div class="progress-bar progress-bar--thin" style="margin-top:8px;"><div class="progress-bar__fill" id="quizProgressBar"></div></div>
+      <div id="quizVideoArea" style="text-align:center;margin:8px 0;"></div>
+      <div class="content-card content-card--quiz" id="questionCard"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn--reward" id="hintButton" onclick="showHint()">💡 Hint</button>
+        <a class="btn btn--ghost" id="watchButton" target="_blank" rel="noopener" style="display:none;">▶ Watch</a>
+        <button class="btn btn--primary" id="checkButton" onclick="checkAnswer()">✅ Check <span class="kbd-hint">(Enter)</span></button>
+        <button class="btn btn--accent btn--next" id="nextButton" onclick="nextQuestion()">▶ Next <span class="kbd-hint">(Enter)</span></button>
+      </div>
+      <div id="quizStatRow" class="quiz-stat-row" style="display:none;"></div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="resultScreen" class="screen">
+      <div class="result-card">
+        <div class="result-emoji" id="resultEmoji">🏆</div>
+        <div class="result-title" id="resultTitle">Great job!</div>
+        <div class="result-stars" id="resultStars">⭐⭐⭐</div>
+        <div class="result-message" id="resultMessage"></div>
+        <div class="result-practise" id="resultPractise"></div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn--ghost" id="retryButton">🔁 Retry</button>
+          <button class="btn btn--primary" onclick="goHome()">🏁 Levels</button>
+          <button class="btn btn--accent" id="nextLevelButton" style="display:none">➡️ Next level</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENTAL MATH GYM HUB -->
+    <div id="gymScreen" class="screen">
+      <div id="gymContent"></div>
+    </div>
+
+    <!-- TROPHIES -->
+    <div id="trophiesScreen" class="screen">
+      <div class="screen-heading">
+        <div class="screen-heading__title" id="trophiesHeadingTitle" style="color:var(--amber-400);">🏆 Trophy case</div>
+        <div class="screen-heading__sub" id="trophiesHeadingSub"></div>
+      </div>
+      <div class="trophies-grid" id="trophiesGrid"></div>
+      <div class="badges-heading">Badges</div>
+      <div class="trophies-grid badges-grid" id="badgesGrid"></div>
+    </div>
+
+    <!-- GROWN-UP SUMMARY -->
+    <div id="grownupScreen" class="screen">
+      <div class="inline-back-row"><button class="icon-btn icon-btn--ghost" onclick="handleBack()">←</button></div>
+      <div class="screen-heading">
+        <div class="screen-heading__title" style="color:var(--cyan-300);">👪 Grown-up summary</div>
+        <div class="screen-heading__sub">The only screen where both racers appear together.</div>
+      </div>
+      <div class="grownup-lanes" id="grownupLanes"></div>
+      <div class="grownup-footer">
+        <div class="grownup-footer__text">Save a backup of both racers' progress, or load one back in.</div>
+        <div class="btn-row">
+          <button class="btn btn--ghost" onclick="saveProgress()">💾 Save</button>
+          <button class="btn btn--ghost" onclick="loadProgress()">📂 Load</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TENS & ONES (dormant — player, result, and grown-up summary all render into this one screen) -->
+    <div id="tensScreen" class="screen">
+      <div id="tensContent"></div>
+    </div>
+
+    <!-- SPEED DRILL (dormant) -->
+    <div id="drillScreen" class="screen">
+      <div id="drillContent"></div>
+    </div>
+
+    <!-- TODAY'S SHEET (dormant) -->
+    <div id="dailyScreen" class="screen">
+      <div id="dailyContent"></div>
+    </div>
+
+    <!-- CARRY & BORROW (dormant) -->
+    <div id="columnScreen" class="screen">
+      <div id="columnContent"></div>
+    </div>
+
+    <!-- SPEED DRILL RESULT (dormant) -->
+    <div id="gymResultScreen" class="screen">
+      <div id="gymResultContent"></div>
+    </div>
+
+    <!-- SHEET RESULT (dormant — daily / column) -->
+    <div id="sheetResultScreen" class="screen">
+      <div id="sheetResultContent"></div>
+    </div>
+
+    <!-- QUICK NAV (<900px only, sticky bottom) -->
+    <div class="quicknav" id="quickNav">
+      <button class="nav-item quicknav__tab" data-tab="home" onclick="showHome()">🏠</button>
+      <button class="nav-item quicknav__tab" data-tab="levels" onclick="showPracticeMenu()">🏎️</button>
+      <button class="nav-item quicknav__tab" data-tab="soar" onclick="showSoarMenu()">🦅</button>
+      <button class="nav-item quicknav__tab" data-tab="gym" onclick="showGym()">🧠</button>
+      <button class="nav-item quicknav__tab" data-tab="trophies" onclick="showTrophies()">🏆</button>
+    </div>
+
+  </div><!-- end .main -->
+
+  <!-- STATUS COLUMN (>=900px only — home/levels/trophies) -->
+  <aside class="status-col" id="statusCol">
+    <div class="status-card" id="statusStarsCard"></div>
     <div id="patternSummary" class="pattern-section" style="display:none;">
       <div class="pattern-title">🎯 Practice These:</div>
       <div id="patternTags"></div>
     </div>
-    <div class="menu-grid">
-      <div class="menu-card menu-card--accent" onclick="showSoarMenu()">
-        <div class="mc-icon">🦅</div>
-        <div class="mc-name">SOAR Adventures</div>
-        <div class="mc-desc">56 NRICH hands-on quests</div>
-        <div class="soar-badge green">EXPLORE</div>
-      </div>
-      <div class="menu-card" onclick="showPracticeMenu()">
-        <div class="mc-icon">🏎️</div>
-        <div class="mc-name">Practice Math</div>
-        <div class="mc-desc">20 dojo challenges</div>
-        <div class="soar-badge purple">PRACTISE</div>
-      </div>
-    </div>
-    <div class="menu-card menu-card--accent" style="display:flex;align-items:center;gap:16px;text-align:left;margin-bottom:14px;cursor:pointer;" onclick="showGym()">
-      <div class="mc-icon" style="font-size:2.4rem;">🧠</div>
-      <div style="flex:1;">
-        <div class="mc-name">Mental Math Gym</div>
-        <div class="mc-desc">Speed drill, flash cards and a bridging-ten coach</div>
-      </div>
-      <div id="gymHomeStat" style="font-family:var(--font-display);color:var(--amber-400);font-size:.9rem;text-align:right;white-space:nowrap;">Today 0/16</div>
-    </div>
-    <div class="progress-chart">
-      <h3 style="color:var(--amber-400);margin-bottom:8px;font-family:var(--font-display);font-size:1.1rem;">🏁 Dojo Progress</h3>
-      <div id="progressStats" style="color:var(--text-secondary);font-size:.85rem;"></div>
-      <div class="progress-bar" style="margin-top:8px;">
-        <div class="progress-bar__fill" id="progressBarFill"></div>
-      </div>
-    </div>
-    <div class="trophy-shelf">
-      <div class="trophy-shelf-title">🏆 Trophy Case</div>
-      <div class="trophy-row" id="trophyRow"></div>
-    </div>
-  </div>
+    <div class="status-card status-card--clickable" id="statusTrophyCard" onclick="showTrophies()"></div>
+  </aside>
 
-  <!-- PRACTICE MENU (Levels) -->
-  <div id="practiceMenuScreen" class="screen">
-    <div style="text-align:center;padding:10px 0 5px;">
-      <div style="font-family:var(--font-display);font-size:1.4rem;color:var(--cyan-300);">🏎️ Practice Math Problems</div>
-      <div style="color:var(--text-secondary);font-size:.85rem;margin-top:4px;">Choose a level!</div>
-    </div>
-    <div class="levels-grid" id="levelsGrid"></div>
-  </div>
-
-  <!-- SOAR MENU -->
-  <div id="soarMenuScreen" class="screen">
-    <div class="soar-levels-grid" id="soarLevelsGrid"></div>
-  </div>
-
-  <!-- SOAR ACTIVITY -->
-  <div id="soarActivityScreen" class="screen">
-    <div id="soarActivityContent"></div>
-  </div>
-
-  <!-- QUIZ -->
-  <div id="quizScreen" class="screen">
-    <div class="quiz-head">
-      <div class="quiz-meta">
-        <span id="quizLevelLabel">Level</span>
-        <span id="quizQCounter">Q1/15</span>
-      </div>
-      <div class="quiz-score-row">
-        <div class="qs-item"><div>✅</div><div class="qs-val" id="scoreCorrect">0</div></div>
-        <div class="qs-item"><div>🥊</div><div class="qs-val" id="scoreWrong">0</div></div>
-        <div class="qs-item"><div>%</div><div class="qs-val" id="scorePercent">—</div></div>
-      </div>
-      <div class="streak-row" id="streakDots"></div>
-      <div class="progress-bar progress-bar--thin" style="margin-top:8px;"><div class="progress-bar__fill" id="quizProgressBar"></div></div>
-    </div>
-    <div id="quizVideoArea" style="text-align:center;margin-bottom:8px;"></div>
-    <div class="content-card content-card--quiz" id="questionCard"></div>
-    <div class="feedback" id="feedback"></div>
-    <div class="btn-row">
-      <button class="btn btn--ghost"  onclick="goHome()">← Levels</button>
-      <button class="btn btn--reward" id="hintButton" onclick="showHint()">💡 Hint</button>
-      <button class="btn btn--primary" id="checkButton" onclick="checkAnswer()">✅ Check</button>
-      <button class="btn btn--accent btn--next" id="nextButton" onclick="nextQuestion()">▶ Next</button>
-    </div>
-  </div>
-
-  <!-- RESULT -->
-  <div id="resultScreen" class="screen">
-    <div class="result-card">
-      <div class="result-emoji" id="resultEmoji">🏆</div>
-      <div class="result-title" id="resultTitle">Great job!</div>
-      <div class="result-stars" id="resultStars">⭐⭐⭐</div>
-      <div class="result-message" id="resultMessage"></div>
-      <div id="mistakePatternsDetail" class="pattern-section" style="margin-top:12px;"></div>
-      <div class="btn-row" style="margin-top:16px;">
-        <button class="btn btn--ghost" id="retryButton">🔁 Retry</button>
-        <button class="btn btn--primary" onclick="goHome()">🏁 Levels</button>
-        <button class="btn btn--accent" id="nextLevelButton" style="display:none">➡️ Next</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MENTAL MATH GYM HUB -->
-  <div id="gymScreen" class="screen">
-    <div id="gymContent"></div>
-  </div>
-
-  <!-- TENS & ONES (player, result, and grown-up summary all render into this one screen) -->
-  <div id="tensScreen" class="screen">
-    <div id="tensContent"></div>
-  </div>
-
-  <!-- SPEED DRILL -->
-  <div id="drillScreen" class="screen">
-    <div id="drillContent"></div>
-  </div>
-
-  <!-- TODAY'S SHEET -->
-  <div id="dailyScreen" class="screen">
-    <div id="dailyContent"></div>
-  </div>
-
-  <!-- CARRY & BORROW -->
-  <div id="columnScreen" class="screen">
-    <div id="columnContent"></div>
-  </div>
-
-  <!-- SPEED DRILL RESULT -->
-  <div id="gymResultScreen" class="screen">
-    <div id="gymResultContent"></div>
-  </div>
-
-  <!-- SHEET RESULT (daily / column) -->
-  <div id="sheetResultScreen" class="screen">
-    <div id="sheetResultContent"></div>
-  </div>
-
-  <!-- QUICK NAV (sticky bottom) -->
-  <div class="quicknav" id="quickNav">
-    <button class="quicknav__tab" data-tab="home" onclick="showHome()">🏠 Home</button>
-    <button class="quicknav__tab" data-tab="soar" onclick="showSoarMenu()">🦅 SOAR</button>
-    <button class="quicknav__tab" data-tab="levels" onclick="showPracticeMenu()">🏎️ Levels</button>
-    <button class="quicknav__tab" data-tab="gym" onclick="showGym()">🧠 Gym</button>
-  </div>
-
-</div><!-- end wrap -->
+</div><!-- end .shell -->
 
 <script src="mathdata.js"></script>
 <script src="mentalmath.js"></script>

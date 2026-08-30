@@ -34,20 +34,20 @@ suite('integration — app boot', () => {
   test('home screen is active on boot and the back button is hidden there', () => {
     run('window.showHome()');
     assert.equal($('#homeScreen').classList.contains('active'), true);
-    assert.equal(getComputedStyle($('#topBarBack')).visibility, 'hidden');
+    assert.equal(getComputedStyle($('#topStripBack')).visibility, 'hidden');
   });
 });
 
-suite('integration — navigation (TopBar back button + QuickNav)', () => {
-  test('showPracticeMenu renders all 20 level tiles and reveals the back button', () => {
-    run('window.showPracticeMenu()');
+suite('integration — navigation (rail/top-strip back + nav tabs)', () => {
+  test('showPracticeMenu renders this racer\'s lane and reveals the back button', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); window.showPracticeMenu(); })()`);
     assert.equal($('#practiceMenuScreen').classList.contains('active'), true);
-    assert.equal($$('#levelsGrid > *').length, 20);
-    assert.equal(getComputedStyle($('#topBarBack')).visibility, 'visible');
-    assert.equal($('.quicknav__tab--active').dataset.tab, 'levels');
+    assert.equal($$('#levelsGrid > *').length, 8, 'Safia\'s lane is levels 1-8');
+    assert.equal(getComputedStyle($('#topStripBack')).visibility, 'visible');
+    assert.equal($('.nav-item--active').dataset.tab, 'levels');
   });
 
-  test('every screen maps to the correct back target and QuickNav tab', () => {
+  test('every screen maps to the correct back target and nav tab', () => {
     const cases = [
       ['practiceMenuScreen', 'homeScreen', 'levels'],
       ['soarMenuScreen', 'homeScreen', 'soar'],
@@ -56,7 +56,7 @@ suite('integration — navigation (TopBar back button + QuickNav)', () => {
     ];
     cases.forEach(([from, expectedBack, expectedTab]) => {
       run(`showScreen('${from}')`);
-      assert.equal($('.quicknav__tab--active')?.dataset.tab, expectedTab, `${from}: wrong active QuickNav tab`);
+      assert.equal($('.nav-item--active')?.dataset.tab, expectedTab, `${from}: wrong active nav tab`);
       run('handleBack()');
       assert.equal(appDoc().querySelector('.screen.active').id, expectedBack, `${from}: back() went to the wrong screen`);
     });
@@ -174,6 +174,7 @@ suite('integration — level completion, trophies, and daily bonus', () => {
     // showResults() computes pct as score/questions.length (NOT score/(score+wrong)) —
     // trim questions to exactly 10 so a synthetic score=9,wrong=1 means an exact 90%.
     run(`(function(){
+      activeRacer = 'safia'; loadRacerState();
       progress.carry_add = { completed: false, score: 0 };
       const l = LEVELS.find(l => l.id === 'carry_add');
       startLevel(l);
@@ -182,7 +183,7 @@ suite('integration — level completion, trophies, and daily bonus', () => {
       showResults();
     })()`);
     assert.equal(appDoc().querySelector('.screen.active').id, 'resultScreen');
-    const saved = JSON.parse(run("localStorage.getItem('mathdojo-progress')"));
+    const saved = JSON.parse(run("localStorage.getItem(nk('mathdojo-progress'))"));
     assert.equal(saved.carry_add.completed, true);
     assert.equal(saved.carry_add.score, 90);
   });
@@ -201,64 +202,78 @@ suite('integration — level completion, trophies, and daily bonus', () => {
   });
 
   test('claiming the daily bonus adds 3 stars and records today\'s date', () => {
-    run("localStorage.removeItem('mathdojo-lastbonus')");
+    run(`(function(){ activeRacer='safia'; loadRacerState(); localStorage.removeItem(nk('mathdojo-lastbonus')); })()`);
     run('checkDailyBonus()');
     assert.ok($('.daily-claim'), 'daily bonus claim button should render when unclaimed');
     const before = run('totalStarsEarned');
     run('claimDaily()');
     assert.equal(run('totalStarsEarned'), before + 3);
-    assert.equal(run("localStorage.getItem('mathdojo-lastbonus')"), new Date().toDateString());
-    assert.equal($('#topBarStars').textContent, '★ ' + (before + 3));
+    assert.equal(run("localStorage.getItem(nk('mathdojo-lastbonus'))"), new Date().toDateString());
+    assert.equal($('#topStripStars').textContent, '★ ' + (before + 3));
   });
 });
 
 suite('integration — SOAR activities', () => {
-  test('showSoarMenu renders 56 activities grouped under 5 age-band headers', () => {
+  test('showSoarMenu renders only the active racer\'s age band, no sticky headers', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); })()`);
+    const expected = run("SOAR_ACTIVITIES.filter(a=>a.age===RACERS.safia.band).length");
     run('showSoarMenu()');
-    assert.equal($$('.soar-level-btn').length, 56);
-    assert.equal($$('.age-group-header').length, 5);
+    assert.equal($$('.soar-level-btn').length, expected);
+    assert.equal($$('.age-group-header').length, 0, 'sticky age-band headers were dropped in the redesign');
   });
 
   test('marking an activity done persists it and shows a done marker back on the menu', () => {
-    run(`(function(){ soarProgress = {}; showSoarActivity(3); markDone(3); })()`);
-    assert.equal(run('soarProgress[3]'), true);
-    const saved = JSON.parse(run("localStorage.getItem('mathdojo-soar')"));
-    assert.equal(saved['3'], true);
+    run(`(function(){ activeRacer='safia'; loadRacerState(); soarProgress = {}; })()`);
+    const idx = run("SOAR_ACTIVITIES.findIndex(a=>a.age===RACERS.safia.band)");
+    run(`(function(){ showSoarActivity(${idx}); markDone(${idx}); })()`);
+    assert.equal(run(`soarProgress[${idx}]`), true);
+    const saved = JSON.parse(run("localStorage.getItem(nk('mathdojo-soar'))"));
+    assert.equal(saved[String(idx)], true);
     run('showSoarMenu()');
-    assert.match($$('.soar-title')[3].textContent, '✅');
+    assert.match($$('.soar-title')[0].textContent, '✅');
   });
 
   test('unmarking an activity removes the done marker', () => {
-    run(`(function(){ showSoarActivity(3); unmarkDone(3); showSoarMenu(); })()`);
-    assert.equal(run('soarProgress[3]'), false);
-    assert.ok(!$$('.soar-title')[3].textContent.includes('✅'));
+    run(`(function(){ activeRacer='safia'; loadRacerState(); })()`);
+    const idx = run("SOAR_ACTIVITIES.findIndex(a=>a.age===RACERS.safia.band)");
+    run(`(function(){ showSoarActivity(${idx}); unmarkDone(${idx}); showSoarMenu(); })()`);
+    assert.equal(run(`soarProgress[${idx}]`), false);
+    assert.ok(!$$('.soar-title')[0].textContent.includes('✅'));
   });
 });
 
 suite('integration — badges', () => {
-  test('checkBadges flips a badge true once its condition is met and reflects it in the DOM', () => {
+  test('checkBadges flips a badge true once its condition is met and shows it earned on the Trophies screen', () => {
     run(`(function(){
       progress = {}; LEVELS.forEach(l => progress[l.id] = { completed: false, score: 0 });
       progress.counting = { completed: true, score: 100 };
       checkBadges();
+      showTrophies();
     })()`);
     assert.equal(run('badges.counting'), true);
-    assert.equal($('#badgeCounting').classList.contains('unlocked'), true);
+    const idx = run("BADGES_DEF.findIndex(b=>b.key==='counting')");
+    assert.equal($$('#badgesGrid .trophy-tile')[idx].classList.contains('trophy-tile--earned'), true);
   });
 });
 
 suite('integration — save/load', () => {
   test('buildSaveBundle includes progress, SOAR completion, trophies, badges and total stars', () => {
     const bundle = JSON.parse(run('JSON.stringify(buildSaveBundle())'));
-    assert.equal(bundle.version, 1);
+    assert.equal(bundle.version, 2);
+    ['safia', 'safaan'].forEach(id => assert.ok(id in bundle.racers, `save bundle missing racer "${id}"`));
     ['progress', 'soarProgress', 'trophyData', 'badges', 'totalStarsEarned'].forEach(k => {
-      assert.ok(k in bundle, `save bundle missing "${k}"`);
+      assert.ok(k in bundle.racers[bundle.activeRacer], `save bundle missing "${k}"`);
     });
   });
 
   test('handleLoadFile merges a full versioned bundle across all 5 fields', async () => {
+    // handleLoadFile's final render sweep calls checkBadges(), which recomputes
+    // `badges` from `progress` (BADGES_DEF's checks), overwriting whatever was
+    // merged from data.badges — so progress.counting must itself satisfy the
+    // 'counting' badge's check(progress) for the badges.counting assertion
+    // below to hold, independent of whatever any other test left behind.
     const bundleJson = run(`
-      JSON.stringify({version:1, progress:{money:{completed:true,score:100}}, soarProgress:{9:true},
+      JSON.stringify({version:1, progress:{money:{completed:true,score:100},counting:{completed:true,score:100}}, soarProgress:{9:true},
         trophyData:{first_correct:true}, badges:{counting:true}, totalStarsEarned:77})
     `);
     run(`(function(){
@@ -286,18 +301,32 @@ suite('integration — save/load', () => {
     assert.equal(run('totalStarsEarned'), 42, 'legacy load must not touch totalStarsEarned');
   });
 
-  test('buildSaveBundle includes all 6 Mental Math Gym fields alongside the original 5', () => {
+  test('buildSaveBundle includes all 6 Mental Math Gym fields, tensRecord, and gymSpeedRound/gymDaily, for BOTH racers', () => {
     const bundle = JSON.parse(run('JSON.stringify(buildSaveBundle())'));
-    ['mmCards', 'mmMisses', 'mmBest', 'mmSets', 'mmSession', 'mmSheet'].forEach(k => {
-      assert.ok(k in bundle, `save bundle missing "${k}"`);
+    ['mmCards', 'mmMisses', 'mmBest', 'mmSets', 'mmSession', 'mmSheet', 'tensRecord', 'gymSpeedRound', 'gymDaily'].forEach(k => {
+      assert.ok(k in bundle.racers.safia, `safia bundle missing "${k}"`);
+      assert.ok(k in bundle.racers.safaan, `safaan bundle missing "${k}"`);
     });
   });
 
-  test('buildSaveBundle includes tensRecord and the redesigned hub\'s gymSpeedRound/gymDaily fields', () => {
-    const bundle = JSON.parse(run('JSON.stringify(buildSaveBundle())'));
-    ['tensRecord', 'gymSpeedRound', 'gymDaily'].forEach(k => {
-      assert.ok(k in bundle, `save bundle missing "${k}"`);
-    });
+  test('handleLoadFile (v2): writes each racer to its own keys and reloads live state for the active one only', async () => {
+    run(`(function(){ activeRacer = 'safia'; loadRacerState(); })()`);
+    const emptyGym = `mmCards:{},mmMisses:{},mmBest:null,mmSets:[],mmSession:0,mmSheet:{key:null,daily:{done:0,correct:0},column:{done:0,correct:0}},tensRecord:{key:null,done:0,correct:0,log:[]},gymSpeedRound:true,gymDaily:{key:null,done:0,correct:0}`;
+    const bundleJson = run(`
+      JSON.stringify({version:2, activeRacer:'safia', racers:{
+        safia:{progress:{money:{completed:true,score:100}}, soarProgress:{}, trophyData:{}, badges:{}, totalStarsEarned:11, ${emptyGym}},
+        safaan:{progress:{carry_add:{completed:true,score:80}}, soarProgress:{}, trophyData:{}, badges:{}, totalStarsEarned:22, ${emptyGym}}
+      }})
+    `);
+    run(`(function(){
+      const file = new File([${JSON.stringify(bundleJson)}], 'save.json', {type:'application/json'});
+      handleLoadFile({target:{files:[file]}});
+    })()`);
+    await sleep(200);
+    assert.equal(run('progress.money.completed'), true, 'active racer (safia) live state should reload from the loaded file');
+    assert.equal(run('totalStarsEarned'), 11);
+    const safaanStars = run("parseInt(localStorage.getItem(nkFor('mathdojo-stars','safaan')),10)");
+    assert.equal(safaanStars, 22, 'the other racer\'s data is written to storage too, even though it is not currently active');
   });
 
   test('handleLoadFile merges gymSpeedRound and gymDaily, each individually guarded', async () => {
@@ -331,15 +360,15 @@ suite('integration — Mental Math Gym: navigation', () => {
     ];
     cases.forEach(([from, expectedBack]) => {
       run(`showScreen('${from}')`);
-      assert.equal($('.quicknav__tab--active')?.dataset.tab, 'gym', `${from}: wrong active QuickNav tab`);
+      assert.equal($('.nav-item--active')?.dataset.tab, 'gym', `${from}: wrong active nav tab`);
       run('handleBack()');
       assert.equal(appDoc().querySelector('.screen.active').id, expectedBack, `${from}: back() went to the wrong screen`);
     });
   });
 
-  test('the Home screen has a Gym card that opens the hub', () => {
+  test('the Home screen has a Gym tile that opens the hub', () => {
     run(`(function(){ progress = {}; LEVELS.forEach(l => progress[l.id] = {completed:false, score:0}); window.showHome(); })()`);
-    assert.ok($('#gymHomeStat'), 'expected a Gym stat element on Home');
+    assert.ok($('#destTiles'), 'expected the Home destination tiles to render');
     run('showGym()');
     assert.equal(appDoc().querySelector('.screen.active').id, 'gymScreen');
   });
@@ -592,5 +621,86 @@ suite('integration — Tens & Ones: play one problem of each strategy', () => {
     run('showTensReport()');
     assert.equal(run('tensView'), 'report');
     assert.equal($$('#tensContent .progress-bar--thin').length, 5, 'expected one row per strategy (split/blocks/line/compensate/column)');
+  });
+});
+
+suite('integration — two racers: Levels/SOAR/stars/trophies/Gym scope independently', () => {
+  test('swapping racers changes the Levels lane, the SOAR band, and stars, with no bleed between racers', () => {
+    run(`(function(){
+      activeRacer = 'safia'; loadRacerState();
+      progress = {}; LEVELS.forEach(l => progress[l.id] = {completed:false, score:0});
+      totalStarsEarned = 12; persistAll();
+    })()`);
+    assert.equal(run('laneLevels().length'), 8, 'Safia\'s lane is levels 1-8');
+    assert.equal(run("RACERS[activeRacer].band"), '3-5');
+
+    run('swapRacer()');
+    assert.equal(run('activeRacer'), 'safaan');
+    assert.equal(run('laneLevels().length'), 17, 'Safaan\'s lane is levels 4-20');
+    assert.equal(run("RACERS[activeRacer].band"), '7-11');
+
+    run(`(function(){ totalStarsEarned = 30; persistAll(); })()`);
+    run('swapRacer()'); // back to safia
+    assert.equal(run('activeRacer'), 'safia');
+    assert.equal(run('totalStarsEarned'), 12, 'swapping back to Safia should restore exactly her own stars, not Safaan\'s 30');
+
+    run('swapRacer()');
+    assert.equal(run('totalStarsEarned'), 30, 'Safaan\'s 30 stars should still be there, undisturbed by Safia\'s session');
+    run('swapRacer()'); // leave the shared iframe back on the default racer for later tests
+  });
+
+  test('the Gym\'s picked sets (mmSets) are also racer-scoped', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); mmSets=['add20']; persistMM(); })()`);
+    run('swapRacer()');
+    run(`(function(){ mmSets=['tensOnes','carry']; persistMM(); })()`);
+    run('swapRacer()'); // back to safia
+    assert.equal(run('JSON.stringify(mmSets)'), JSON.stringify(['add20']));
+    run('swapRacer()');
+    assert.equal(run('JSON.stringify(mmSets)'), JSON.stringify(['tensOnes','carry']));
+    run('swapRacer()');
+  });
+});
+
+suite('integration — Quiz: Chromebook keyboard play', () => {
+  test('Enter checks the answer when unchecked, and advances to the next question when already checked', () => {
+    run(`(function(){ const l = LEVELS.find(l => l.id === 'add_three'); startLevel(l); })()`);
+    assert.equal(run('answered'), false);
+    const answer = run('questions[qIndex].answer');
+    run(`document.getElementById('answerInput').value = '${answer}'`);
+    run(`window.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter'}))`);
+    assert.equal(run('answered'), true, 'first Enter should check the answer');
+    assert.equal($('#feedback').classList.contains('ok'), true);
+    const qIndexBefore = run('qIndex');
+    run(`window.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter'}))`);
+    assert.equal(run('qIndex'), qIndexBefore + 1, 'second Enter should advance to the next question');
+  });
+
+  test('Enter does nothing outside the quiz screen', () => {
+    run('showHome()');
+    run(`window.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter'}))`); // must not throw
+    assert.equal(appDoc().querySelector('.screen.active').id, 'homeScreen');
+  });
+});
+
+suite('integration — Quiz: stepped hint panel', () => {
+  test('a carry_add question gets an interactive column-method hint that steps without revealing the answer up front', () => {
+    run(`(function(){ const l = LEVELS.find(l => l.id === 'carry_add'); startLevel(l); })()`);
+    assert.ok(run('!!questions[qIndex].work'), 'carry_add questions should carry a work descriptor');
+    run('showHint()');
+    assert.equal($('#hintDisplay').classList.contains('show'), true);
+    assert.match($('#hintDisplay').textContent, 'Step 1 of');
+    const answer = run('questions[qIndex].answer');
+    assert.ok(!$('#hintDisplay').textContent.includes(String(answer)) || String(answer).length < 2,
+      'the answer should not already be on screen at step 1');
+    run('hintStepNext()');
+    assert.equal(run('hintStep'), 1);
+    run('hintStepRestart()');
+    assert.equal(run('hintStep'), 0);
+  });
+
+  test('a level with no arithmetic work descriptor falls back to the plain prose hint', () => {
+    run(`(function(){ const l = LEVELS.find(l => l.id === 'money'); startLevel(l); })()`);
+    assert.equal(run('!!questions[qIndex].work'), false, 'money questions carry no work descriptor');
+    assert.ok(!$('#hintDisplay').textContent.includes('Step'), 'no stepper chrome for a plain-prose hint');
   });
 });
