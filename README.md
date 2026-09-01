@@ -1,6 +1,6 @@
 # 🏁 Safia's & Safaan's Math Dojo
 
-A browser-based math practice app for two kids sharing one device — 20 auto-generated practice levels, 56 real-world "SOAR" activities, a Mental Math Gym for building fast mental arithmetic, stepped interactive hints, trophies/badges/streaks/daily bonus, and save/load progress, all scoped to whichever racer (Safia or Safaan) is active. Built as a plain static site: no build step, no npm, no framework.
+A browser-based math practice app for two kids sharing one device — 20 auto-generated practice levels, 56 real-world "SOAR" activities, a Mental Math Gym for building fast mental arithmetic, a Safia-only Number Talks Zone for conceptual number sense, stepped interactive hints, trophies/badges/streaks/daily bonus, and save/load progress, all scoped to whichever racer (Safia or Safaan) is active. Built as a plain static site: no build step, no npm, no framework.
 
 ## Running it
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 ```
 index.html      screen markup — left rail (≥900px) / top strip + bottom nav (<900px)
 style.css       Turbo Math design tokens + component styles
-mathdata.js     content & pure logic — racers, levels, SOAR activities, stepped hints, trophies, badges
+mathdata.js     content & pure logic — racers, levels, SOAR activities, stepped hints, Number Talks Zone, trophies, badges
 mentalmath.js   content & pure logic for the Mental Math Gym
 script.js       interaction/render/animation layer
 race-bg.jpg     fixed background image
@@ -36,13 +36,14 @@ For the "why" behind how these fit together (why there's no build step, why the 
 - **Mental Math Gym** — a hub built around three cards: **Daily assignment** (16 pooled number/word problems, plus an optional ⚡ speed round) and its **Random mix** counterpart (12 problems, a quieter secondary tile below the three cards), **Learn a trick** (a hard sum broken into stacked steps on a number keypad — get one wrong and it stays put until you get it right, no answer given away), and **Flash cards** (a fresh 5-card deck each time, graded with spaced-repetition Leitner boxes, every quick fact capped at 30 so nothing three-digit slips onto a flash card). An 11-set "Pick what to practise" chip picker actually drives what shows up in Daily/Random and Flash cards. The hub has its own persistent back button and navigation history, separate from the rest of the app. Two richer, more specialized practice modes — a guided two-digit carry/borrow column sheet, and a **Tens & Ones** sheet teaching two-digit addition/subtraction through 5 hands-on strategies (base-ten blocks you trade by tapping, a number line, round-and-adjust, the column method) — aren't hub tiles anymore but are still fully built and tested; see [DESIGN.md](DESIGN.md#mental-math-gym) for how to reach them directly. Misses are tracked per fact and feed the Home screen's "🎯 Practice These" panel.
 - **Streaks, 16 trophies, and 10 badges** for motivation, shown as a generated tile grid on their own **Trophies** screen, plus a daily +3★ bonus, confetti, and a milestone modal (unlocking several trophies at once queues them instead of dropping all but one).
 - A **Grown-up summary** screen showing both racers side by side — stars, mastered levels, trophy count, and weakest facts for each — and home to **Save / Load**: exports a full backup of *both* racers (level progress, SOAR completion, trophies, badges, total stars) as a downloadable JSON file; loading merges it back in, with backward-compatible support for older, single-profile save files.
+- A **Number Talks Zone**, scoped to Safia only (targeting a specific number-sense gap flagged by her own MAP Growth results, not a generic feature) — five short, self-checking activities for conceptual understanding rather than more drill: **Number Talks** (find every way to split a number into two parts), **Patterns** (repeating or growing, spot what's next), **Problem Solving** (a word-problem pool with a post-correct "try it another way" reveal of two named strategies), **Real-World Math** (money/time/measurement, multiple choice), and **Pit Crew Games** (a missing-number drill that gets harder the longer the streak runs). Hidden from Safaan's nav entirely rather than shown disabled.
 
 ## Testing
 
 The suite is plain, dependency-free browser JavaScript — open **`tests/index.html`** in any browser to run it and see a pass/fail report. It's organized as:
 
-- **Unit** — `mathdata.js` and `mentalmath.js`'s content and logic in isolation (levels, question generators, SOAR data, trophies/badges, Gym fact sets, daily/column sheet determinism, and the stepped hint engine's `columnSteps`/`stripSteps`/`workSteps`).
-- **Integration** — the real app, loaded in an iframe and driven like a player would (click through screens, answer every question kind, complete a level, complete a SOAR activity, save/load a file, switch racers and confirm Levels/SOAR/stars/trophies/Gym re-scope independently, play a question with keyboard-only Enter, step through a hint panel, exercise the Gym hub's chip picker/speed round/back-navigation and play both Daily assignment and Random mix to completion, and one problem of each Tens & Ones strategy).
+- **Unit** — `mathdata.js` and `mentalmath.js`'s content and logic in isolation (levels, question generators, SOAR data, trophies/badges, Gym fact sets, daily/column sheet determinism, the stepped hint engine's `columnSteps`/`stripSteps`/`workSteps`, and the Number Talks Zone's `ntGenPattern`/`ntGenRealWorld`/`ntGenGame` generators).
+- **Integration** — the real app, loaded in an iframe and driven like a player would (click through screens, answer every question kind, complete a level, complete a SOAR activity, save/load a file, switch racers and confirm Levels/SOAR/stars/trophies/Gym re-scope independently, play a question with keyboard-only Enter, step through a hint panel, exercise the Gym hub's chip picker/speed round/back-navigation and play both Daily assignment and Random mix to completion, one problem of each Tens & Ones strategy, and all 5 Number Talks Zone activities including its Safia-only gate).
 - **Regression** — pins specific decisions and previously-fragile behaviors by name, so they can't silently drift back.
 
 To run it from a terminal / CI instead of a browser tab:

@@ -715,3 +715,94 @@ const SOAR_ACTIVITIES=[
 {id:'lessMore',icon:'⚖️🏁',title:'Less or More',age:'5-7',desc:'Find numbers that make the inequality true!',aim:'Understand < > = symbols',instructions:['Write an inequality like ___ < 50 or ___ > 30.','Fill in the blank with a number that makes it TRUE.','Find as many numbers as you can!'],illustration:'___ < 8 → 7 ✓ 0 ✓ -1 ✓\n20 < ___ < 25 → 21, 22, 23, 24 ✓',hint:'Think about the number line.',questions:['Are there infinitely many that make ___ < 8 true?','What if you can only use 1–100?']},
 {id:'play37',icon:'3️⃣7️⃣🏆',title:'Play 37',age:'7-11',desc:'Add 1–5 to reach 37 – can\'t repeat your opponent\'s last number!',aim:'Develop strategic addition and reasoning',instructions:['Add any number 1–5 to a running total (starts at 0).','BUT: can\'t use the same number your opponent just used.','First to reach EXACTLY 37 = WIN!'],illustration:'Total: 0\nP1 adds 4 → 4\nP2 can\'t add 4! Adds 3 → 7\n...reach 37 exactly!',hint:'Work backwards from 37. Find winning positions!',questions:['Does first move matter?','What\'s the pattern of winning positions?']}
 ];
+
+// ============================================================
+//  NUMBER TALKS ZONE — Safia-only conceptual-understanding section (see
+//  design_handoff_number_talks_zone/README.md). Ported from the handoff's
+//  Number Talks Hub.dc.html prototype logic verbatim, just renamed to this
+//  file's nt-prefixed convention and routed through the shared shuffle()
+//  above instead of the prototype's own inline sort-by-random.
+// ============================================================
+const NT_TARGETS=[8,10,12,15,20];
+
+// Repeating-pattern emoji pools: each unit repeats 3x then gets sliced to a
+// 4-item sequence, so the "answer" is whichever unit-position the sequence
+// stopped on (seq.length % unit.length) — matches the prototype exactly.
+const NT_PATTERN_POOLS=[['🏎️','🚚'],['🚗','🚗','🏁'],['⚙️','⚙️','🔧']];
+const NT_PATTERN_EMOJI=['🏎️','🚚','🚗','🏁','⚙️','🔧','🚀'];
+
+function ntGenPattern(){
+  if(Math.random()<0.5){
+    const unit=NT_PATTERN_POOLS[Math.floor(Math.random()*NT_PATTERN_POOLS.length)];
+    const seq=[...unit,...unit,...unit].slice(0,4);
+    const answer=unit[seq.length%unit.length];
+    const wrongPool=NT_PATTERN_EMOJI.filter(e=>e!==answer);
+    const opts=shuffle([answer,wrongPool[0],wrongPool[1]]);
+    return {mode:'repeat',seq,answer,opts};
+  }
+  const start=1+Math.floor(Math.random()*6);
+  const step=1+Math.floor(Math.random()*4);
+  const seq=[start,start+step,start+2*step,start+3*step];
+  return {mode:'grow',seq,answer:start+4*step};
+}
+
+// Money / time / measurement, one randomly-picked kind per call. `display`
+// is a small formatting function carried on the returned object (no DOM
+// involved — same content/interaction split as everywhere else in this file).
+function ntGenRealWorld(){
+  const kind=['money','time','measure'][Math.floor(Math.random()*3)];
+  if(kind==='money'){
+    const coins=[1,5,10,25],n=2+Math.floor(Math.random()*2);
+    let picks=[],total=0;
+    for(let i=0;i<n;i++){const c=coins[Math.floor(Math.random()*coins.length)];picks.push(c);total+=c;}
+    return {text:`Safia's pit stop shop has these coins: ${picks.map(c=>c+'¢').join(' + ')}. How much money is that in all?`,
+      answer:total,opts:shuffle([total,total+5,total+10]),display:v=>v+'¢'};
+  }
+  if(kind==='time'){
+    const h=1+Math.floor(Math.random()*11),m=[0,15,30,45][Math.floor(Math.random()*4)];
+    let nh=h,nm=m+15; if(nm>=60){nm-=60;nh=nh+1>12?1:nh+1;}
+    const answer=`${nh}:${nm.toString().padStart(2,'0')}`;
+    const wrong1=`${h}:${((m+30)%60).toString().padStart(2,'0')}`;
+    const wrong2=`${h+1>12?1:h+1}:${m.toString().padStart(2,'0')}`;
+    return {text:`The race starts at ${h}:${m.toString().padStart(2,'0')}. What time is it 15 minutes later?`,
+      answer,opts:shuffle([answer,wrong1,wrong2]),display:v=>v};
+  }
+  const a=3+Math.floor(Math.random()*6),b=a+1+Math.floor(Math.random()*5),diff=b-a;
+  return {text:`One toy car ramp is ${a} inches long. Another is ${b} inches long. How much longer is the second ramp?`,
+    answer:diff,opts:shuffle([diff,diff+2,diff+4]),display:v=>v+' in'};
+}
+
+// Missing-number drill (`? + 5 = 12` style). Difficulty (the number range)
+// scales with the caller's current streak, capped at +5 sets of +2.
+function ntGenGame(streak){
+  const max=10+Math.min(streak,5)*2;
+  const op=Math.random()<0.5?'+':'-';
+  let a,b,result;
+  if(op==='+'){a=1+Math.floor(Math.random()*max);b=1+Math.floor(Math.random()*max);result=a+b;}
+  else{a=2+Math.floor(Math.random()*max);b=1+Math.floor(Math.random()*a);result=a-b;}
+  const blank=Math.floor(Math.random()*3);
+  let answer,display;
+  if(blank===0){answer=a;display=`? ${op} ${b} = ${result}`;}
+  else if(blank===1){answer=b;display=`${a} ${op} ? = ${result}`;}
+  else{answer=result;display=`${a} ${op} ${b} = ?`;}
+  const distractors=new Set();
+  while(distractors.size<3){const d=answer+(Math.floor(Math.random()*7)-3); if(d>=0&&d!==answer)distractors.add(d);}
+  return {display,answer,opts:shuffle([answer,...distractors])};
+}
+
+// Fixed pool of 6 word problems, each with 2 named alternate-strategy
+// explanations revealed after a correct answer ("Try it another way").
+const NT_PROBLEMS=[
+  {text:"Safia has 6 toy cars. Her friend gives her 4 more. How many cars does she have now?",answer:10,
+   strategies:[{label:'Count on',text:'Start at 6 and count on 4 more: 7, 8, 9, 10.'},{label:'Make a ten',text:'6 needs 4 more to make 10 — and she has exactly 4 more.'}]},
+  {text:"There are 9 race cars on the track. 3 pit stop for tires. How many cars are still racing?",answer:6,
+   strategies:[{label:'Count back',text:'Start at 9 and count back 3: 8, 7, 6.'},{label:'Think addition',text:'What plus 3 makes 9? 6 plus 3 makes 9.'}]},
+  {text:"A food truck sells 7 burgers, then 8 more. How many burgers is that in all?",answer:15,
+   strategies:[{label:'Make a ten',text:'Take 2 from 8 to make 7 into 10, leaving 5. 10 plus 5 is 15.'},{label:'Count on',text:'Start at 8 and count on 7 more: 9,10,11,12,13,14,15.'}]},
+  {text:"Safaan lines up 14 toy cars in two rows. One row has 8 cars. How many are in the other row?",answer:6,
+   strategies:[{label:'Count up',text:'Start at 8 and count up to 14: that is 6 steps.'},{label:'Subtract',text:'14 take away 8 is 6.'}]},
+  {text:"12 cars start the race. 5 cars finish first. How many cars are still racing?",answer:7,
+   strategies:[{label:'Count back',text:'Start at 12, count back 5: 11,10,9,8,7.'},{label:'Think addition',text:'What plus 5 makes 12? 7 plus 5 makes 12.'}]},
+  {text:"There are 8 wheels in the pit box. A crew adds 5 more wheels. How many wheels now?",answer:13,
+   strategies:[{label:'Make a ten',text:'8 needs 2 more to make 10. 5 minus 2 is 3, so 10 plus 3 is 13.'},{label:'Count on',text:'Start at 8 and count on 5: 9,10,11,12,13.'}]}
+];

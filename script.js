@@ -185,6 +185,304 @@ function showGrownup(){ renderGrownup(); showScreen('grownupScreen'); }
 window.showGrownup=showGrownup;
 
 // ============================================================
+//  NUMBER TALKS ZONE — Safia-only conceptual-understanding section (see
+//  design_handoff_number_talks_zone/README.md and DESIGN.md). One screen
+//  (ntScreen/#ntContent) with an internal state machine, same idiom as the
+//  Gym hub (ntNav here plays the role of gymNav; there's only ever one level
+//  of nesting — hub, then one of 5 activities — so no history stack is
+//  needed, unlike gymHistory). Generators (ntGenPattern/ntGenRealWorld/
+//  ntGenGame) and the NT_PROBLEMS/NT_TARGETS content pools live in
+//  mathdata.js; everything here is interaction/rendering only.
+// ============================================================
+let ntNav='hub';
+let ntTarget=NT_TARGETS[1],ntA='',ntB='',ntWays=[],ntMsg=null,ntOk=true;
+let ntPattern=null,ntPatternInput='',ntPatternMsg=null,ntPatternOk=true,ntPatternStreak=0,ntPatternSelected=null;
+let ntProblemIdx=0,ntProblemAnswer='',ntProblemMsg=null,ntProblemOk=false,ntShowStrategies=false;
+let ntRealWorld=null,ntRealWorldMsg=null,ntRealWorldOk=true,ntRealWorldSelected=null;
+let ntGame=null,ntGameScore=0,ntGameStreak=0,ntGameMsg=null,ntGameOk=true,ntGameSelected=null;
+
+function showNumberTalks(){
+  if(activeRacer!=='safia'){window.showHome();return;} // scoped to Safia only
+  ntNav='hub';
+  renderNumberTalks();
+  showScreen('ntScreen');
+}
+window.showNumberTalks=showNumberTalks;
+
+function ntBack(){
+  if(ntNav==='hub'){window.showHome();return;}
+  ntNav='hub';
+  renderNumberTalks();
+}
+window.ntBack=ntBack;
+
+function ntOpen(screen){
+  ntNav=screen;
+  if(screen==='patterns'&&!ntPattern)ntPattern=ntGenPattern();
+  if(screen==='realWorld'&&!ntRealWorld)ntRealWorld=ntGenRealWorld();
+  if(screen==='games'&&!ntGame)ntGame=ntGenGame(ntGameStreak);
+  renderNumberTalks();
+}
+
+function ntBackBtn(){ return `<button type="button" class="gym-back" onclick="ntBack()">‹</button>`; }
+
+function renderNumberTalks(){
+  renderNtStatusColumn();
+  const el=document.getElementById('ntContent'); if(!el)return;
+  if(ntNav==='hub')el.innerHTML=renderNtHub();
+  else if(ntNav==='numberTalks')el.innerHTML=renderNtNumberTalksView();
+  else if(ntNav==='patterns')el.innerHTML=renderNtPatterns();
+  else if(ntNav==='problems')el.innerHTML=renderNtProblems();
+  else if(ntNav==='realWorld')el.innerHTML=renderNtRealWorld();
+  else if(ntNav==='games')el.innerHTML=renderNtGames();
+}
+
+function renderNtHub(){
+  return `
+    <div class="screen-heading">
+      <div class="screen-heading__title" style="color:var(--cyan-300);">🎯 Number Talks Zone</div>
+      <div class="screen-heading__sub">Understand the why, not just the how.</div>
+    </div>
+    <div class="nt-hub-grid">
+      <div class="gym-card gym-card--primary" onclick="ntOpen('numberTalks')">
+        <div class="gym-card__icon">🔢</div>
+        <div class="gym-card__name">Number Talks</div>
+        <div class="gym-card__line">Find every way to make a number</div>
+      </div>
+      <div class="gym-card gym-card--accent" onclick="ntOpen('patterns')">
+        <div class="gym-card__icon">🔁</div>
+        <div class="gym-card__name">Patterns</div>
+        <div class="gym-card__line">Spot the rule, predict what's next</div>
+      </div>
+      <div class="gym-card gym-card--reward" onclick="ntOpen('problems')">
+        <div class="gym-card__icon">🧩</div>
+        <div class="gym-card__name">Problem Solving</div>
+        <div class="gym-card__line">Solve it, then try another way</div>
+      </div>
+      <div class="gym-card gym-card--primary" onclick="ntOpen('realWorld')">
+        <div class="gym-card__icon">🏁</div>
+        <div class="gym-card__name">Real-World Math</div>
+        <div class="gym-card__line">Money, time and measuring</div>
+      </div>
+      <div class="gym-card gym-card--accent" onclick="ntOpen('games')">
+        <div class="gym-card__icon">🎮</div>
+        <div class="gym-card__name">Pit Crew Games</div>
+        <div class="gym-card__line">Quick-thinking missing numbers</div>
+      </div>
+    </div>`;
+}
+
+// ── Number Talks: type two numbers that sum to the target; duplicate
+// combinations (in either order) are rejected; ways found accumulate until
+// "New number" resets them. ──
+function renderNtNumberTalksView(){
+  const waysHtml=ntWays.map(w=>`<div class="nt-way-chip">${w.a} + ${w.b} ✓</div>`).join('');
+  return `
+    <div class="quiz-head-slim" style="margin-bottom:14px;">
+      ${ntBackBtn()}
+      <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--cyan-300);">🔢 Number Talks</div>
+    </div>
+    <div class="content-card">
+      <div style="font-size:.95rem;color:var(--text-secondary);margin-bottom:14px;">Find as many ways as you can to make this number from two parts.</div>
+      <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+        <div class="nt-target-circle">${ntTarget}</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+        <input class="nt-num-input" id="ntInputA" type="number" value="${ntA}" placeholder="?">
+        <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--text-secondary);">+</div>
+        <input class="nt-num-input" id="ntInputB" type="number" value="${ntB}" placeholder="?">
+        <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--text-secondary);">=</div>
+        <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--amber-400);">${ntTarget}</div>
+        <button type="button" class="btn btn--primary" style="flex:0 0 auto;" onclick="ntSubmitWay()">Check ✅</button>
+      </div>
+      <div class="feedback ${ntMsg?'show ':''}${ntOk?'ok':'bad'}">${ntMsg||''}</div>
+      <div style="margin-top:22px;border-top:2px dashed var(--border-strong);padding-top:16px;">
+        <div style="font-size:.8rem;font-weight:800;color:var(--text-muted);margin-bottom:8px;">WAYS FOUND (${ntWays.length})</div>
+        <div class="nt-ways-row">${waysHtml}</div>
+      </div>
+      <div style="text-align:center;margin-top:20px;">
+        <button type="button" class="btn btn--ghost" onclick="ntNewTarget()">🔄 New number</button>
+      </div>
+    </div>`;
+}
+function ntSubmitWay(){
+  ntA=document.getElementById('ntInputA').value;
+  ntB=document.getElementById('ntInputB').value;
+  const a=parseInt(ntA,10),b=parseInt(ntB,10),t=ntTarget;
+  if(isNaN(a)||isNaN(b)){ntMsg='Type two numbers first.';ntOk=false;renderNumberTalks();return;}
+  if(a+b!==t){ntMsg=`${a} + ${b} is ${a+b}, not ${t}. Try again.`;ntOk=false;renderNumberTalks();return;}
+  const key=[a,b].sort((x,y)=>x-y).join('-');
+  if(ntWays.some(w=>w.key===key)){ntMsg='Already found that one — try different numbers.';ntOk=false;renderNumberTalks();return;}
+  ntWays.push({key,a,b});
+  ntA='';ntB='';ntMsg='Found a new way!';ntOk=true;
+  ntStats.talks++;persistNt();
+  renderNumberTalks();
+}
+function ntNewTarget(){
+  ntTarget=NT_TARGETS[Math.floor(Math.random()*NT_TARGETS.length)];
+  ntWays=[];ntA='';ntB='';ntMsg=null;
+  renderNumberTalks();
+}
+
+// ── Patterns: repeating (emoji, multiple-choice) or growing (arithmetic
+// step, numeric input) — auto-advances to a new pattern after a pick/check. ──
+function renderNtPatterns(){
+  const p=ntPattern;
+  const seqHtml=p.seq.map(v=>`<div class="nt-seq-tile">${v}</div>`).join('');
+  const optsHtml=p.mode==='repeat'?`<div class="nt-tile-row">${p.opts.map(o=>{
+    const state=ntPatternSelected==null?'':(o===p.answer?' correct':(o===ntPatternSelected?' wrong':''));
+    return `<button type="button" class="mc-choice nt-tile--circle${state}" onclick="ntCheckPatternMC('${o}')">${o}</button>`;
+  }).join('')}</div>`:'';
+  const inputHtml=p.mode==='grow'?`
+    <div style="display:flex;justify-content:center;align-items:center;gap:12px;">
+      <input class="nt-num-input nt-num-input--pill" id="ntPatternInput" type="number" value="${ntPatternInput}" placeholder="?">
+      <button type="button" class="btn btn--primary" style="flex:0 0 auto;" onclick="ntCheckPatternNum()">Check ✅</button>
+    </div>`:'';
+  return `
+    <div class="quiz-head-slim" style="margin-bottom:14px;">
+      ${ntBackBtn()}
+      <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--coral-300);">🔁 Patterns</div>
+      <div class="nt-head-stat">Streak: ${ntPatternStreak}</div>
+    </div>
+    <div class="content-card" style="border-top:5px solid var(--color-accent);text-align:center;">
+      <div style="font-size:.95rem;color:var(--text-secondary);margin-bottom:20px;">What comes next?</div>
+      <div class="nt-seq-row">${seqHtml}<div class="nt-seq-tile nt-seq-tile--blank">?</div></div>
+      ${optsHtml}${inputHtml}
+      <div class="feedback ${ntPatternMsg?'show ':''}${ntPatternOk?'ok':'bad'}">${ntPatternMsg||''}</div>
+    </div>`;
+}
+function ntCheckPatternMC(opt){
+  const cur=ntPattern,correct=opt===cur.answer;
+  ntPatternSelected=opt;
+  ntPatternMsg=correct?"That's it!":`Not quite — it was ${cur.answer}.`;
+  ntPatternOk=correct;
+  if(correct){ntPatternStreak++;ntStats.patterns++;persistNt();}else ntPatternStreak=0;
+  renderNumberTalks();
+  setTimeout(()=>{ if(ntNav==='patterns'){ntPattern=ntGenPattern();ntPatternInput='';ntPatternMsg=null;ntPatternSelected=null;renderNumberTalks();} },1300);
+}
+function ntCheckPatternNum(){
+  ntPatternInput=document.getElementById('ntPatternInput').value;
+  const val=parseInt(ntPatternInput,10),cur=ntPattern,correct=val===cur.answer;
+  ntPatternMsg=correct?"That's it!":`Not quite — it was ${cur.answer}.`;
+  ntPatternOk=correct;
+  if(correct){ntPatternStreak++;ntStats.patterns++;persistNt();}else ntPatternStreak=0;
+  renderNumberTalks();
+  if(correct)setTimeout(()=>{ if(ntNav==='patterns'){ntPattern=ntGenPattern();ntPatternInput='';ntPatternMsg=null;ntPatternSelected=null;renderNumberTalks();} },1000);
+}
+
+// ── Problem Solving: fixed 6-problem pool, self-paced (Check / Next), with
+// a post-correct "Try it another way" reveal of 2 named strategies. ──
+function renderNtProblems(){
+  const p=NT_PROBLEMS[ntProblemIdx];
+  const strategiesHtml=ntShowStrategies?`
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+      ${p.strategies.map(s=>`<div class="nt-strategy-card"><div class="nt-strategy-card__label">${s.label}</div><div class="nt-strategy-card__text">${s.text}</div></div>`).join('')}
+    </div>`:'';
+  const tryAnotherHtml=ntProblemOk?`
+    <div style="margin-top:16px;">
+      <button type="button" class="btn btn--reward" onclick="ntToggleStrategies()">🔀 Try it another way</button>
+      ${strategiesHtml}
+    </div>`:'';
+  return `
+    <div class="quiz-head-slim" style="margin-bottom:14px;">
+      ${ntBackBtn()}
+      <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--amber-400);">🧩 Problem Solving</div>
+    </div>
+    <div class="content-card" style="max-width:640px;">
+      <div style="font-family:var(--font-display);font-size:1.4rem;line-height:1.35;color:var(--text-primary);margin-bottom:20px;">${p.text}</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <input class="nt-num-input nt-num-input--pill" id="ntProblemInput" type="number" value="${ntProblemAnswer}" placeholder="?">
+        <button type="button" class="btn btn--primary" style="flex:0 0 auto;" onclick="ntCheckProblem()">Check ✅</button>
+        <button type="button" class="btn btn--ghost" style="flex:0 0 auto;" onclick="ntNextProblem()">Next ▶</button>
+      </div>
+      <div class="feedback ${ntProblemMsg?'show ':''}${ntProblemOk?'ok':'bad'}">${ntProblemMsg||''}</div>
+      ${tryAnotherHtml}
+    </div>`;
+}
+function ntCheckProblem(){
+  ntProblemAnswer=document.getElementById('ntProblemInput').value;
+  const p=NT_PROBLEMS[ntProblemIdx],val=parseInt(ntProblemAnswer,10),correct=val===p.answer;
+  ntProblemMsg=correct?'Correct!':`Not quite — the answer is ${p.answer}.`;
+  ntProblemOk=correct;
+  if(correct){ntStats.problems++;persistNt();}
+  renderNumberTalks();
+}
+function ntNextProblem(){
+  ntProblemIdx=(ntProblemIdx+1)%NT_PROBLEMS.length;
+  ntProblemAnswer='';ntProblemMsg=null;ntProblemOk=false;ntShowStrategies=false;
+  renderNumberTalks();
+}
+function ntToggleStrategies(){ ntShowStrategies=!ntShowStrategies; renderNumberTalks(); }
+
+// ── Real-World Math: random money/time/measurement question, multiple
+// choice, auto-advances to a new random problem. ──
+function renderNtRealWorld(){
+  const cur=ntRealWorld;
+  const optsHtml=cur.opts.map(o=>{
+    const state=ntRealWorldSelected==null?'':(String(o)===String(cur.answer)?' correct':(String(o)===String(ntRealWorldSelected)?' wrong':''));
+    return `<button type="button" class="mc-choice nt-tile--rect${state}" onclick="ntRwCheck('${o}')">${cur.display(o)}</button>`;
+  }).join('');
+  return `
+    <div class="quiz-head-slim" style="margin-bottom:14px;">
+      ${ntBackBtn()}
+      <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--cyan-300);">🏁 Real-World Math</div>
+    </div>
+    <div class="content-card" style="max-width:640px;">
+      <div style="font-family:var(--font-display);font-size:1.3rem;line-height:1.35;color:var(--text-primary);margin-bottom:20px;">${cur.text}</div>
+      <div class="nt-tile-row" style="justify-content:flex-start;">${optsHtml}</div>
+      <div class="feedback ${ntRealWorldMsg?'show ':''}${ntRealWorldOk?'ok':'bad'}">${ntRealWorldMsg||''}</div>
+    </div>`;
+}
+function ntRwCheck(opt){
+  const cur=ntRealWorld,correct=String(opt)===String(cur.answer);
+  ntRealWorldSelected=opt;
+  ntRealWorldMsg=correct?'Correct!':`Not quite — it was ${cur.display(cur.answer)}.`;
+  ntRealWorldOk=correct;
+  if(correct){ntStats.realWorld++;persistNt();}
+  renderNumberTalks();
+  setTimeout(()=>{ if(ntNav==='realWorld'){ntRealWorld=ntGenRealWorld();ntRealWorldMsg=null;ntRealWorldSelected=null;renderNumberTalks();} },correct?1300:1700);
+}
+
+// ── Pit Crew Games: missing-number drill, 4 choices, difficulty (number
+// range) scales with streak length, auto-advances. ──
+function renderNtGames(){
+  const cur=ntGame;
+  const optsHtml=cur.opts.map(o=>{
+    const state=ntGameSelected==null?'':(o===cur.answer?' correct':(o===ntGameSelected?' wrong':''));
+    return `<button type="button" class="mc-choice nt-tile--circle${state}" onclick="ntGmCheck(${o})">${o}</button>`;
+  }).join('');
+  return `
+    <div class="quiz-head-slim" style="margin-bottom:14px;">
+      ${ntBackBtn()}
+      <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--coral-300);">🎮 Pit Crew Games</div>
+      <div class="nt-head-stat">Score: ${ntGameScore} · Streak: ${ntGameStreak}</div>
+    </div>
+    <div class="content-card" style="text-align:center;">
+      <div style="font-size:.95rem;color:var(--text-secondary);margin-bottom:18px;">Fill in the missing number as fast as you can.</div>
+      <div style="font-family:var(--font-display);font-size:2.6rem;color:var(--text-primary);margin-bottom:24px;">${cur.display}</div>
+      <div class="nt-tile-row">${optsHtml}</div>
+      <div class="feedback ${ntGameMsg?'show ':''}${ntGameOk?'ok':'bad'}">${ntGameMsg||''}</div>
+    </div>`;
+}
+function ntGmCheck(opt){
+  const cur=ntGame,correct=opt===cur.answer;
+  ntGameSelected=opt;
+  ntGameMsg=correct?'Nice!':`Not quite — it was ${cur.answer}.`;
+  ntGameOk=correct;
+  if(correct){ntGameScore++;ntGameStreak++;ntStats.games++;persistNt();}else ntGameStreak=0;
+  renderNumberTalks();
+  setTimeout(()=>{ if(ntNav==='games'){ntGame=ntGenGame(ntGameStreak);ntGameMsg=null;ntGameSelected=null;renderNumberTalks();} },correct?900:1500);
+}
+
+// Status column while in the zone (shown throughout, not just Home/Levels/
+// Trophies) — the "Why this zone" card is static (Safia's real MAP Growth
+// percentiles, see README), only the "Today" activity count is dynamic.
+function renderNtStatusColumn(){
+  const el=document.getElementById('ntTodayCount');
+  if(el)el.textContent=String(ntStats.talks+ntStats.patterns+ntStats.problems+ntStats.realWorld+ntStats.games);
+}
+
+// ============================================================
 //  DAILY BONUS
 // ============================================================
 function checkDailyBonus(){
@@ -712,10 +1010,10 @@ function showResults(){
 // ============================================================
 const BACK_TARGET={practiceMenuScreen:'homeScreen',soarMenuScreen:'homeScreen',soarActivityScreen:'soarMenuScreen',quizScreen:'practiceMenuScreen',resultScreen:'practiceMenuScreen',
   gymScreen:'homeScreen',drillScreen:'gymScreen',dailyScreen:'gymScreen',columnScreen:'gymScreen',gymResultScreen:'gymScreen',sheetResultScreen:'gymScreen',tensScreen:'gymScreen',
-  trophiesScreen:'homeScreen',grownupScreen:'homeScreen'};
+  trophiesScreen:'homeScreen',grownupScreen:'homeScreen',ntScreen:'homeScreen'};
 const TAB_FOR_SCREEN={homeScreen:'home',practiceMenuScreen:'levels',soarMenuScreen:'soar',soarActivityScreen:'soar',quizScreen:'levels',resultScreen:'levels',
   gymScreen:'gym',drillScreen:'gym',dailyScreen:'gym',columnScreen:'gym',gymResultScreen:'gym',sheetResultScreen:'gym',tensScreen:'gym',
-  trophiesScreen:'trophies'};
+  trophiesScreen:'trophies',ntScreen:'numbertalks'};
 // grownupScreen deliberately has no TAB_FOR_SCREEN entry — it's a pinned rail
 // link, not one of the 5 nav tabs, so no tab highlights while on it.
 
@@ -723,10 +1021,11 @@ function updateTopBar(screenId){
   // The rail (>=900px) has no persistent back button — nav items switch
   // destinations directly, and nested screens (Quiz, SOAR activity,
   // Grown-up) draw their own inline back arrow. The narrow top strip
-  // (<900px) keeps one, hidden on Home and on the Gym hub (which renders
-  // its own back button, history-stack driven, inside #gymContent).
+  // (<900px) keeps one, hidden on Home and on the Gym/Number-Talks hubs
+  // (which render their own back button, hidden-at-root, inside their
+  // own content mount).
   const back=document.getElementById('topStripBack');
-  if(back)back.classList.toggle('is-hidden',screenId==='homeScreen'||screenId==='gymScreen');
+  if(back)back.classList.toggle('is-hidden',screenId==='homeScreen'||screenId==='gymScreen'||screenId==='ntScreen');
 }
 function setActiveQuickNavTab(screenId){
   const active=TAB_FOR_SCREEN[screenId];
@@ -736,6 +1035,7 @@ function handleBack(){
   const current=document.querySelector('.screen.active');
   if(!current)return;
   if(current.id==='gymScreen'){ gymBack(); return; }
+  if(current.id==='ntScreen'){ ntBack(); return; }
   const target=BACK_TARGET[current.id];
   if(target)showScreen(target);
 }
@@ -774,10 +1074,19 @@ function renderRacerChips(){
   if(rail)rail.innerHTML=`${chipHtml(40)}<div class="rail__racer-name">${r.name}</div><div class="rail__racer-stat">★ ${totalStarsEarned} · swap ⇄</div>`;
   const strip=document.getElementById('topStripRacer');
   if(strip)strip.innerHTML=`${chipHtml(32)}<div class="topstrip__racer-name">${r.name} ⇄</div>`;
+
+  // Number Talks Zone is scoped to Safia only (see DESIGN.md) — hide its nav
+  // entry entirely for Safaan rather than show a dead/disabled destination.
+  const isSafia=activeRacer==='safia';
+  const railNt=document.getElementById('railNtNav'); if(railNt)railNt.style.display=isSafia?'':'none';
+  const quickNt=document.getElementById('quicknavNtTab'); if(quickNt)quickNt.style.display=isSafia?'':'none';
 }
 
 function goHome(){renderPracticeMenu();showScreen('practiceMenuScreen');}
-const STATUS_COL_SCREENS=['homeScreen','practiceMenuScreen','trophiesScreen'];
+// Number Talks Zone shows the status column throughout (not just Home/Levels
+// /Trophies like everywhere else) — but with its own "Why this zone"/"Today"
+// cards in place of the usual stars/weak-facts/trophy cards, see below.
+const STATUS_COL_SCREENS=['homeScreen','practiceMenuScreen','trophiesScreen','ntScreen'];
 function showScreen(id){
   const current=document.querySelector('.screen.active');
   if(current&&current.id==='drillScreen'&&id!=='drillScreen')stopDrillTimers();
@@ -787,6 +1096,12 @@ function showScreen(id){
   setActiveQuickNavTab(id);
   const statusCol=document.getElementById('statusCol');
   if(statusCol)statusCol.style.display=STATUS_COL_SCREENS.includes(id)?'':'none';
+  const isNt=id==='ntScreen';
+  ['statusStarsCard','statusTrophyCard'].forEach(cid=>{const el=document.getElementById(cid); if(el)el.style.display=isNt?'none':'';});
+  if(isNt){const ps=document.getElementById('patternSummary'); if(ps)ps.style.display='none';}
+  const ntWhy=document.getElementById('ntWhyCard'); if(ntWhy)ntWhy.style.display=isNt?'':'none';
+  const ntToday=document.getElementById('ntTodayCard'); if(ntToday)ntToday.style.display=isNt?'':'none';
+  if(isNt)renderNtStatusColumn();
 }
 
 // ============================================================
@@ -841,8 +1156,9 @@ function handleLoadFile(e){
         if(data.tensRecord)tensRecord=data.tensRecord;
         if(typeof data.gymSpeedRound==='boolean')gymSpeedRound=data.gymSpeedRound;
         if(data.gymDaily)gymDaily=data.gymDaily;
+        if(data.ntStats)Object.assign(ntStats,data.ntStats);
       }
-      persistAll();persistMM();persistTens();persistGym();
+      persistAll();persistMM();persistTens();persistGym();persistNt();
       renderHome();checkBadges();renderTrophyShelf();updateTopBarStars();renderWeakFactsPanel();
       alert('Progress loaded!');
     }catch{alert('Could not read that file.');}
@@ -962,6 +1278,16 @@ function persistGym(){
   localStorage.setItem(nk('tm-mm-assign'),JSON.stringify(gymDaily));
 }
 
+// ── Number Talks Zone (Safia-only) — own key/persist function for the same
+// reason persistGym() is separate from persistAll(): its own cadence, and a
+// persistAll()-field-count test doesn't need to know about it. Only the
+// completed-activity tally is persisted; per-activity in-progress state
+// (current pattern/problem/game, streaks) is transient like gymNav/gymPlay. ──
+let ntStats={talks:0,patterns:0,problems:0,realWorld:0,games:0};
+function persistNt(){
+  localStorage.setItem(nk('mathdojo-nt-stats'),JSON.stringify(ntStats));
+}
+
 // ============================================================
 //  RACER LOAD / SWAP — (re)populates every piece of per-racer state above
 //  from this racer's namespaced localStorage keys. Called once at boot
@@ -990,6 +1316,9 @@ function loadRacerState(){
   gymSpeedRound=true; try{const s=localStorage.getItem(nk('tm-mm-speed')); if(s!==null)gymSpeedRound=s==='1';}catch(e){}
   gymDaily={key:null,done:0,correct:0}; try{const s=localStorage.getItem(nk('tm-mm-assign')); if(s)gymDaily=JSON.parse(s);}catch(e){}
   if(gymDaily.key!==todayKey())gymDaily={key:todayKey(),done:0,correct:0};
+
+  ntStats={talks:0,patterns:0,problems:0,realWorld:0,games:0};
+  try{const s=localStorage.getItem(nk('mathdojo-nt-stats')); if(s)Object.assign(ntStats,JSON.parse(s));}catch(e){}
 }
 
 function swapRacer(){
@@ -1008,10 +1337,17 @@ function swapRacer(){
   mmPlan=null;mmPlanStep=0;mmDraw={above:'',aboveOnes:'',strike:false,resTens:'',resOnes:''};
   tensItems=[];tensView='play';tensIdx=0;tensStep=0;tensSolved=false;tensClean=true;tensFeedback=null;
   tensBlocks={bt:0,bo:0,rt:0,ro:0,gate:true};tensDraw={};
+  ntNav='hub';ntTarget=NT_TARGETS[1];ntA='';ntB='';ntWays=[];ntMsg=null;ntOk=true;
+  ntPattern=null;ntPatternInput='';ntPatternMsg=null;ntPatternOk=true;ntPatternStreak=0;ntPatternSelected=null;
+  ntProblemIdx=0;ntProblemAnswer='';ntProblemMsg=null;ntProblemOk=false;ntShowStrategies=false;
+  ntRealWorld=null;ntRealWorldMsg=null;ntRealWorldOk=true;ntRealWorldSelected=null;
+  ntGame=null;ntGameScore=0;ntGameStreak=0;ntGameMsg=null;ntGameOk=true;ntGameSelected=null;
 
   renderHome();checkBadges();renderTrophyShelf();updateTopBarStars();renderWeakFactsPanel();checkDailyBonus();
   const current=document.querySelector('.screen.active');
-  if(current&&(current.id==='quizScreen'||current.id==='resultScreen')){window.showHome();return;}
+  // Number Talks Zone is Safia-only (see DESIGN.md) — swapping away from it
+  // always means Safaan is now active, so bounce Home like Quiz/Result do.
+  if(current&&(current.id==='quizScreen'||current.id==='resultScreen'||current.id==='ntScreen')){window.showHome();return;}
   // Refresh whatever racer-scoped screen is already open so it doesn't keep
   // showing the previous racer's lane/band/hub content.
   if(current&&current.id==='practiceMenuScreen')renderPracticeMenu();
@@ -1029,7 +1365,7 @@ window.swapRacer=swapRacer;
 // ============================================================
 function buildRacerBundle(){
   return {progress,soarProgress,trophyData,badges,totalStarsEarned,
-    mmCards,mmMisses,mmBest,mmSets,mmSession,mmSheet,tensRecord,gymSpeedRound,gymDaily};
+    mmCards,mmMisses,mmBest,mmSets,mmSession,mmSheet,tensRecord,gymSpeedRound,gymDaily,ntStats};
 }
 function readRacerBundleFromStorage(racerId){
   const g=(base,fallback)=>{ try{const s=localStorage.getItem(nkFor(base,racerId)); return s!=null?JSON.parse(s):fallback;}catch(e){return fallback;} };
@@ -1051,6 +1387,7 @@ function readRacerBundleFromStorage(racerId){
     mmSheet:g('tm-mm-sheet',{key:null,daily:{done:0,correct:0},column:{done:0,correct:0}}),
     tensRecord:g('tm-mm-tens',{key:null,done:0,correct:0,log:[]}),
     gymDaily:g('tm-mm-assign',{key:null,done:0,correct:0}),
+    ntStats:g('mathdojo-nt-stats',{talks:0,patterns:0,problems:0,realWorld:0,games:0}),
   };
 }
 function writeRacerBundleToStorage(racerId,data){
@@ -1069,6 +1406,7 @@ function writeRacerBundleToStorage(racerId,data){
   if(data.tensRecord)set('tm-mm-tens',data.tensRecord);
   if(typeof data.gymSpeedRound==='boolean')set('tm-mm-speed',data.gymSpeedRound?'1':'0');
   if(data.gymDaily)set('tm-mm-assign',data.gymDaily);
+  if(data.ntStats)set('mathdojo-nt-stats',data.ntStats);
 }
 
 // ── the drill's setInterval clock + auto-advance setTimeout — cleaned up

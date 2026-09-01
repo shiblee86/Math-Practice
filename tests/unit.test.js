@@ -359,3 +359,86 @@ suite('mathdata.js — RACERS (two-racer lanes)', () => {
     });
   });
 });
+
+suite('mathdata.js — Number Talks Zone generators (ntGenPattern / ntGenRealWorld / ntGenGame)', () => {
+  test('ntGenPattern: repeating mode produces a 4-item sequence and exactly one correct option among 3 distinct choices', () => {
+    let sawRepeat = false;
+    for (let i = 0; i < 40; i++) {
+      const p = ntGenPattern();
+      if (p.mode !== 'repeat') continue;
+      sawRepeat = true;
+      assert.equal(p.seq.length, 4);
+      assert.equal(p.opts.length, 3);
+      assert.equal(new Set(p.opts).size, 3, 'the 3 options must be distinct');
+      assert.ok(p.opts.includes(p.answer), 'the correct answer must be among the options');
+      assert.ok(NT_PATTERN_EMOJI.includes(p.answer), 'answer must be one of the known pattern emoji');
+    }
+    assert.ok(sawRepeat, 'never sampled a repeating pattern in 40 tries');
+  });
+
+  test('ntGenPattern: growing mode is a constant-step arithmetic sequence and the answer continues it', () => {
+    let sawGrow = false;
+    for (let i = 0; i < 40; i++) {
+      const p = ntGenPattern();
+      if (p.mode !== 'grow') continue;
+      sawGrow = true;
+      const step = p.seq[1] - p.seq[0];
+      for (let j = 1; j < p.seq.length; j++) assert.equal(p.seq[j] - p.seq[j - 1], step, 'step must be constant across the sequence');
+      assert.equal(p.answer, p.seq[p.seq.length - 1] + step);
+    }
+    assert.ok(sawGrow, 'never sampled a growing pattern in 40 tries');
+  });
+
+  test('ntGenRealWorld: always returns a question with the answer among 3 options and a working display() formatter', () => {
+    for (let i = 0; i < 30; i++) {
+      const rw = ntGenRealWorld();
+      assert.equal(typeof rw.text, 'string');
+      assert.ok(rw.text.length > 0);
+      assert.equal(rw.opts.length, 3);
+      assert.ok(rw.opts.some(o => String(o) === String(rw.answer)), 'answer must be among the options (compared as the app does, via String())');
+      assert.equal(typeof rw.display, 'function');
+      assert.equal(typeof rw.display(rw.answer), 'string');
+    }
+  });
+
+  test('ntGenGame: the equation is internally consistent regardless of which part is blanked', () => {
+    for (let i = 0; i < 60; i++) {
+      const g = ntGenGame(0);
+      assert.equal((g.display.match(/\?/g) || []).length, 1, 'exactly one blank in the displayed equation');
+      const m = g.display.match(/^(\?|\d+) ([+-]) (\?|\d+) = (\?|\d+)$/);
+      assert.ok(m, `display "${g.display}" did not match the expected "a op b = c" shape`);
+      const a = m[1] === '?' ? g.answer : parseInt(m[1], 10);
+      const op = m[2];
+      const b = m[3] === '?' ? g.answer : parseInt(m[3], 10);
+      const c = m[4] === '?' ? g.answer : parseInt(m[4], 10);
+      assert.equal(op === '+' ? a + b : a - b, c, 'the filled-in equation must actually be true');
+      assert.equal(g.opts.length, 4);
+      assert.ok(g.opts.includes(g.answer));
+      assert.equal(new Set(g.opts).size, 4, 'the 4 options must be distinct');
+      assert.ok(g.opts.every(o => o >= 0), 'no negative distractors');
+    }
+  });
+
+  test('ntGenGame: a higher streak widens the number range (harder difficulty)', () => {
+    let maxAtZero = 0, maxAtFive = 0;
+    for (let i = 0; i < 60; i++) {
+      maxAtZero = Math.max(maxAtZero, ntGenGame(0).answer);
+      maxAtFive = Math.max(maxAtFive, ntGenGame(5).answer);
+    }
+    assert.ok(maxAtFive > maxAtZero, `expected streak-5 answers (max seen ${maxAtFive}) to range higher than streak-0 (max seen ${maxAtZero})`);
+  });
+
+  test('NT_PROBLEMS: 6 word problems, each with a numeric answer and exactly 2 labeled strategies', () => {
+    assert.equal(NT_PROBLEMS.length, 6);
+    NT_PROBLEMS.forEach(p => {
+      assert.equal(typeof p.text, 'string');
+      assert.equal(typeof p.answer, 'number');
+      assert.equal(p.strategies.length, 2);
+      p.strategies.forEach(s => { assert.equal(typeof s.label, 'string'); assert.equal(typeof s.text, 'string'); });
+    });
+  });
+
+  test('NT_TARGETS is the exact prototype-sourced pool', () => {
+    assert.deepEqual(NT_TARGETS, [8, 10, 12, 15, 20]);
+  });
+});

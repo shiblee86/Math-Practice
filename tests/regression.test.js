@@ -208,3 +208,30 @@ suite('regression — the four ambient (infinite-loop) animations are gone; one-
     assert.equal($('#resultStars').classList.contains('animate'), true, 'result stars must still carry the one-shot starDrop trigger class');
   });
 });
+
+suite('regression — Number Talks Zone stays scoped to Safia, even across a racer swap mid-session', () => {
+  test('swapping to Safaan while the zone is open bounces Home, and re-opening it as Safaan is a no-op — the gate is activeRacer, not a sticky flag', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); showNumberTalks(); ntOpen('patterns'); })()`);
+    assert.equal(appDoc().querySelector('.screen.active').id, 'ntScreen');
+    run('swapRacer()');
+    assert.equal(run('activeRacer'), 'safaan');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'homeScreen', 'swapping away from the zone must bounce Home immediately');
+    run('showNumberTalks()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'homeScreen', 'calling showNumberTalks() as Safaan must never open ntScreen');
+    run('swapRacer()'); // restore safia as active for later tests
+  });
+});
+
+suite('regression — mathdata.js keeps Number Talks content free of DOM/interaction code', () => {
+  test('ntGenPattern/ntGenRealWorld/ntGenGame/NT_PROBLEMS live in mathdata.js and never touch document/innerHTML', async () => {
+    const res = await fetch('../mathdata.js');
+    const src = await res.text();
+    ['ntGenPattern', 'ntGenRealWorld', 'ntGenGame', 'const NT_PROBLEMS', 'const NT_TARGETS'].forEach(needle => {
+      assert.ok(src.includes(needle), `expected mathdata.js to define "${needle}"`);
+    });
+    const ntSectionStart = src.indexOf('NUMBER TALKS ZONE');
+    assert.ok(ntSectionStart >= 0, 'expected a "NUMBER TALKS ZONE" section marker in mathdata.js');
+    const ntSection = src.slice(ntSectionStart);
+    assert.ok(!/document\.|innerHTML|addEventListener/.test(ntSection), 'mathdata.js content must stay DOM-free — rendering belongs in script.js');
+  });
+});

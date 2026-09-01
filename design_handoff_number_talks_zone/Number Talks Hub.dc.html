@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/styles.css">
+  <script src="_ds/turbo-math-design-system-fa089027-7873-4c21-a576-5c93e55e0faa/_ds_bundle.js"></script>
+  <style>
+    body{margin:0;background:var(--bg-app-deep);}
+    body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg, rgba(8,23,22,.88), rgba(8,23,22,.96)), url('race-bg.jpg') center/cover;}
+    input{font-family:var(--font-display);}
+  </style>
+</helmet>
+
+<div style="display:flex;gap:16px;align-items:flex-start;padding:20px;max-width:1440px;margin:0 auto;min-height:100vh;font-family:var(--font-body);">
+
+  <div style="flex:0 0 150px;background:var(--surface-1);border:2px solid var(--border-strong);border-radius:var(--radius-lg);padding:14px 10px;display:flex;flex-direction:column;gap:6px;align-self:stretch;">
+    <div style="background:var(--surface-2);border:2px solid var(--border-strong);border-radius:var(--radius-md);padding:10px 8px;text-align:center;margin-bottom:8px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--color-primary);color:var(--text-on-primary);font-family:var(--font-display);font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">S</div>
+      <div style="font-family:var(--font-display);font-size:.95rem;color:var(--text-primary);">Safia</div>
+      <div style="font-size:.68rem;font-weight:800;color:var(--cyan-300);margin-top:2px;">★ 42</div>
+    </div>
+    <div style="border-radius:var(--radius-md);padding:11px 8px;text-align:center;font-weight:800;font-size:.8rem;color:var(--text-secondary);">🏠 Home</div>
+    <div style="border-radius:var(--radius-md);padding:11px 8px;text-align:center;font-weight:800;font-size:.8rem;color:var(--text-secondary);">🏎️ Levels</div>
+    <div style="border-radius:var(--radius-md);padding:11px 8px;text-align:center;font-weight:800;font-size:.8rem;color:var(--text-secondary);">🦅 SOAR</div>
+    <div style="border-radius:var(--radius-md);padding:11px 8px;text-align:center;font-weight:800;font-size:.8rem;color:var(--text-secondary);">🧠 Gym</div>
+    <div style="background:var(--color-primary);color:var(--text-on-primary);border-radius:var(--radius-md);padding:11px 8px;text-align:center;font-weight:800;font-size:.8rem;">🎯 Number Talks</div>
+    <div style="border-radius:var(--radius-md);padding:11px 8px;text-align:center;font-weight:800;font-size:.8rem;color:var(--text-secondary);">🏆 Trophies</div>
+    <div style="flex:1;"></div>
+    <div style="text-align:center;font-size:.75rem;font-weight:800;color:var(--text-secondary);border-top:2px dashed var(--border-strong);padding-top:10px;">👪 Grown-up</div>
+  </div>
+
+  <div style="flex:1;min-width:0;">
+
+    <sc-if value="{{ isHub }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-bottom:16px;">
+        <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--cyan-300);">🎯 Number Talks Zone</div>
+        <div style="font-size:.9rem;color:var(--text-secondary);margin-top:2px;">Understand the why, not just the how.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;">
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.MenuCard" icon="🔢" title="Number Talks" description="Find every way to make a number" variant="default" onClick="{{ openNumberTalks }}" hint-size="100%,150px"></x-import>
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.MenuCard" icon="🔁" title="Patterns" description="Spot the rule, predict what's next" variant="accent" onClick="{{ openPatterns }}" hint-size="100%,150px"></x-import>
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.MenuCard" icon="🧩" title="Problem Solving" description="Solve it, then try another way" variant="reward" onClick="{{ openProblems }}" hint-size="100%,150px"></x-import>
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.MenuCard" icon="🏁" title="Real-World Math" description="Money, time and measuring" variant="default" onClick="{{ openRealWorld }}" hint-size="100%,150px"></x-import>
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.MenuCard" icon="🎮" title="Pit Crew Games" description="Quick-thinking missing numbers" variant="accent" onClick="{{ openGames }}" hint-size="100%,150px"></x-import>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isNumberTalks }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="ghost" size="sm" onClick="{{ backToHub }}" hint-size="auto,36px">← Back</x-import>
+        <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--cyan-300);">🔢 Number Talks</div>
+      </div>
+      <div style="background:var(--surface-1);border:3px solid var(--border-strong);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow-card);">
+        <div style="font-size:.95rem;color:var(--text-secondary);margin-bottom:14px;">Find as many ways as you can to make this number from two parts.</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:20px;">
+          <div style="width:88px;height:88px;border-radius:50%;background:var(--color-reward);color:var(--text-on-accent);font-family:var(--font-display);font-size:2.2rem;display:flex;align-items:center;justify-content:center;">{{ ntTarget }}</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+          <input value="{{ ntA }}" onChange="{{ setNtA }}" placeholder="?" style="width:70px;height:70px;text-align:center;font-size:1.8rem;border-radius:var(--radius-md);border:2px solid var(--border-strong);background:var(--surface-2);color:var(--text-primary);"/>
+          <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--text-secondary);">+</div>
+          <input value="{{ ntB }}" onChange="{{ setNtB }}" placeholder="?" style="width:70px;height:70px;text-align:center;font-size:1.8rem;border-radius:var(--radius-md);border:2px solid var(--border-strong);background:var(--surface-2);color:var(--text-primary);"/>
+          <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--text-secondary);">=</div>
+          <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--amber-400);">{{ ntTarget }}</div>
+          <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="primary" size="md" onClick="{{ submitWay }}" hint-size="auto,48px">Check ✅</x-import>
+        </div>
+        <sc-if value="{{ ntMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;margin-top:14px;font-weight:800;color:{{ ntMsgColor }};">{{ ntMsg }}</div>
+        </sc-if>
+        <div style="margin-top:22px;border-top:2px dashed var(--border-strong);padding-top:16px;">
+          <div style="font-size:.8rem;font-weight:800;color:var(--text-muted);margin-bottom:8px;">WAYS FOUND ({{ ntWaysCount }})</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <sc-for list="{{ ntWays }}" as="w" hint-placeholder-count="0">
+              <div style="background:rgba(47,230,167,.14);border:2px solid var(--color-success);border-radius:var(--radius-pill);padding:6px 14px;font-family:var(--font-display);font-size:.95rem;color:var(--mint-400);">{{ w.a }} + {{ w.b }} ✓</div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:20px;">
+          <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="ghost" size="sm" onClick="{{ newTarget }}" hint-size="auto,36px">🔄 New number</x-import>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPatterns }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="ghost" size="sm" onClick="{{ backToHub }}" hint-size="auto,36px">← Back</x-import>
+        <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--coral-300);">🔁 Patterns</div>
+        <div style="margin-left:auto;font-size:.8rem;font-weight:800;color:var(--text-muted);">Streak: {{ ptStreak }}</div>
+      </div>
+      <div style="background:var(--surface-1);border:3px solid var(--border-strong);border-top:5px solid var(--color-accent);border-radius:var(--radius-lg);padding:30px;box-shadow:var(--shadow-card);text-align:center;">
+        <div style="font-size:.95rem;color:var(--text-secondary);margin-bottom:20px;">What comes next?</div>
+        <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:24px;">
+          <sc-for list="{{ ptSeqDisplay }}" as="item" hint-placeholder-count="4">
+            <div style="width:60px;height:60px;border-radius:var(--radius-md);background:var(--surface-2);border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.6rem;color:var(--text-primary);">{{ item }}</div>
+          </sc-for>
+          <div style="width:60px;height:60px;border-radius:var(--radius-md);background:var(--surface-2);border:2px dashed var(--amber-500);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.6rem;color:var(--amber-400);">?</div>
+        </div>
+        <sc-if value="{{ ptIsRepeat }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:center;gap:14px;">
+            <sc-for list="{{ ptOptsList }}" as="o" hint-placeholder-count="3">
+              <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.AnswerTile" shape="circle" state="{{ o.state }}" onClick="{{ o.pick }}" hint-size="92px,92px">{{ o.val }}</x-import>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ ptIsGrow }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:center;align-items:center;gap:12px;">
+            <input value="{{ ptInput }}" onChange="{{ setPtInput }}" placeholder="?" style="width:90px;height:64px;text-align:center;font-size:1.6rem;border-radius:var(--radius-md);border:2px solid var(--border-strong);background:var(--surface-2);color:var(--text-primary);"/>
+            <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="primary" size="md" onClick="{{ checkPatternNum }}" hint-size="auto,48px">Check ✅</x-import>
+          </div>
+        </sc-if>
+        <sc-if value="{{ ptMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;font-weight:800;color:{{ ptMsgColor }};">{{ ptMsg }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isProblems }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="ghost" size="sm" onClick="{{ backToHub }}" hint-size="auto,36px">← Back</x-import>
+        <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--amber-400);">🧩 Problem Solving</div>
+      </div>
+      <div style="background:var(--surface-1);border:3px solid var(--border-strong);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow-card);max-width:640px;">
+        <div style="font-family:var(--font-display);font-size:1.4rem;line-height:1.35;color:var(--text-primary);margin-bottom:20px;">{{ psText }}</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input value="{{ psAnswer }}" onChange="{{ setPsAnswer }}" placeholder="?" style="width:90px;height:64px;text-align:center;font-size:1.6rem;border-radius:var(--radius-pill);border:2px solid var(--border-strong);background:var(--surface-2);color:var(--amber-400);"/>
+          <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="primary" size="md" onClick="{{ psCheck }}" hint-size="auto,48px">Check ✅</x-import>
+          <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="ghost" size="md" onClick="{{ psNext }}" hint-size="auto,48px">Next ▶</x-import>
+        </div>
+        <sc-if value="{{ psMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px;font-weight:800;color:{{ psMsgColor }};">{{ psMsg }}</div>
+        </sc-if>
+        <sc-if value="{{ psCorrect }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;">
+            <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="reward" size="sm" onClick="{{ psToggleStrategies }}" hint-size="auto,36px">🔀 Try it another way</x-import>
+            <sc-if value="{{ psShowStrategies }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+                <sc-for list="{{ psStrategies }}" as="strat" hint-placeholder-count="2">
+                  <div style="background:var(--surface-2);border-left:5px solid var(--amber-500);border-radius:var(--radius-sm);padding:12px 16px;">
+                    <div style="font-family:var(--font-display);font-size:.95rem;color:var(--amber-400);margin-bottom:4px;">{{ strat.label }}</div>
+                    <div style="font-size:.9rem;color:var(--text-secondary);line-height:1.5;">{{ strat.text }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isRealWorld }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="ghost" size="sm" onClick="{{ backToHub }}" hint-size="auto,36px">← Back</x-import>
+        <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--cyan-300);">🏁 Real-World Math</div>
+      </div>
+      <div style="background:var(--surface-1);border:3px solid var(--border-strong);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow-card);max-width:640px;">
+        <div style="font-family:var(--font-display);font-size:1.3rem;line-height:1.35;color:var(--text-primary);margin-bottom:20px;">{{ rwText }}</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <sc-for list="{{ rwOptsList }}" as="o" hint-placeholder-count="3">
+            <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.AnswerTile" shape="rect" state="{{ o.state }}" onClick="{{ o.pick }}" hint-size="120px,92px">{{ o.val }}</x-import>
+          </sc-for>
+        </div>
+        <sc-if value="{{ rwMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;font-weight:800;color:{{ rwMsgColor }};">{{ rwMsg }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isGames }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Button" variant="ghost" size="sm" onClick="{{ backToHub }}" hint-size="auto,36px">← Back</x-import>
+        <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--coral-300);">🎮 Pit Crew Games</div>
+        <div style="margin-left:auto;font-size:.8rem;font-weight:800;color:var(--text-muted);">Score: {{ gmScore }} · Streak: {{ gmStreak }}</div>
+      </div>
+      <div style="background:var(--surface-1);border:3px solid var(--border-strong);border-radius:var(--radius-lg);padding:30px;box-shadow:var(--shadow-card);text-align:center;">
+        <div style="font-size:.95rem;color:var(--text-secondary);margin-bottom:18px;">Fill in the missing number as fast as you can.</div>
+        <div style="font-family:var(--font-display);font-size:2.6rem;color:var(--text-primary);margin-bottom:24px;">{{ gmDisplay }}</div>
+        <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;">
+          <sc-for list="{{ gmOptsList }}" as="o" hint-placeholder-count="4">
+            <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.AnswerTile" shape="circle" state="{{ o.state }}" onClick="{{ o.pick }}" hint-size="92px,92px">{{ o.val }}</x-import>
+          </sc-for>
+        </div>
+        <sc-if value="{{ gmMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;font-weight:800;color:{{ gmMsgColor }};">{{ gmMsg }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <div style="flex:0 0 270px;display:flex;flex-direction:column;gap:12px;">
+    <div style="background:var(--surface-1);border:2px solid var(--border-strong);border-radius:var(--radius-lg);padding:18px 20px;">
+      <div style="font-family:var(--font-display);font-size:1rem;color:var(--cyan-300);margin-bottom:10px;">Why this zone</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Badge" variant="primary" hint-size="auto,30px">Achievement · 84th percentile</x-import>
+        <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.Badge" variant="reward" hint-size="auto,30px">Growth · 56th percentile</x-import>
+      </div>
+      <div style="font-size:.82rem;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">Safia can already do 1st-grade math well. This zone builds the deeper number sense that speeds up how fast she learns new things.</div>
+      <x-import component-from-global-scope="TurboMathDesignSystem_fa0890.ProgressBar" value="56" max="100" variant="reward" height="12" hint-size="100%,12px"></x-import>
+      <div style="font-size:.72rem;font-weight:800;color:var(--text-muted);margin-top:6px;">Goal: 65th percentile growth by Spring 2027</div>
+    </div>
+    <div style="background:var(--surface-1);border:2px solid var(--border-strong);border-radius:var(--radius-lg);padding:16px 18px;">
+      <div style="font-family:var(--font-display);font-size:.95rem;color:var(--cyan-300);margin-bottom:8px;">Today</div>
+      <div style="font-size:.85rem;color:var(--text-secondary);">✅ {{ totalToday }} activities completed</div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PROBLEMS = [
+  {text:"Safia has 6 toy cars. Her friend gives her 4 more. How many cars does she have now?", answer:10,
+   strategies:[{label:'Count on', text:'Start at 6 and count on 4 more: 7, 8, 9, 10.'},{label:'Make a ten', text:'6 needs 4 more to make 10 — and she has exactly 4 more.'}]},
+  {text:"There are 9 race cars on the track. 3 pit stop for tires. How many cars are still racing?", answer:6,
+   strategies:[{label:'Count back', text:'Start at 9 and count back 3: 8, 7, 6.'},{label:'Think addition', text:'What plus 3 makes 9? 6 plus 3 makes 9.'}]},
+  {text:"A food truck sells 7 burgers, then 8 more. How many burgers is that in all?", answer:15,
+   strategies:[{label:'Make a ten', text:'Take 2 from 8 to make 7 into 10, leaving 5. 10 plus 5 is 15.'},{label:'Count on', text:'Start at 8 and count on 7 more: 9,10,11,12,13,14,15.'}]},
+  {text:"Safaan lines up 14 toy cars in two rows. One row has 8 cars. How many are in the other row?", answer:6,
+   strategies:[{label:'Count up', text:'Start at 8 and count up to 14: that is 6 steps.'},{label:'Subtract', text:'14 take away 8 is 6.'}]},
+  {text:"12 cars start the race. 5 cars finish first. How many cars are still racing?", answer:7,
+   strategies:[{label:'Count back', text:'Start at 12, count back 5: 11,10,9,8,7.'},{label:'Think addition', text:'What plus 5 makes 12? 7 plus 5 makes 12.'}]},
+  {text:"There are 8 wheels in the pit box. A crew adds 5 more wheels. How many wheels now?", answer:13,
+   strategies:[{label:'Make a ten', text:'8 needs 2 more to make 10. 5 minus 2 is 3, so 10 plus 3 is 13.'},{label:'Count on', text:'Start at 8 and count on 5: 9,10,11,12,13.'}]}
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'hub',
+    stats: { talks:0, patterns:0, problems:0, realWorld:0, games:0 },
+    ntTarget: 10, ntA:'', ntB:'', ntWays: [], ntMsg: null, ntOk: true,
+    ptCurrent: null, ptInput:'', ptMsg:null, ptOk:true, ptStreak:0, ptSelected:null,
+    psIdx: 0, psAnswer:'', psMsg:null, psOk:false, psShowStrategies:false,
+    rwCurrent: null, rwMsg:null, rwOk:true, rwSelected:null,
+    gmCurrent:null, gmScore:0, gmStreak:0, gmMsg:null, gmOk:true, gmSelected:null
+  };
+
+  componentDidMount() {
+    this.setState({ ptCurrent: this.genPattern(), rwCurrent: this.genRealWorld(), gmCurrent: this.genGame(0) });
+  }
+
+  shuffle(arr) { return arr.slice().sort(() => Math.random() - 0.5); }
+  go(screen) { this.setState({ screen }); }
+
+  genPattern() {
+    if (Math.random() < 0.5) {
+      const pools = [['🏎️','🚚'], ['🚗','🚗','🏁'], ['⚙️','⚙️','🔧']];
+      const unit = pools[Math.floor(Math.random() * pools.length)];
+      const seq = [...unit, ...unit, ...unit].slice(0, 4);
+      const answer = unit[seq.length % unit.length];
+      const wrongPool = ['🏎️','🚚','🚗','🏁','⚙️','🔧','🚀'].filter(e => e !== answer);
+      const opts = this.shuffle([answer, wrongPool[0], wrongPool[1]]);
+      return { mode: 'repeat', seq, answer, opts };
+    }
+    const start = 1 + Math.floor(Math.random() * 6);
+    const step = 1 + Math.floor(Math.random() * 4);
+    const seq = [start, start + step, start + 2 * step, start + 3 * step];
+    return { mode: 'grow', seq, answer: start + 4 * step };
+  }
+  newPattern() { this.setState({ ptCurrent: this.genPattern(), ptInput: '', ptMsg: null, ptSelected: null }); }
+  checkPatternMC(opt) {
+    const cur = this.state.ptCurrent, correct = opt === cur.answer;
+    this.setState(s => ({ ptSelected: opt, ptMsg: correct ? "That's it!" : `Not quite — it was ${cur.answer}.`, ptOk: correct,
+      ptStreak: correct ? s.ptStreak + 1 : 0, stats: correct ? { ...s.stats, patterns: s.stats.patterns + 1 } : s.stats }));
+    setTimeout(() => this.newPattern(), 1300);
+  }
+  checkPatternNum() {
+    const cur = this.state.ptCurrent, val = parseInt(this.state.ptInput, 10), correct = val === cur.answer;
+    this.setState(s => ({ ptMsg: correct ? "That's it!" : `Not quite — it was ${cur.answer}.`, ptOk: correct,
+      ptStreak: correct ? s.ptStreak + 1 : 0, stats: correct ? { ...s.stats, patterns: s.stats.patterns + 1 } : s.stats }));
+    if (correct) setTimeout(() => this.newPattern(), 1000);
+  }
+  setPtInput(e) { this.setState({ ptInput: e.target.value }); }
+
+  newTarget() {
+    const pool = [8, 10, 12, 15, 20];
+    this.setState({ ntTarget: pool[Math.floor(Math.random() * pool.length)], ntWays: [], ntA: '', ntB: '', ntMsg: null });
+  }
+  setNtA(e) { this.setState({ ntA: e.target.value }); }
+  setNtB(e) { this.setState({ ntB: e.target.value }); }
+  submitWay() {
+    const a = parseInt(this.state.ntA, 10), b = parseInt(this.state.ntB, 10), t = this.state.ntTarget;
+    if (isNaN(a) || isNaN(b)) { this.setState({ ntMsg: 'Type two numbers first.', ntOk: false }); return; }
+    if (a + b !== t) { this.setState({ ntMsg: `${a} + ${b} is ${a + b}, not ${t}. Try again.`, ntOk: false }); return; }
+    const key = [a, b].sort((x, y) => x - y).join('-');
+    if (this.state.ntWays.some(w => w.key === key)) { this.setState({ ntMsg: 'Already found that one — try different numbers.', ntOk: false }); return; }
+    this.setState(s => ({ ntWays: [...s.ntWays, { key, a, b }], ntA: '', ntB: '', ntMsg: 'Found a new way!', ntOk: true,
+      stats: { ...s.stats, talks: s.stats.talks + 1 } }));
+  }
+
+  setPsAnswer(e) { this.setState({ psAnswer: e.target.value }); }
+  psCheck() {
+    const p = PROBLEMS[this.state.psIdx], val = parseInt(this.state.psAnswer, 10), correct = val === p.answer;
+    this.setState(s => ({ psMsg: correct ? 'Correct!' : `Not quite — the answer is ${p.answer}.`, psOk: correct,
+      stats: correct ? { ...s.stats, problems: s.stats.problems + 1 } : s.stats }));
+  }
+  psNext() { this.setState(s => ({ psIdx: (s.psIdx + 1) % PROBLEMS.length, psAnswer: '', psMsg: null, psOk: false, psShowStrategies: false })); }
+  psToggleStrategies() { this.setState(s => ({ psShowStrategies: !s.psShowStrategies })); }
+
+  genRealWorld() {
+    const kind = ['money', 'time', 'measure'][Math.floor(Math.random() * 3)];
+    if (kind === 'money') {
+      const coins = [1, 5, 10, 25], n = 2 + Math.floor(Math.random() * 2);
+      let picks = [], total = 0;
+      for (let i = 0; i < n; i++) { const c = coins[Math.floor(Math.random() * coins.length)]; picks.push(c); total += c; }
+      return { text: `Safia's pit stop shop has these coins: ${picks.map(c => c + '¢').join(' + ')}. How much money is that in all?`,
+        answer: total, opts: this.shuffle([total, total + 5, total + 10]), display: v => v + '¢' };
+    }
+    if (kind === 'time') {
+      const h = 1 + Math.floor(Math.random() * 11), m = [0, 15, 30, 45][Math.floor(Math.random() * 4)];
+      let nh = h, nm = m + 15; if (nm >= 60) { nm -= 60; nh = nh + 1 > 12 ? 1 : nh + 1; }
+      const answer = `${nh}:${nm.toString().padStart(2, '0')}`;
+      const wrong1 = `${h}:${((m + 30) % 60).toString().padStart(2, '0')}`;
+      const wrong2 = `${h + 1 > 12 ? 1 : h + 1}:${m.toString().padStart(2, '0')}`;
+      return { text: `The race starts at ${h}:${m.toString().padStart(2, '0')}. What time is it 15 minutes later?`,
+        answer, opts: this.shuffle([answer, wrong1, wrong2]), display: v => v };
+    }
+    const a = 3 + Math.floor(Math.random() * 6), b = a + 1 + Math.floor(Math.random() * 5), diff = b - a;
+    return { text: `One toy car ramp is ${a} inches long. Another is ${b} inches long. How much longer is the second ramp?`,
+      answer: diff, opts: this.shuffle([diff, diff + 2, diff + 4]), display: v => v + ' in' };
+  }
+  newRealWorld() { this.setState({ rwCurrent: this.genRealWorld(), rwMsg: null, rwSelected: null }); }
+  rwCheck(opt) {
+    const cur = this.state.rwCurrent, correct = String(opt) === String(cur.answer);
+    this.setState(s => ({ rwSelected: opt, rwMsg: correct ? 'Correct!' : `Not quite — it was ${cur.display(cur.answer)}.`, rwOk: correct,
+      stats: correct ? { ...s.stats, realWorld: s.stats.realWorld + 1 } : s.stats }));
+    setTimeout(() => this.newRealWorld(), correct ? 1300 : 1700);
+  }
+
+  genGame(streak) {
+    const max = 10 + Math.min(streak, 5) * 2;
+    const op = Math.random() < 0.5 ? '+' : '-';
+    let a, b, result;
+    if (op === '+') { a = 1 + Math.floor(Math.random() * max); b = 1 + Math.floor(Math.random() * max); result = a + b; }
+    else { a = 2 + Math.floor(Math.random() * max); b = 1 + Math.floor(Math.random() * a); result = a - b; }
+    const blank = Math.floor(Math.random() * 3);
+    let answer, display;
+    if (blank === 0) { answer = a; display = `? ${op} ${b} = ${result}`; }
+    else if (blank === 1) { answer = b; display = `${a} ${op} ? = ${result}`; }
+    else { answer = result; display = `${a} ${op} ${b} = ?`; }
+    const distractors = new Set();
+    while (distractors.size < 3) { const d = answer + (Math.floor(Math.random() * 7) - 3); if (d >= 0 && d !== answer) distractors.add(d); }
+    return { display, answer, opts: this.shuffle([answer, ...distractors]) };
+  }
+  newGame() { this.setState(s => ({ gmCurrent: this.genGame(s.gmStreak), gmMsg: null, gmSelected: null })); }
+  gmCheck(opt) {
+    const cur = this.state.gmCurrent, correct = opt === cur.answer;
+    this.setState(s => ({ gmSelected: opt, gmMsg: correct ? 'Nice!' : `Not quite — it was ${cur.answer}.`, gmOk: correct,
+      gmScore: correct ? s.gmScore + 1 : s.gmScore, gmStreak: correct ? s.gmStreak + 1 : 0,
+      stats: correct ? { ...s.stats, games: s.stats.games + 1 } : s.stats }));
+    setTimeout(() => this.newGame(), correct ? 900 : 1500);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const tileState = (opts, selected, answer) => (opts || []).map(o => ({
+      val: o, state: selected == null ? 'default' : (o === answer ? 'correct' : (o === selected ? 'wrong' : 'default')),
+      pick: () => {}
+    }));
+
+    return {
+      isHub: s.screen === 'hub',
+      isNumberTalks: s.screen === 'numberTalks',
+      isPatterns: s.screen === 'patterns',
+      isProblems: s.screen === 'problems',
+      isRealWorld: s.screen === 'realWorld',
+      isGames: s.screen === 'games',
+      openNumberTalks: () => this.go('numberTalks'),
+      openPatterns: () => this.go('patterns'),
+      openProblems: () => this.go('problems'),
+      openRealWorld: () => this.go('realWorld'),
+      openGames: () => this.go('games'),
+      backToHub: () => this.go('hub'),
+
+      ntTarget: s.ntTarget, ntA: s.ntA, ntB: s.ntB, setNtA: (e) => this.setNtA(e), setNtB: (e) => this.setNtB(e),
+      submitWay: () => this.submitWay(), newTarget: () => this.newTarget(),
+      ntMsg: s.ntMsg, ntMsgColor: s.ntOk ? 'var(--mint-400)' : 'var(--red-400)',
+      ntWays: s.ntWays, ntWaysCount: s.ntWays.length,
+
+      ptStreak: s.ptStreak, ptInput: s.ptInput, setPtInput: (e) => this.setPtInput(e), checkPatternNum: () => this.checkPatternNum(),
+      ptMsg: s.ptMsg, ptMsgColor: s.ptOk ? 'var(--mint-400)' : 'var(--red-400)',
+      ptIsRepeat: !!s.ptCurrent && s.ptCurrent.mode === 'repeat',
+      ptIsGrow: !!s.ptCurrent && s.ptCurrent.mode === 'grow',
+      ptSeqDisplay: s.ptCurrent ? s.ptCurrent.seq.map(String) : [],
+      ptOptsList: s.ptCurrent && s.ptCurrent.mode === 'repeat'
+        ? s.ptCurrent.opts.map(o => ({ val: o, state: s.ptSelected == null ? 'default' : (o === s.ptCurrent.answer ? 'correct' : (o === s.ptSelected ? 'wrong' : 'default')), pick: () => this.checkPatternMC(o) }))
+        : [],
+
+      psText: PROBLEMS[s.psIdx].text, psAnswer: s.psAnswer, setPsAnswer: (e) => this.setPsAnswer(e),
+      psCheck: () => this.psCheck(), psNext: () => this.psNext(),
+      psMsg: s.psMsg, psMsgColor: s.psOk ? 'var(--mint-400)' : 'var(--red-400)', psCorrect: s.psOk,
+      psShowStrategies: s.psShowStrategies, psToggleStrategies: () => this.psToggleStrategies(),
+      psStrategies: PROBLEMS[s.psIdx].strategies,
+
+      rwText: s.rwCurrent ? s.rwCurrent.text : '',
+      rwOptsList: s.rwCurrent ? s.rwCurrent.opts.map(o => ({
+        val: s.rwCurrent.display(o), state: s.rwSelected == null ? 'default' : (String(o) === String(s.rwCurrent.answer) ? 'correct' : (String(o) === String(s.rwSelected) ? 'wrong' : 'default')),
+        pick: () => this.rwCheck(o)
+      })) : [],
+      rwMsg: s.rwMsg, rwMsgColor: s.rwOk ? 'var(--mint-400)' : 'var(--red-400)',
+
+      gmDisplay: s.gmCurrent ? s.gmCurrent.display : '', gmScore: s.gmScore, gmStreak: s.gmStreak,
+      gmOptsList: s.gmCurrent ? s.gmCurrent.opts.map(o => ({
+        val: o, state: s.gmSelected == null ? 'default' : (o === s.gmCurrent.answer ? 'correct' : (o === s.gmSelected ? 'wrong' : 'default')),
+        pick: () => this.gmCheck(o)
+      })) : [],
+      gmMsg: s.gmMsg, gmMsgColor: s.gmOk ? 'var(--mint-400)' : 'var(--red-400)',
+
+      totalToday: s.stats.talks + s.stats.patterns + s.stats.problems + s.stats.realWorld + s.stats.games
+    };
+  }
+}
+
+</script>
+</body>
+</html>

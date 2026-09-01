@@ -33,6 +33,7 @@
       <button class="nav-item rail__nav-item" data-tab="levels" onclick="showPracticeMenu()">🏎️ Levels</button>
       <button class="nav-item rail__nav-item" data-tab="soar" onclick="showSoarMenu()">🦅 SOAR</button>
       <button class="nav-item rail__nav-item" data-tab="gym" onclick="showGym()">🧠 Gym</button>
+      <button class="nav-item rail__nav-item" data-tab="numbertalks" id="railNtNav" onclick="showNumberTalks()">🎯 Number Talks</button>
       <button class="nav-item rail__nav-item" data-tab="trophies" onclick="showTrophies()">🏆 Trophies</button>
     </div>
     <div class="rail__spacer"></div>
@@ -138,6 +139,11 @@
       <div id="gymContent"></div>
     </div>
 
+    <!-- NUMBER TALKS ZONE (Safia-only, see DESIGN.md) -->
+    <div id="ntScreen" class="screen">
+      <div id="ntContent"></div>
+    </div>
+
     <!-- TROPHIES -->
     <div id="trophiesScreen" class="screen">
       <div class="screen-heading">
@@ -202,6 +208,7 @@
       <button class="nav-item quicknav__tab" data-tab="levels" onclick="showPracticeMenu()">🏎️</button>
       <button class="nav-item quicknav__tab" data-tab="soar" onclick="showSoarMenu()">🦅</button>
       <button class="nav-item quicknav__tab" data-tab="gym" onclick="showGym()">🧠</button>
+      <button class="nav-item quicknav__tab" data-tab="numbertalks" id="quicknavNtTab" onclick="showNumberTalks()">🎯</button>
       <button class="nav-item quicknav__tab" data-tab="trophies" onclick="showTrophies()">🏆</button>
     </div>
 
@@ -215,6 +222,22 @@
       <div id="patternTags"></div>
     </div>
     <div class="status-card status-card--clickable" id="statusTrophyCard" onclick="showTrophies()"></div>
+    <!-- Number Talks Zone status cards — shown only while ntScreen is active
+         (see showScreen()), replacing the cards above rather than joining them. -->
+    <div class="status-card" id="ntWhyCard" style="display:none;">
+      <div class="status-card__title" style="color:var(--cyan-300);">Why this zone</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:10px 0 12px;">
+        <div class="nt-badge nt-badge--primary">Achievement · 84th percentile</div>
+        <div class="nt-badge nt-badge--reward">Growth · 56th percentile</div>
+      </div>
+      <div style="font-size:.82rem;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">Safia can already do 1st-grade math well. This zone builds the deeper number sense that speeds up how fast she learns new things.</div>
+      <div class="progress-bar progress-bar--thin"><div class="progress-bar__fill" style="width:56%;background:var(--color-reward);"></div></div>
+      <div style="font-size:.72rem;font-weight:800;color:var(--text-muted);margin-top:6px;">Goal: 65th percentile growth by Spring 2027</div>
+    </div>
+    <div class="status-card" id="ntTodayCard" style="display:none;">
+      <div class="status-card__title" style="color:var(--cyan-300);">Today</div>
+      <div style="font-size:.85rem;color:var(--text-secondary);margin-top:8px;">✅ <span id="ntTodayCount">0</span> activities completed</div>
+    </div>
   </aside>
 
 </div><!-- end .shell -->

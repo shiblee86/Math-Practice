@@ -787,3 +787,138 @@ suite('integration — status column visibility (wide-layout companion panel)', 
     });
   });
 });
+
+suite('integration — Number Talks Zone (Safia-only)', () => {
+  test('nav items are visible for Safia and hidden for Safaan; showNumberTalks() bounces Safaan back to Home', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); showHome(); })()`);
+    assert.ok($('#railNtNav').style.display !== 'none');
+    assert.ok($('#quicknavNtTab').style.display !== 'none');
+    run('swapRacer()'); // -> safaan
+    assert.equal($('#railNtNav').style.display, 'none');
+    assert.equal($('#quicknavNtTab').style.display, 'none');
+    run('showNumberTalks()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'homeScreen', 'Safaan must never reach ntScreen');
+    run('swapRacer()'); // back to safia for the rest of this suite
+  });
+
+  test('the hub renders all 5 activity cards and highlights the "numbertalks" nav tab', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); showNumberTalks(); })()`);
+    assert.equal(appDoc().querySelector('.screen.active').id, 'ntScreen');
+    assert.equal($$('#ntContent .gym-card').length, 5);
+    assert.equal($('.nav-item--active')?.dataset.tab, 'numbertalks');
+  });
+
+  test('back from an activity returns to the hub; back from the hub returns Home', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); showNumberTalks(); ntOpen('patterns'); })()`);
+    assert.equal(run('ntNav'), 'patterns');
+    run('ntBack()');
+    assert.equal(run('ntNav'), 'hub');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'ntScreen');
+    run('ntBack()');
+    assert.equal(appDoc().querySelector('.screen.active').id, 'homeScreen');
+  });
+
+  test('Number Talks: correct sums accumulate as "ways", wrong sums and reversed-order duplicates are rejected', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats.talks=0; showNumberTalks(); ntOpen('numberTalks'); ntTarget=10; ntWays=[]; })()`);
+    run(`document.getElementById('ntInputA').value='6'; document.getElementById('ntInputB').value='4'; ntSubmitWay();`);
+    assert.equal(run('ntWays.length'), 1);
+    assert.equal(run('ntOk'), true);
+    run(`document.getElementById('ntInputA').value='1'; document.getElementById('ntInputB').value='1'; ntSubmitWay();`);
+    assert.equal(run('ntWays.length'), 1, 'a wrong sum must not be added');
+    assert.equal(run('ntOk'), false);
+    run(`document.getElementById('ntInputA').value='4'; document.getElementById('ntInputB').value='6'; ntSubmitWay();`);
+    assert.equal(run('ntWays.length'), 1, 'the same pair in reverse order must be rejected as a duplicate');
+    assert.match(run('ntMsg'), 'Already found');
+    assert.equal(run('ntStats.talks'), 1, 'stats should only credit the one genuinely-new way');
+  });
+
+  test('New number resets the target and clears ways found', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); showNumberTalks(); ntOpen('numberTalks'); ntWays=[{key:'1-2',a:1,b:2}]; })()`);
+    run('ntNewTarget()');
+    assert.equal(run('ntWays.length'), 0);
+    assert.ok(run('NT_TARGETS.includes(ntTarget)'));
+  });
+
+  test('Patterns (repeat mode): a correct pick raises the streak/stats and auto-advances after ~1.3s', async () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats.patterns=0; showNumberTalks(); ntOpen('patterns'); while(ntPattern.mode!=='repeat')ntPattern=ntGenPattern(); ntPatternStreak=0; ntPatternSelected=null; })()`);
+    run('ntCheckPatternMC(ntPattern.answer)');
+    assert.equal(run('ntPatternOk'), true);
+    assert.equal(run('ntPatternStreak'), 1);
+    assert.equal(run('ntStats.patterns'), 1);
+    const before = run('JSON.stringify(ntPattern)');
+    await sleep(1450);
+    assert.ok(run('JSON.stringify(ntPattern)') !== before, 'a new pattern should replace the old one after the auto-advance delay');
+  });
+
+  test('Patterns (growing mode): only a correct numeric answer auto-advances — a wrong one waits for a retry', async () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats.patterns=0; showNumberTalks(); ntOpen('patterns'); while(ntPattern.mode!=='grow')ntPattern=ntGenPattern(); ntPatternStreak=0; renderNumberTalks(); })()`);
+    run(`document.getElementById('ntPatternInput').value = ntPattern.answer + 100; ntCheckPatternNum();`);
+    assert.equal(run('ntPatternOk'), false);
+    assert.equal(run('ntPatternStreak'), 0);
+    const afterWrong = run('JSON.stringify(ntPattern)');
+    await sleep(300);
+    assert.equal(run('JSON.stringify(ntPattern)'), afterWrong, 'a wrong grow-mode answer must not auto-advance');
+    run(`document.getElementById('ntPatternInput').value = ntPattern.answer; ntCheckPatternNum();`);
+    assert.equal(run('ntPatternOk'), true);
+    assert.equal(run('ntPatternStreak'), 1);
+    await sleep(1150);
+    assert.ok(run('JSON.stringify(ntPattern)') !== afterWrong, 'a correct grow-mode answer should auto-advance after ~1s');
+  });
+
+  test('Problem Solving: "Try it another way" only appears after a correct check, and Next cycles the pool', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats.problems=0; showNumberTalks(); ntOpen('problems'); ntProblemIdx=0; ntShowStrategies=false; })()`);
+    assert.equal($$('.nt-strategy-card').length, 0, 'no strategies shown before a correct check');
+    run(`document.getElementById('ntProblemInput').value = NT_PROBLEMS[0].answer; ntCheckProblem();`);
+    assert.equal(run('ntProblemOk'), true);
+    assert.equal(run('ntStats.problems'), 1);
+    run('ntToggleStrategies()');
+    assert.equal($$('.nt-strategy-card').length, 2);
+    run('ntToggleStrategies()');
+    assert.equal($$('.nt-strategy-card').length, 0, 'toggling again hides them');
+    run('ntNextProblem()');
+    assert.equal(run('ntProblemIdx'), 1);
+    assert.equal(run('ntProblemMsg'), null, 'Next must clear the previous feedback');
+  });
+
+  test('Real-World Math: a correct pick increments stats and auto-advances to a new random problem', async () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats.realWorld=0; showNumberTalks(); ntOpen('realWorld'); })()`);
+    run('ntRwCheck(ntRealWorld.answer)');
+    assert.equal(run('ntRealWorldOk'), true);
+    assert.equal(run('ntStats.realWorld'), 1);
+    const before = run('JSON.stringify(ntRealWorld)');
+    await sleep(1450);
+    assert.ok(run('JSON.stringify(ntRealWorld)') !== before, 'should auto-advance to a new real-world problem after a correct pick');
+  });
+
+  test('Pit Crew Games: a correct pick raises score+streak; a later wrong pick resets streak but keeps score', async () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats.games=0; showNumberTalks(); ntOpen('games'); ntGameScore=0; ntGameStreak=0; })()`);
+    run('ntGmCheck(ntGame.answer)');
+    assert.equal(run('ntGameScore'), 1);
+    assert.equal(run('ntGameStreak'), 1);
+    await sleep(1000); // correct-pick auto-advance is 900ms
+    run(`(function(){ const wrong = ntGame.opts.find(o=>o!==ntGame.answer); ntGmCheck(wrong); })()`);
+    assert.equal(run('ntGameStreak'), 0, 'a wrong pick resets the streak');
+    assert.equal(run('ntGameScore'), 1, 'score must not decrease on a wrong pick');
+  });
+
+  test('status column swaps to the "Why this zone"/"Today" cards while in the zone, and back to normal on Home', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats={talks:2,patterns:1,problems:0,realWorld:0,games:1}; showNumberTalks(); })()`);
+    assert.ok($('#ntWhyCard').style.display !== 'none');
+    assert.ok($('#ntTodayCard').style.display !== 'none');
+    assert.equal($('#statusStarsCard').style.display, 'none');
+    assert.equal($('#statusTrophyCard').style.display, 'none');
+    assert.equal($('#ntTodayCount').textContent, '4');
+    run('showHome()');
+    assert.equal($('#ntWhyCard').style.display, 'none');
+    assert.equal($('#ntTodayCard').style.display, 'none');
+    assert.ok($('#statusStarsCard').style.display !== 'none');
+  });
+
+  test('ntStats persists per racer and is included in the save/load v2 bundle', () => {
+    run(`(function(){ activeRacer='safia'; loadRacerState(); ntStats={talks:3,patterns:2,problems:1,realWorld:0,games:4}; persistNt(); })()`);
+    const saved = JSON.parse(run("localStorage.getItem(nk('mathdojo-nt-stats'))"));
+    assert.deepEqual(saved, {talks:3,patterns:2,problems:1,realWorld:0,games:4});
+    const bundle = JSON.parse(run('JSON.stringify(buildRacerBundle())'));
+    assert.deepEqual(bundle.ntStats, {talks:3,patterns:2,problems:1,realWorld:0,games:4});
+  });
+});
